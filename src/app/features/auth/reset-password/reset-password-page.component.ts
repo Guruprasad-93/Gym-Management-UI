@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { BrandingService } from '../../../core/services/branding.service';
 
 function passwordMatchValidator(control: AbstractControl) {
   const password = control.get('password')?.value;
@@ -32,8 +33,8 @@ function passwordMatchValidator(control: AbstractControl) {
         <mat-card-content>
           <form [formGroup]="form" (ngSubmit)="submit()">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Email</mat-label>
-              <input matInput type="email" formControlName="email" />
+              <mat-label>Login ID</mat-label>
+              <input matInput type="text" formControlName="loginIdentifier" maxlength="20" />
             </mat-form-field>
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Reset Token</mat-label>
@@ -89,12 +90,13 @@ export class ResetPasswordPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly notify = inject(NotificationService);
+  private readonly branding = inject(BrandingService);
 
   loading = false;
 
   readonly form = this.fb.nonNullable.group(
     {
-      email: ['', [Validators.required, Validators.email]],
+      loginIdentifier: ['', [Validators.required, Validators.maxLength(20)]],
       token: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', Validators.required],
@@ -103,9 +105,10 @@ export class ResetPasswordPageComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    const email = this.route.snapshot.queryParamMap.get('email');
+    const loginIdentifier = this.route.snapshot.queryParamMap.get('loginIdentifier')
+      ?? this.route.snapshot.queryParamMap.get('email');
     const token = this.route.snapshot.queryParamMap.get('token');
-    if (email) this.form.controls.email.setValue(email);
+    if (loginIdentifier) this.form.controls.loginIdentifier.setValue(loginIdentifier);
     if (token) this.form.controls.token.setValue(token);
   }
 
@@ -114,9 +117,16 @@ export class ResetPasswordPageComponent implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
-    const { email, token, password } = this.form.getRawValue();
+    const { loginIdentifier, token, password } = this.form.getRawValue();
     this.loading = true;
-    this.auth.resetPassword({ email, token, newPassword: password }).subscribe({
+    this.auth
+      .resetPassword({
+        loginIdentifier,
+        gymId: this.branding.branding()?.gymId ?? null,
+        token,
+        newPassword: password,
+      })
+      .subscribe({
       next: (res) => {
         this.loading = false;
         if (res.success) {

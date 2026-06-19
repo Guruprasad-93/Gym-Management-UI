@@ -69,6 +69,10 @@ export class WhiteLabelService {
     return this.http.get<ApiResponse<WhiteLabelPreview>>(`${this.base}/preview`);
   }
 
+  getAppBranding(): Observable<ApiResponse<WhiteLabelLoginBranding>> {
+    return this.http.get<ApiResponse<WhiteLabelLoginBranding>>(`${this.base}/app-branding`);
+  }
+
   getLoginBranding(query: { gymId?: string; subDomain?: string; customDomain?: string }): Observable<ApiResponse<WhiteLabelLoginBranding>> {
     let params = new HttpParams();
     if (query.gymId) params = params.set('gymId', query.gymId);

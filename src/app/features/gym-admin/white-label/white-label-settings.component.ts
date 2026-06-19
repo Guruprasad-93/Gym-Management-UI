@@ -6,6 +6,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { WhiteLabelService } from '../../../core/services/white-label.service';
+import { BrandingService } from '../../../core/services/branding.service';
 import { FileCategories } from '../../../shared/models/file.models';
 import { WhiteLabelSettings } from '../../../shared/models/white-label.models';
 
@@ -21,6 +22,7 @@ export class WhiteLabelSettingsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly auth = inject(AuthService);
   private readonly svc = inject(WhiteLabelService);
+  private readonly branding = inject(BrandingService);
   private readonly notify = inject(NotificationService);
   private readonly fb = inject(FormBuilder);
 
@@ -113,6 +115,7 @@ export class WhiteLabelSettingsComponent implements OnInit {
               next: () => {
                 this.saving.set(false);
                 this.notify.success('Settings saved');
+                this.branding.refresh().subscribe();
               },
               error: (err) => {
                 this.saving.set(false);

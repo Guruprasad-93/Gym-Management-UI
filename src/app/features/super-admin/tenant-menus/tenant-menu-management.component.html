@@ -1,0 +1,80 @@
+<div class="page-header">
+  <div>
+    <h1>Platform Management</h1>
+    <p class="subtitle">Tenant Menu Management — enable or disable modules per gym</p>
+  </div>
+  <div class="header-actions" *ngIf="auth.hasPermission(permissions.ManageTenantMenus)">
+    <button mat-stroked-button type="button" (click)="bulkSet(true)">
+      <mat-icon>check_circle</mat-icon>
+      Enable All
+    </button>
+    <button mat-stroked-button type="button" (click)="bulkSet(false)">
+      <mat-icon>block</mat-icon>
+      Disable All
+    </button>
+  </div>
+</div>
+
+<mat-card class="filter-card">
+  <mat-form-field appearance="outline" class="gym-select">
+    <mat-label>Select Gym</mat-label>
+    <mat-select [(ngModel)]="selectedGymId" (selectionChange)="onGymChange()">
+      <mat-option *ngFor="let gym of gyms()" [value]="gym.gymId">
+        {{ gym.gymName }} ({{ gym.enabledMenus }}/{{ gym.totalMenus }} enabled)
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</mat-card>
+
+<mat-card *ngIf="selectedGymSummary() as summary" class="summary-card">
+  <span><strong>{{ summary.gymName }}</strong></span>
+  <span>{{ summary.enabledMenus }} of {{ summary.totalMenus }} menus enabled</span>
+</mat-card>
+
+<div class="table-wrap" *ngIf="!loading(); else loadingTpl">
+  <table mat-table [dataSource]="menus()" class="menu-table">
+    <ng-container matColumnDef="menuName">
+      <th mat-header-cell *matHeaderCellDef>Menu</th>
+      <td mat-cell *matCellDef="let row">{{ row.menuName }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="menuCode">
+      <th mat-header-cell *matHeaderCellDef>Code</th>
+      <td mat-cell *matCellDef="let row"><code>{{ row.menuCode }}</code></td>
+    </ng-container>
+
+    <ng-container matColumnDef="route">
+      <th mat-header-cell *matHeaderCellDef>Route</th>
+      <td mat-cell *matCellDef="let row">{{ row.route || '—' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="isEnabled">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let row">
+        <span [class.enabled]="row.isEnabled" [class.disabled]="!row.isEnabled">
+          {{ row.isEnabled ? 'Enabled' : 'Disabled' }}
+        </span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let row">
+        <button
+          mat-button
+          type="button"
+          [disabled]="!auth.hasPermission(permissions.ManageTenantMenus)"
+          (click)="toggleMenu(row)">
+          {{ row.isEnabled ? 'Disable' : 'Enable' }}
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+</div>
+
+<ng-template #loadingTpl>
+  <p class="loading">Loading tenant menus…</p>
+</ng-template>

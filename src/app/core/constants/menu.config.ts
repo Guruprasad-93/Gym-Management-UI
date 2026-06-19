@@ -1,5 +1,6 @@
 import { Permissions } from './permissions';
 import { Roles } from './roles';
+import { resolveMenuCodeForRoute } from './route-menu-codes';
 
 export interface AppMenuItem {
   label: string;
@@ -18,6 +19,7 @@ export const SUPER_ADMIN_MENU: AppMenuItem[] = [
   { label: 'Role Matrix', icon: 'grid_on', route: '/super-admin/role-matrix', permissions: [Permissions.ViewPermissionMatrix] },
   { label: 'Audit Logs', icon: 'history', route: '/super-admin/audit', permissions: [Permissions.ViewAuditLogs] },
   { label: 'White Label', icon: 'palette', route: '/super-admin/white-label', permissions: [Permissions.ViewPlatformSaas] },
+  { label: 'Tenant Menus', icon: 'tune', route: '/super-admin/tenant-menus', permissions: [Permissions.ViewTenantMenus] },
 ];
 
 export const GYM_ADMIN_MENU: AppMenuItem[] = [
@@ -65,11 +67,16 @@ export const GYM_ADMIN_MENU: AppMenuItem[] = [
 export function filterMenuItems(
   items: AppMenuItem[],
   roles: string[],
-  permissions: string[]
+  permissions: string[],
+  enabledMenuCodes?: string[]
 ): AppMenuItem[] {
   return items.filter((item) => {
     if (item.roles?.length && !item.roles.some((r) => roles.includes(r))) return false;
     if (item.permissions?.length && !item.permissions.some((p) => permissions.includes(p))) return false;
+    if (enabledMenuCodes?.length) {
+      const code = resolveMenuCodeForRoute(item.route);
+      if (code && !enabledMenuCodes.some((c) => c.toUpperCase() === code.toUpperCase())) return false;
+    }
     return true;
   });
 }

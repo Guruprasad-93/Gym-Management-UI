@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { MainLayoutComponent } from '../../layout/main-layout/main-layout.component';
 import { MenuService } from '../../core/services/menu.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -19,8 +19,9 @@ import { untilDestroyed } from '../../core/utils/destroy-ref.util';
 export class SuperAdminLayoutComponent implements OnInit {
   readonly menuService = inject(MenuService);
   readonly auth = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    this.auth.refreshPermissions().pipe(untilDestroyed()).subscribe();
+    this.auth.refreshPermissions().pipe(untilDestroyed(this.destroyRef)).subscribe();
   }
 }

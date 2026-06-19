@@ -110,7 +110,7 @@
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: #ff6600;
+  background: var(--brand-primary);
   color: #fff;
   display: inline-flex;
   align-items: center;

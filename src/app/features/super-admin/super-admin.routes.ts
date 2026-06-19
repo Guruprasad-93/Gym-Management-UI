@@ -62,6 +62,14 @@ export const SUPER_ADMIN_ROUTES: Routes = [
         loadComponent: () =>
           import('./white-label/super-admin-white-label.component').then((m) => m.SuperAdminWhiteLabelComponent),
       },
+      {
+        path: 'tenant-menus',
+        canActivate: [permissionGuard(Permissions.ViewTenantMenus)],
+        loadComponent: () =>
+          import('./tenant-menus/tenant-menu-management.component').then(
+            (m) => m.TenantMenuManagementComponent
+          ),
+      },
     ],
   },
 ];

@@ -102,15 +102,15 @@ export class AttendanceListComponent implements OnInit {
   toControl = this.fb.nonNullable.control(this.isoDate(0));
 
   ngOnInit(): void {
-    this.svc.getStatuses().pipe(untilDestroyed()).subscribe((r) => { if (r.success && r.data) this.statuses = r.data; });
-    this.searchControl.valueChanges.pipe(debounceTime(350), untilDestroyed()).subscribe(() => { this.pageIndex = 0; this.load(); });
+    this.svc.getStatuses().pipe(untilDestroyed(this.destroyRef)).subscribe((r) => { if (r.success && r.data) this.statuses = r.data; });
+    this.searchControl.valueChanges.pipe(debounceTime(350), untilDestroyed(this.destroyRef)).subscribe(() => { this.pageIndex = 0; this.load(); });
     const reload = () => {
       this.pageIndex = 0;
       this.load();
     };
-    this.statusControl.valueChanges.pipe(untilDestroyed()).subscribe(reload);
-    this.fromControl.valueChanges.pipe(untilDestroyed()).subscribe(reload);
-    this.toControl.valueChanges.pipe(untilDestroyed()).subscribe(reload);
+    this.statusControl.valueChanges.pipe(untilDestroyed(this.destroyRef)).subscribe(reload);
+    this.fromControl.valueChanges.pipe(untilDestroyed(this.destroyRef)).subscribe(reload);
+    this.toControl.valueChanges.pipe(untilDestroyed(this.destroyRef)).subscribe(reload);
     this.load();
   }
 
@@ -125,7 +125,7 @@ export class AttendanceListComponent implements OnInit {
       toDate: this.toControl.value,
       pageNumber: this.pageIndex + 1,
       pageSize: this.pageSize,
-    }).pipe(untilDestroyed()).subscribe({
+    }).pipe(untilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.loading.set(false);
         if (res.success && res.data) { this.rows = res.data.items; this.total.set(res.data.totalCount); }

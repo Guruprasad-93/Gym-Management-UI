@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -11,9 +11,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
-import { WhiteLabelService } from '../../../core/services/white-label.service';
+import { BrandingService } from '../../../core/services/branding.service';
 import { getDefaultRouteForUser } from '../../../core/constants/menu.config';
-import { WhiteLabelLoginBranding } from '../../../shared/models/white-label.models';
 
 @Component({
   selector: 'app-login-page',
@@ -35,8 +34,8 @@ import { WhiteLabelLoginBranding } from '../../../shared/models/white-label.mode
       <mat-card class="auth-card">
         <mat-card-header>
           <div mat-card-avatar class="avatar-wrap">
-            @if (branding()?.logoUrl) {
-              <img [src]="branding()!.logoUrl!" alt="Logo" class="brand-logo" />
+            @if (branding.logoUrl()) {
+              <img [src]="branding.logoUrl()!" alt="Logo" class="brand-logo" />
             } @else {
               <mat-icon>fitness_center</mat-icon>
             }
@@ -47,10 +46,10 @@ import { WhiteLabelLoginBranding } from '../../../shared/models/white-label.mode
         <mat-card-content>
           <form [formGroup]="form" (ngSubmit)="submit()">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Email</mat-label>
-              <input matInput type="email" formControlName="email" autocomplete="email" />
-              @if (form.controls.email.invalid && form.controls.email.touched) {
-                <mat-error>Valid email is required</mat-error>
+              <mat-label>Login ID</mat-label>
+              <input matInput type="text" formControlName="loginIdentifier" autocomplete="username" maxlength="20" />
+              @if (form.controls.loginIdentifier.invalid && form.controls.loginIdentifier.touched) {
+                <mat-error>Login ID is required (max 20 characters)</mat-error>
               }
             </mat-form-field>
             <mat-form-field appearance="outline" class="full-width">
@@ -119,34 +118,26 @@ export class LoginPageComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly notify = inject(NotificationService);
-  private readonly whiteLabel = inject(WhiteLabelService);
+  readonly branding = inject(BrandingService);
 
   loading = false;
-  branding = signal<WhiteLabelLoginBranding | null>(null);
 
   readonly form = this.fb.nonNullable.group({
-    email: [localStorage.getItem('gym_remember_email') ?? '', [Validators.required, Validators.email]],
+    loginIdentifier: [localStorage.getItem('gym_remember_login_id') ?? '', [Validators.required, Validators.maxLength(20)]],
     password: ['', [Validators.required, Validators.minLength(6)]],
     rememberMe: [false],
   });
 
   get displayName(): string {
-    const b = this.branding();
-    return b?.appDisplayName || b?.brandName || 'Gym Management';
+    return this.branding.appName();
   }
 
   get primaryColor(): string {
-    return this.branding()?.primaryColor ?? '#3949ab';
+    return this.branding.primaryColor();
   }
 
   get pageBackgroundStyle(): Record<string, string> {
-    const b = this.branding();
-    if (b?.loginBackgroundUrl) {
-      return { background: `url(${b.loginBackgroundUrl}) center/cover no-repeat` };
-    }
-    const primary = b?.primaryColor ?? '#1a237e';
-    const secondary = b?.secondaryColor ?? '#5c6bc0';
-    return { background: `linear-gradient(135deg, ${primary} 0%, ${secondary} 100%)` };
+    return { background: BrandingService.loginBackgroundStyle(this.branding.branding()) };
   }
 
   ngOnInit(): void {
@@ -157,16 +148,9 @@ export class LoginPageComponent implements OnInit {
       ?? (host !== 'localhost' && !host.startsWith('127.') ? host : undefined);
     const gymId = params.get('gymId') ?? undefined;
 
-    if (!subDomain && !customDomain && !gymId) {
-      return;
+    if (subDomain || customDomain || gymId) {
+      this.branding.loadPublicBranding({ subDomain: subDomain || undefined, customDomain, gymId }).subscribe();
     }
-
-    this.whiteLabel.getLoginBranding({ subDomain: subDomain || undefined, customDomain, gymId }).subscribe({
-      next: (res) => {
-        if (res.success && res.data) this.branding.set(res.data);
-      },
-      error: () => undefined,
-    });
   }
 
   submit(): void {
@@ -176,14 +160,15 @@ export class LoginPageComponent implements OnInit {
     }
 
     this.loading = true;
-    const { email, password, rememberMe } = this.form.getRawValue();
+    const { loginIdentifier, password, rememberMe } = this.form.getRawValue();
     if (rememberMe) {
-      localStorage.setItem('gym_remember_email', email);
+      localStorage.setItem('gym_remember_login_id', loginIdentifier);
     } else {
-      localStorage.removeItem('gym_remember_email');
+      localStorage.removeItem('gym_remember_login_id');
     }
 
-    this.auth.login({ email, password }).subscribe({
+    const gymId = this.branding.branding()?.gymId ?? null;
+    this.auth.login({ loginIdentifier, password, gymId }).subscribe({
       next: (res) => {
         this.loading = false;
         if (res.success && res.data) {
@@ -200,7 +185,7 @@ export class LoginPageComponent implements OnInit {
       },
       error: (err) => {
         this.loading = false;
-        this.notify.error(err.error?.message ?? 'Invalid email or password');
+        this.notify.error(err.error?.message ?? 'Invalid login ID or password');
       },
     });
   }

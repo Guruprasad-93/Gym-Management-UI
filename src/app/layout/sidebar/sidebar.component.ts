@@ -1,7 +1,8 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { AppMenuItem } from '../../core/constants/menu.config';
+import { BrandingService } from '../../core/services/branding.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -15,6 +16,8 @@ export class SidebarComponent implements OnChanges {
   @Input() title = 'Gym SaaS';
   @Input() userName = '';
   @Input() userEmail = '';
+
+  readonly branding = inject(BrandingService);
 
   private readonly activeOptionsByRoute = new Map<string, { exact: boolean }>();
 

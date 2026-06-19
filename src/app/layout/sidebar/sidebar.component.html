@@ -1,15 +1,19 @@
 <aside class="sidebar">
   <div class="sidebar__brand">
     <div class="sidebar__logo">
-      <svg viewBox="0 0 48 48" aria-hidden="true">
-        <rect x="4" y="20" width="6" height="8" rx="1.5" fill="currentColor"/>
-        <rect x="38" y="20" width="6" height="8" rx="1.5" fill="currentColor"/>
-        <rect x="10" y="22" width="28" height="4" rx="1" fill="currentColor"/>
-        <path d="M22 14h4v20h-4z" fill="currentColor"/>
-      </svg>
+      @if (branding.logoUrl()) {
+        <img [src]="branding.logoUrl()!" [alt]="branding.appName()" class="sidebar__logo-img" />
+      } @else {
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <rect x="4" y="20" width="6" height="8" rx="1.5" fill="currentColor"/>
+          <rect x="38" y="20" width="6" height="8" rx="1.5" fill="currentColor"/>
+          <rect x="10" y="22" width="28" height="4" rx="1" fill="currentColor"/>
+          <path d="M22 14h4v20h-4z" fill="currentColor"/>
+        </svg>
+      }
     </div>
     <div class="sidebar__brand-text">
-      <strong>FITNESS PRO</strong>
+      <strong>{{ branding.appName() }}</strong>
       <span>{{ title }}</span>
     </div>
   </div>

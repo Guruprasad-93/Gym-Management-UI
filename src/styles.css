@@ -1,6 +1,17 @@
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 @import 'ngx-toastr/toastr';
 
+:root {
+  --brand-primary: #ff6600;
+  --brand-secondary: #101828;
+  --brand-primary-rgb: 255, 102, 0;
+  --brand-primary-light: rgba(255, 102, 0, 0.12);
+  --brand-primary-muted: rgba(255, 102, 0, 0.18);
+  --brand-primary-border: rgba(255, 102, 0, 0.18);
+  --brand-primary-gradient-end: #ff8533;
+  --saas-primary: #ff6600;
+}
+
 html,
 body {
   height: 100%;

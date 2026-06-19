@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { WhiteLabelService } from '../../../core/services/white-label.service';
+import { BrandingService } from '../../../core/services/branding.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { WhiteLabelPreview } from '../../../shared/models/white-label.models';
 
@@ -25,7 +26,7 @@ import { WhiteLabelPreview } from '../../../shared/models/white-label.models';
               @if (preview.login.logoUrl) {
                 <img [src]="preview.login.logoUrl" alt="Logo" class="logo" />
               }
-              <h3 [style.color]="preview.login.primaryColor ?? '#fff'">{{ preview.login.appDisplayName || preview.login.brandName }}</h3>
+              <h3 [style.color]="preview.login.primaryColor ?? '#fff'">{{ loginAppName }}</h3>
               <p>Sign in to your account</p>
             </div>
           </mat-card-content>
@@ -45,7 +46,7 @@ import { WhiteLabelPreview } from '../../../shared/models/white-label.models';
           <mat-card-header><mat-card-title>Mobile app</mat-card-title></mat-card-header>
           <mat-card-content class="mobile-preview">
             @if (preview.mobile.appIconUrl) { <img [src]="preview.mobile.appIconUrl" alt="App icon" class="icon" /> }
-            <strong>{{ preview.mobile.appName || preview.login.brandName }}</strong>
+            <strong>{{ preview.mobile.appName || loginAppName }}</strong>
             @if (preview.mobile.splashScreenUrl) {
               <img [src]="preview.mobile.splashScreenUrl" alt="Splash" class="splash" />
             }
@@ -67,20 +68,26 @@ import { WhiteLabelPreview } from '../../../shared/models/white-label.models';
 })
 export class WhiteLabelPreviewComponent implements OnInit {
   private readonly svc = inject(WhiteLabelService);
+  private readonly branding = inject(BrandingService);
   loading = signal(true);
   preview: WhiteLabelPreview | null = null;
 
+  get loginAppName(): string {
+    return this.preview ? BrandingService.resolveAppName(this.preview.login) : BrandingService.resolveAppName(null);
+  }
+
   get loginBackground(): string {
-    const bg = this.preview?.login.loginBackgroundUrl;
-    const primary = this.preview?.login.primaryColor ?? '#1a237e';
-    return bg ? `url(${bg}) center/cover` : `linear-gradient(135deg, ${primary}, #3949ab)`;
+    return BrandingService.loginBackgroundStyle(this.preview?.login ?? null);
   }
 
   ngOnInit(): void {
     this.svc.getPreview().subscribe({
       next: (res) => {
         this.loading.set(false);
-        if (res.success && res.data) this.preview = res.data;
+        if (res.success && res.data) {
+          this.preview = res.data;
+          this.branding.applyLoginBranding(res.data.login);
+        }
       },
       error: () => this.loading.set(false),
     });

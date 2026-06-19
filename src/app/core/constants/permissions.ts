@@ -105,4 +105,6 @@ export const Permissions = {
   ViewWebsiteAnalytics: 'VIEW_WEBSITE_ANALYTICS',
   ViewWhiteLabel: 'VIEW_WHITE_LABEL',
   ManageWhiteLabel: 'MANAGE_WHITE_LABEL',
+  ViewTenantMenus: 'VIEW_TENANT_MENUS',
+  ManageTenantMenus: 'MANAGE_TENANT_MENUS',
 } as const;

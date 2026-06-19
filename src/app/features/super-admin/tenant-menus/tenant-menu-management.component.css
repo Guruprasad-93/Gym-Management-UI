@@ -1,0 +1,61 @@
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--text-muted, #64748b);
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.filter-card,
+.summary-card {
+  margin-bottom: 1rem;
+  padding: 1rem;
+}
+
+.gym-select {
+  width: min(100%, 420px);
+}
+
+.summary-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.table-wrap {
+  overflow: auto;
+  background: var(--surface-card, #fff);
+  border-radius: 12px;
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.menu-table {
+  width: 100%;
+}
+
+.enabled {
+  color: #15803d;
+  font-weight: 600;
+}
+
+.disabled {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.loading {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted, #64748b);
+}

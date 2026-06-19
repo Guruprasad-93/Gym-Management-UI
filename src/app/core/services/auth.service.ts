@@ -16,7 +16,8 @@ import { ApiResponse } from '../../shared/models/api-response';
 
 
 
-import { AuthUser, LoginRequest, LoginResponse, SessionPermissions } from '../models/auth.models';
+import { AuthUser, ForgotPasswordRequest, LoginRequest, LoginResponse, ResetPasswordRequest, SessionPermissions } from '../models/auth.models';
+import { BrandingService } from './branding.service';
 
 
 
@@ -72,6 +73,7 @@ export class AuthService {
 
   private readonly injector = inject(Injector);
   private readonly router = inject(Router);
+  private readonly branding = inject(BrandingService);
 
   private get http(): HttpClient {
     return this.injector.get(HttpClient);
@@ -388,6 +390,8 @@ export class AuthService {
 
     this.mustChangePasswordSignal.set(false);
 
+    this.branding.clear();
+
 
 
   }
@@ -466,58 +470,15 @@ export class AuthService {
 
 
 
-  forgotPassword(email: string): Observable<ApiResponse<ForgotPasswordResult>> {
-
-
-
+  forgotPassword(request: ForgotPasswordRequest): Observable<ApiResponse<ForgotPasswordResult>> {
     return this.http.post<ApiResponse<ForgotPasswordResult>>(
-
-
-
       `${environment.apiUrl}/auth/forgot-password`,
-
-
-
-      { email }
-
-
-
+      request
     );
-
-
-
   }
 
-
-
-
-
-
-
-  resetPassword(dto: {
-
-
-
-    email: string;
-
-
-
-    token: string;
-
-
-
-    newPassword: string;
-
-
-
-  }): Observable<ApiResponse<unknown>> {
-
-
-
+  resetPassword(dto: ResetPasswordRequest): Observable<ApiResponse<unknown>> {
     return this.http.post<ApiResponse<unknown>>(`${environment.apiUrl}/auth/reset-password`, dto);
-
-
-
   }
 
 
@@ -588,7 +549,7 @@ export class AuthService {
 
       permissions: data.permissions,
 
-
+      enabledMenuCodes: data.enabledMenuCodes,
 
       expiresAt: data.expiresAt,
 
@@ -607,6 +568,10 @@ export class AuthService {
 
 
     this.userSignal.set(user);
+
+    if (data.gymId) {
+      this.branding.loadForGym(data.gymId).subscribe();
+    }
 
 
 
@@ -628,6 +593,7 @@ export class AuthService {
       gymId: session.gymId,
       roles: session.roles,
       permissions: session.permissions,
+      enabledMenuCodes: session.enabledMenuCodes ?? current.enabledMenuCodes,
     };
     sessionStorage.setItem(USER_KEY, JSON.stringify(user));
     this.userSignal.set(user);
