@@ -12,6 +12,10 @@ import { GymService } from '../../../core/services/gym.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { GymAdmin } from '../../../shared/models/gym-admin.models';
 import { Gym } from '../../../shared/models/gym.models';
+import {
+  loginIdentifierValidators,
+  optionalEmailValidator,
+} from '../../../core/validators/login-identifier.validators';
 
 @Component({
   selector: 'app-gym-admin-form-dialog',
@@ -43,7 +47,11 @@ import { Gym } from '../../../shared/models/gym.models';
           <input matInput formControlName="name" />
         </mat-form-field>
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email</mat-label>
+          <mat-label>Login ID</mat-label>
+          <input matInput formControlName="loginIdentifier" maxlength="20" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email (optional)</mat-label>
           <input matInput type="email" formControlName="email" />
         </mat-form-field>
         @if (!isEdit) {
@@ -107,7 +115,8 @@ export class GymAdminFormDialogComponent implements OnInit {
   readonly form = this.fb.nonNullable.group({
     gymId: [this.editAdmin?.gymId ?? this.presetGymId ?? '', Validators.required],
     name: [this.editAdmin?.name ?? '', Validators.required],
-    email: [this.editAdmin?.email ?? '', [Validators.required, Validators.email]],
+    loginIdentifier: [this.editAdmin?.loginIdentifier ?? '', loginIdentifierValidators],
+    email: [this.editAdmin?.email ?? '', optionalEmailValidator],
     generateTemporaryPassword: [true],
     password: [''],
   });
@@ -134,7 +143,8 @@ export class GymAdminFormDialogComponent implements OnInit {
         .update(this.editAdmin.userId, {
           gymId: raw.gymId,
           name: raw.name,
-          email: raw.email,
+          loginIdentifier: raw.loginIdentifier,
+          email: raw.email || undefined,
         })
         .subscribe({
           next: (res) => {
@@ -156,7 +166,8 @@ export class GymAdminFormDialogComponent implements OnInit {
       .create({
         gymId: raw.gymId,
         name: raw.name,
-        email: raw.email,
+        loginIdentifier: raw.loginIdentifier,
+        email: raw.email || undefined,
         password: raw.generateTemporaryPassword ? undefined : raw.password,
         generateTemporaryPassword: raw.generateTemporaryPassword,
       })

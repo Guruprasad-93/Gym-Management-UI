@@ -9,7 +9,8 @@ export interface RegisterGymRequest {
   gymName: string;
   ownerName: string;
   mobile: string;
-  email: string;
+  loginIdentifier: string;
+  email?: string;
   address?: string;
   password?: string;
 }
@@ -18,7 +19,8 @@ export interface RegisterGymResult {
   gymId: string;
   adminUserId: string;
   gymName: string;
-  adminEmail: string;
+  adminLoginIdentifier: string;
+  adminEmail?: string;
   temporaryPassword?: string;
   remainingTrialDays: number;
   message: string;

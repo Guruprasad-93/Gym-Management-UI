@@ -9,6 +9,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TrainerService } from '../../../core/services/trainer.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Trainer } from '../../../shared/models/trainer.models';
+import {
+  loginIdentifierValidators,
+  optionalEmailValidator,
+} from '../../../core/validators/login-identifier.validators';
 
 @Component({
   selector: 'app-trainer-form-dialog',
@@ -32,7 +36,11 @@ import { Trainer } from '../../../shared/models/trainer.models';
             <input matInput formControlName="name" />
           </mat-form-field>
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Email</mat-label>
+            <mat-label>Login ID</mat-label>
+            <input matInput formControlName="loginIdentifier" maxlength="20" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email (optional)</mat-label>
             <input matInput type="email" formControlName="email" />
           </mat-form-field>
           <mat-form-field appearance="outline" class="full-width">
@@ -90,6 +98,7 @@ export class TrainerFormDialogComponent implements OnInit {
 
   readonly form = this.fb.nonNullable.group({
     name: [''],
+    loginIdentifier: [''],
     email: [''],
     password: [''],
     specialization: [''],
@@ -110,7 +119,8 @@ export class TrainerFormDialogComponent implements OnInit {
       this.form.controls.password.clearValidators();
     } else {
       this.form.controls.name.setValidators([Validators.required, Validators.maxLength(100)]);
-      this.form.controls.email.setValidators([Validators.required, Validators.email]);
+      this.form.controls.loginIdentifier.setValidators(loginIdentifierValidators);
+      this.form.controls.email.setValidators([optionalEmailValidator]);
       this.form.controls.password.setValidators([Validators.required, Validators.minLength(8)]);
     }
     this.form.updateValueAndValidity();
@@ -149,7 +159,8 @@ export class TrainerFormDialogComponent implements OnInit {
       this.trainerService
         .create({
           name: raw.name,
-          email: raw.email,
+          loginIdentifier: raw.loginIdentifier,
+          email: raw.email || undefined,
           password: raw.password,
           specialization: raw.specialization || undefined,
           bio: raw.bio || undefined,

@@ -3,7 +3,8 @@ export interface Member {
   gymId: string;
   userId: string;
   fullName: string;
-  email: string;
+  loginIdentifier?: string;
+  email?: string;
   trainerId?: number;
   trainerName?: string;
   dateOfBirth?: string;
@@ -50,7 +51,8 @@ export interface MemberProgress {
 
 export interface CreateMemberRequest {
   name: string;
-  email: string;
+  loginIdentifier: string;
+  email?: string;
   password: string;
   trainerId?: number;
   dateOfBirth?: string;
@@ -65,6 +67,7 @@ export interface CreateMemberRequest {
 
 export interface UpdateMemberRequest {
   fullName?: string;
+  loginIdentifier?: string;
   email?: string;
   trainerId?: number;
   dateOfBirth?: string;

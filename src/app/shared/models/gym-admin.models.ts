@@ -3,7 +3,8 @@ export interface GymAdmin {
   gymId: string;
   gymName: string;
   name: string;
-  email: string;
+  loginIdentifier: string;
+  email?: string;
   isActive: boolean;
   mustChangePassword: boolean;
   createdDate: string;
@@ -12,14 +13,16 @@ export interface GymAdmin {
 export interface CreateGymAdminRequest {
   gymId: string;
   name: string;
-  email: string;
+  loginIdentifier: string;
+  email?: string;
   password?: string;
   generateTemporaryPassword: boolean;
 }
 
 export interface UpdateGymAdminRequest {
   name: string;
-  email: string;
+  loginIdentifier: string;
+  email?: string;
   gymId: string;
 }
 
@@ -31,7 +34,8 @@ export interface CreateGymAdminResult {
 
 export interface ResendTemporaryPasswordResult {
   userId: string;
-  email: string;
+  loginIdentifier: string;
+  email?: string;
   temporaryPassword: string;
   message: string;
 }

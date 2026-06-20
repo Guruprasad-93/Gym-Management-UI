@@ -5,7 +5,8 @@ import { MatIconModule } from '@angular/material/icon';
 
 export interface TemporaryPasswordDialogData {
   title: string;
-  email: string;
+  loginIdentifier: string;
+  email?: string;
   temporaryPassword: string;
   message?: string;
 }
@@ -20,7 +21,10 @@ export interface TemporaryPasswordDialogData {
       @if (data.message) {
         <p>{{ data.message }}</p>
       }
-      <p><strong>Email:</strong> {{ data.email }}</p>
+      <p><strong>Login ID:</strong> {{ data.loginIdentifier }}</p>
+      @if (data.email) {
+        <p><strong>Email:</strong> {{ data.email }}</p>
+      }
       <div class="password-box">
         <code>{{ data.temporaryPassword }}</code>
         <button mat-icon-button type="button" (click)="copy()" aria-label="Copy password">

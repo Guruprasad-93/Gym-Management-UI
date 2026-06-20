@@ -5,6 +5,11 @@ import { Router, RouterModule } from '@angular/router';
 import { OnboardingService } from '../core/services/onboarding.service';
 import { NotificationService } from '../core/services/notification.service';
 import { SaasPlan } from '../shared/models/saas.models';
+import {
+  loginIdentifierFromEmail,
+  loginIdentifierValidators,
+  optionalEmailValidator,
+} from '../core/validators/login-identifier.validators';
 
 @Component({
   selector: 'app-register',
@@ -23,7 +28,8 @@ export class RegisterComponent implements OnInit {
     gymName: ['', [Validators.required, Validators.maxLength(200)]],
     ownerName: ['', [Validators.required, Validators.maxLength(100)]],
     mobile: ['', [Validators.required, Validators.maxLength(20)]],
-    email: ['', [Validators.required, Validators.email]],
+    loginIdentifier: ['', loginIdentifierValidators],
+    email: ['', optionalEmailValidator],
     address: ['', Validators.maxLength(500)],
     password: ['', Validators.minLength(6)],
   });
@@ -39,6 +45,13 @@ export class RegisterComponent implements OnInit {
     this.onboarding.getPublicPlans().subscribe({
       next: (res) => { if (res.success && res.data) this.plans = res.data; },
     });
+
+    this.form.controls.email.valueChanges.subscribe((email) => {
+      const loginId = this.form.controls.loginIdentifier;
+      if (!loginId.dirty && email) {
+        loginId.setValue(loginIdentifierFromEmail(email), { emitEvent: false });
+      }
+    });
   }
 
   submit(): void {
@@ -53,7 +66,8 @@ export class RegisterComponent implements OnInit {
       gymName: v.gymName!,
       ownerName: v.ownerName!,
       mobile: v.mobile!,
-      email: v.email!,
+      loginIdentifier: v.loginIdentifier!,
+      email: v.email || undefined,
       address: v.address || undefined,
       password: v.password || undefined,
     }).subscribe({
@@ -61,6 +75,9 @@ export class RegisterComponent implements OnInit {
         this.loading = false;
         if (res.success && res.data) {
           this.successMessage = res.message ?? res.data.message;
+          if (res.data.adminLoginIdentifier) {
+            this.successMessage += ` Login ID: ${res.data.adminLoginIdentifier}.`;
+          }
           if (res.data.temporaryPassword) {
             this.successMessage += ` Temporary password: ${res.data.temporaryPassword}`;
           }

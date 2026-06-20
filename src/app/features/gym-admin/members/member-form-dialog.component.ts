@@ -9,6 +9,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MemberService } from '../../../core/services/member.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Member } from '../../../shared/models/member.models';
+import {
+  loginIdentifierValidators,
+  optionalEmailValidator,
+} from '../../../core/validators/login-identifier.validators';
 
 @Component({
   selector: 'app-member-form-dialog',
@@ -32,7 +36,14 @@ import { Member } from '../../../shared/models/member.models';
             <input matInput formControlName="name" />
           </mat-form-field>
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Email</mat-label>
+            <mat-label>Login ID</mat-label>
+            <input matInput formControlName="loginIdentifier" maxlength="20" />
+            @if (form.controls.loginIdentifier.hasError('pattern')) {
+              <mat-error>Letters, numbers, dots, underscores, and hyphens only</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email (optional)</mat-label>
             <input matInput type="email" formControlName="email" />
           </mat-form-field>
           <mat-form-field appearance="outline" class="full-width">
@@ -45,7 +56,14 @@ import { Member } from '../../../shared/models/member.models';
             <input matInput formControlName="fullName" />
           </mat-form-field>
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Email</mat-label>
+            <mat-label>Login ID</mat-label>
+            <input matInput formControlName="loginIdentifier" maxlength="20" />
+            @if (form.controls.loginIdentifier.hasError('pattern')) {
+              <mat-error>Letters, numbers, dots, underscores, and hyphens only</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email (optional)</mat-label>
             <input matInput type="email" formControlName="email" />
           </mat-form-field>
         }
@@ -126,6 +144,7 @@ export class MemberFormDialogComponent implements OnInit {
   readonly form = this.fb.nonNullable.group({
     name: [''],
     fullName: [''],
+    loginIdentifier: [''],
     email: [''],
     password: [''],
     phone: [''],
@@ -144,7 +163,8 @@ export class MemberFormDialogComponent implements OnInit {
     if (this.isEdit && this.data) {
       this.form.patchValue({
         fullName: this.data.fullName,
-        email: this.data.email,
+        loginIdentifier: this.data.loginIdentifier ?? '',
+        email: this.data.email ?? '',
         phone: this.data.phone ?? '',
         dateOfBirth: this.data.dateOfBirth ?? '',
         gender: this.data.gender ?? '',
@@ -154,9 +174,12 @@ export class MemberFormDialogComponent implements OnInit {
         emergencyContact: this.data.emergencyContact ?? '',
         isActive: this.data.isActive,
       });
+      this.form.controls.loginIdentifier.setValidators(loginIdentifierValidators);
+      this.form.controls.email.setValidators([optionalEmailValidator]);
     } else {
       this.form.controls.name.setValidators([Validators.required, Validators.maxLength(100)]);
-      this.form.controls.email.setValidators([Validators.required, Validators.email]);
+      this.form.controls.loginIdentifier.setValidators(loginIdentifierValidators);
+      this.form.controls.email.setValidators([optionalEmailValidator]);
       this.form.controls.password.setValidators([Validators.required, Validators.minLength(8)]);
       this.form.controls.joinDate.setValidators([Validators.required]);
     }
@@ -175,6 +198,7 @@ export class MemberFormDialogComponent implements OnInit {
       this.memberService
         .update(this.data.id, {
           fullName: raw.fullName || undefined,
+          loginIdentifier: raw.loginIdentifier || undefined,
           email: raw.email || undefined,
           phone: raw.phone || undefined,
           dateOfBirth: raw.dateOfBirth || undefined,
@@ -202,7 +226,8 @@ export class MemberFormDialogComponent implements OnInit {
       this.memberService
         .create({
           name: raw.name,
-          email: raw.email,
+          loginIdentifier: raw.loginIdentifier,
+          email: raw.email || undefined,
           password: raw.password,
           phone: raw.phone || undefined,
           dateOfBirth: raw.dateOfBirth || undefined,

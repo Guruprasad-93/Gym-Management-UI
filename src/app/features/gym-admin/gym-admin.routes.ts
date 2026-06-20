@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '../../core/guards/auth.guard';
+import { gymMenuGuard } from '../../core/guards/gym-menu.guard';
 import { permissionGuard } from '../../core/guards/permission.guard';
 import { roleGuard } from '../../core/guards/role.guard';
 import { Permissions } from '../../core/constants/permissions';
@@ -11,6 +12,7 @@ export const GYM_ADMIN_ROUTES: Routes = [
     loadComponent: () =>
       import('./gym-admin-layout.component').then((m) => m.GymAdminLayoutComponent),
     canActivate: [authGuard, roleGuard(Roles.GymAdmin)],
+    canActivateChild: [gymMenuGuard],
     children: [
       {
         path: '',
