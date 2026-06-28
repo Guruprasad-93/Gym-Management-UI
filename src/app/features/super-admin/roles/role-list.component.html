@@ -77,12 +77,12 @@
           <td mat-cell *matCellDef="let row">
             <div class="row-actions">
               @if (auth.hasPermission(permissions.UpdateRole) && !row.isSystemRole) {
-                <button class="row-actions__btn" type="button" (click)="openForm(row)" title="Edit role">
+                <button class="row-actions__btn" type="button" (click)="openForm(row)" matTooltip="Edit role">
                   <mat-icon>edit</mat-icon>
                 </button>
               }
               @if (auth.hasPermission(permissions.DeleteRole) && !row.isSystemRole) {
-                <button class="row-actions__btn row-actions__btn--warn" type="button" (click)="deleteRole(row)" title="Delete role">
+                <button class="row-actions__btn row-actions__btn--warn" type="button" (click)="deleteRole(row)" matTooltip="Delete role">
                   <mat-icon>delete_outline</mat-icon>
                 </button>
               }

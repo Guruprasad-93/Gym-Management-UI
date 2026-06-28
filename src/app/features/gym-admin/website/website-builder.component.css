@@ -1,5 +1,3 @@
-@import '../../../shared/styles/member-page.css';
-
 .status-strip {
   display: flex;
   align-items: center;
@@ -12,6 +10,12 @@
   font-size: 0.8125rem;
   color: #667085;
   font-family: ui-monospace, monospace;
+  text-decoration: none;
+}
+
+.status-strip__url:hover {
+  color: var(--brand-primary, #ff6600);
+  text-decoration: underline;
 }
 
 .builder-layout {

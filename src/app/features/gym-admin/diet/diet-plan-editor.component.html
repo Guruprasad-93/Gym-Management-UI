@@ -1,0 +1,131 @@
+<div class="member-page diet-plan-editor-page">
+  <header class="saas-page__header">
+    <div>
+      <a class="diet-plan-editor-back" routerLink="/gym-admin/diet-plans">
+        <mat-icon>arrow_back</mat-icon>
+        Back to diet plans
+      </a>
+      <h1 class="saas-page__title">{{ isEdit() ? 'Edit Diet Plan' : 'New Diet Plan' }}</h1>
+      <p class="saas-page__subtitle">Define meals, portions, and daily calorie targets for members</p>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="page-loading">
+      <mat-spinner diameter="36" />
+      <p>Loading diet plan…</p>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="save()" class="diet-plan-form">
+      <section class="panel-shell">
+        <div class="panel-shell__head">
+          <h2>Plan Details</h2>
+          <p>Name, category, and calorie target</p>
+        </div>
+        <div class="panel-shell__body">
+          <div class="form-grid">
+            <label class="form-field">
+              <span>Plan name *</span>
+              <input type="text" formControlName="planName" placeholder="e.g. Weight Loss — Week 1" />
+            </label>
+            <label class="form-field">
+              <span>Category</span>
+              <select formControlName="dietCategoryId">
+                <option value="">None</option>
+                @for (c of categories(); track c.dietCategoryId) {
+                  <option [value]="c.dietCategoryId">{{ c.categoryName }}</option>
+                }
+              </select>
+              @if (categories().length === 0) {
+                <small class="form-field__hint">Loading categories…</small>
+              }
+            </label>
+            <label class="form-field">
+              <span>Target calories (kcal)</span>
+              <input type="number" formControlName="targetCalories" min="0" placeholder="e.g. 2000" />
+            </label>
+            <label class="form-field form-field--checkbox">
+              <span>Status</span>
+              <label class="checkbox-field">
+                <input type="checkbox" formControlName="isActive" />
+                <span>Active plan</span>
+              </label>
+            </label>
+            <label class="form-field form-field--wide">
+              <span>Description</span>
+              <textarea formControlName="description" rows="2" placeholder="Goals, restrictions, or notes for trainers"></textarea>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-shell">
+        <div class="panel-shell__head panel-shell__head--split">
+          <div>
+            <h2>Meal Items</h2>
+            <p>{{ items.length }} item{{ items.length === 1 ? '' : 's' }} · {{ totalItemCalories() }} kcal total</p>
+          </div>
+          <button class="btn-secondary" type="button" (click)="addItem()">
+            <mat-icon>add</mat-icon>
+            Add meal item
+          </button>
+        </div>
+        <div class="panel-shell__body">
+          <div formArrayName="items" class="meal-items">
+            @for (item of items.controls; track $index; let i = $index) {
+              <article class="meal-item-card" [formGroupName]="i">
+                <header class="meal-item-card__head">
+                  <span class="meal-item-card__index">#{{ i + 1 }}</span>
+                  <button
+                    class="row-actions__btn row-actions__btn--warn"
+                    type="button"
+                    (click)="removeItem(i)"
+                    [disabled]="items.length === 1"
+                    matTooltip="Remove item">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </header>
+                <div class="form-grid">
+                  <label class="form-field">
+                    <span>Meal time *</span>
+                    <select formControlName="mealTime">
+                      @for (m of mealTimes; track m) {
+                        <option [value]="m">{{ m }}</option>
+                      }
+                    </select>
+                  </label>
+                  <label class="form-field">
+                    <span>Food *</span>
+                    <input type="text" formControlName="foodName" placeholder="e.g. Oats with milk" />
+                  </label>
+                  <label class="form-field">
+                    <span>Quantity</span>
+                    <input type="text" formControlName="quantity" placeholder="e.g. 200g" />
+                  </label>
+                  <label class="form-field">
+                    <span>Calories</span>
+                    <input type="number" formControlName="calories" min="0" placeholder="kcal" />
+                  </label>
+                  <label class="form-field form-field--wide">
+                    <span>Notes</span>
+                    <input type="text" formControlName="notes" placeholder="Optional preparation notes" />
+                  </label>
+                </div>
+              </article>
+            } @empty {
+              <p class="empty-state">No meal items yet. Add at least one food entry.</p>
+            }
+          </div>
+        </div>
+      </section>
+
+      <footer class="diet-plan-form__actions">
+        <a class="btn-secondary" routerLink="/gym-admin/diet-plans">Cancel</a>
+        <button class="btn-primary" type="submit" [disabled]="saving() || form.invalid">
+          <mat-icon>save</mat-icon>
+          {{ saving() ? 'Saving…' : isEdit() ? 'Save Changes' : 'Create Plan' }}
+        </button>
+      </footer>
+    </form>
+  }
+</div>

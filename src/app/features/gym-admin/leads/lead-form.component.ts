@@ -1,121 +1,21 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LeadService } from '../../../core/services/lead.service';
 import { MembershipService } from '../../../core/services/membership.service';
 import { TrainerService } from '../../../core/services/trainer.service';
 import { NotificationService } from '../../../core/services/notification.service';
-import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
-import { LEAD_SOURCES, LEAD_STATUSES } from '../../../shared/models/lead.models';
+import { PhoneFieldComponent } from '../../../shared/components/phone-field/phone-field.component';
+import { LEAD_SOURCES, LEAD_STATUSES, LEAD_STATUS_LABELS } from '../../../shared/models/lead.models';
 
 @Component({
   selector: 'app-lead-form',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    RouterModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatProgressSpinnerModule,
-    PageHeaderComponent,
-  ],
-  template: `
-    <app-page-header [title]="isEdit() ? 'Edit Lead' : 'Create Lead'" subtitle="Capture prospect details">
-      <button mat-stroked-button type="button" routerLink="/gym-admin/leads">Back to list</button>
-    </app-page-header>
-
-    @if (loading()) {
-      <mat-spinner class="center-spinner" />
-    } @else {
-      <form class="form-card" [formGroup]="form" (ngSubmit)="submit()">
-        <div class="grid">
-          <mat-form-field appearance="outline">
-            <mat-label>Full name</mat-label>
-            <input matInput formControlName="fullName" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Mobile</mat-label>
-            <input matInput formControlName="mobileNumber" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Email</mat-label>
-            <input matInput formControlName="email" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Gender</mat-label>
-            <input matInput formControlName="gender" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Age</mat-label>
-            <input matInput type="number" formControlName="age" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Lead source</mat-label>
-            <mat-select formControlName="leadSource">
-              @for (src of sources; track src) {
-                <mat-option [value]="src">{{ src }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Status</mat-label>
-            <mat-select formControlName="status">
-              @for (s of statuses; track s) {
-                <mat-option [value]="s">{{ s }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Interested plan</mat-label>
-            <mat-select formControlName="interestedPlanId">
-              <mat-option [value]="null">None</mat-option>
-              @for (plan of plans(); track plan.id) {
-                <mat-option [value]="plan.id">{{ plan.name }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Assigned trainer</mat-label>
-            <mat-select formControlName="assignedTrainerId">
-              <mat-option [value]="null">None</mat-option>
-              @for (t of trainers(); track t.id) {
-                <mat-option [value]="t.id">{{ t.fullName }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-        </div>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Address</mat-label>
-          <textarea matInput rows="2" formControlName="address"></textarea>
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Notes</mat-label>
-          <textarea matInput rows="3" formControlName="notes"></textarea>
-        </mat-form-field>
-        <div class="actions">
-          <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || saving()">
-            {{ isEdit() ? 'Save changes' : 'Create lead' }}
-          </button>
-        </div>
-      </form>
-    }
-  `,
-  styles: [
-    `
-      .form-card { background: #fff; padding: 1.5rem; border-radius: 8px; max-width: 960px; }
-      .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
-      .full-width { width: 100%; }
-      .actions { margin-top: 1rem; }
-      .center-spinner { margin: 2rem auto; display: block; }
-    `,
-  ],
+  imports: [ReactiveFormsModule, RouterModule, MatIconModule, MatProgressSpinnerModule, PhoneFieldComponent],
+  templateUrl: './lead-form.component.html',
+  styleUrl: './lead-form.component.css',
 })
 export class LeadFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
@@ -137,7 +37,7 @@ export class LeadFormComponent implements OnInit {
 
   form = this.fb.group({
     fullName: ['', Validators.required],
-    mobileNumber: ['', Validators.required],
+    mobileNumber: [''],
     email: [''],
     gender: [''],
     age: [null as number | null],
@@ -188,6 +88,18 @@ export class LeadFormComponent implements OnInit {
     }
   }
 
+  backLink(): string[] {
+    return this.isEdit() && this.leadId() ? ['/gym-admin/leads', String(this.leadId()!)] : ['/gym-admin/leads'];
+  }
+
+  statusLabel(status: string): string {
+    return LEAD_STATUS_LABELS[status] ?? status;
+  }
+
+  sourceLabel(source: string): string {
+    return source.replace(/([a-z])([A-Z])/g, '$1 $2');
+  }
+
   submit(): void {
     if (this.form.invalid) return;
     this.saving.set(true);
@@ -195,7 +107,10 @@ export class LeadFormComponent implements OnInit {
     const payload = {
       ...value,
       email: value.email || undefined,
+      gender: value.gender || undefined,
       age: value.age ?? undefined,
+      address: value.address || undefined,
+      notes: value.notes || undefined,
       interestedPlanId: value.interestedPlanId ?? undefined,
       assignedTrainerId: value.assignedTrainerId ?? undefined,
     };
@@ -207,7 +122,11 @@ export class LeadFormComponent implements OnInit {
     req.subscribe({
       next: () => {
         this.notify.success(this.isEdit() ? 'Lead updated' : 'Lead created');
-        this.router.navigate(['/gym-admin/leads']);
+        if (this.isEdit() && this.leadId()) {
+          this.router.navigate(['/gym-admin/leads', this.leadId()]);
+        } else {
+          this.router.navigate(['/gym-admin/leads']);
+        }
       },
       error: (err) => {
         this.notify.error(err?.error?.message ?? 'Save failed');

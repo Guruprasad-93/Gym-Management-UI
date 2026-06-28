@@ -1,0 +1,86 @@
+.notification-bell {
+  position: relative;
+}
+
+.badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #e53935;
+  color: #fff;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+}
+
+.panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 360px;
+  max-height: 420px;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid #e4e7ec;
+  border-radius: 12px;
+  box-shadow: 0 16px 32px rgba(16, 24, 40, 0.12);
+  z-index: 1000;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid #eef2f6;
+}
+
+.mark-read {
+  border: none;
+  background: transparent;
+  color: #ff6600;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.empty {
+  margin: 0;
+  padding: 1rem;
+  color: #667085;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+li.unread {
+  background: #fff7ed;
+}
+
+.item-btn {
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 0.875rem 1rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.item-btn strong {
+  font-size: 0.92rem;
+}
+
+.item-btn span {
+  color: #475467;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}

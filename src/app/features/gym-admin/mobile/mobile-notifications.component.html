@@ -2,7 +2,7 @@
   <header class="saas-page__header">
     <div>
       <h1 class="saas-page__title">Mobile Push Notifications</h1>
-      <p class="saas-page__subtitle">Send push campaigns to member devices</p>
+      <p class="saas-page__subtitle">Send push campaigns to member mobile devices via FCM</p>
     </div>
     <div class="member-page__actions">
       <a class="btn-secondary" routerLink="../mobile-analytics">
@@ -15,10 +15,68 @@
   <section class="panel-shell compose-panel">
     <div class="panel-shell__head">
       <h2>Compose Campaign</h2>
-      <p>Choose a template or write a custom message</p>
+      <p>Choose recipients, template, and message — delivery requires a registered device token</p>
     </div>
     <div class="panel-shell__body">
       <div class="form-grid">
+        <fieldset class="audience-fieldset form-field--wide">
+          <legend>Recipients</legend>
+          <div class="audience-options">
+            @for (option of audienceOptions; track option.value) {
+              <label class="audience-option" [class.audience-option--active]="targetAudience === option.value">
+                <input
+                  type="radio"
+                  name="targetAudience"
+                  [value]="option.value"
+                  [(ngModel)]="targetAudience" />
+                <span class="audience-option__label">{{ option.label }}</span>
+                <span class="audience-option__desc">{{ option.description }}</span>
+              </label>
+            }
+          </div>
+          <p class="audience-hint">{{ audienceHint() }}</p>
+        </fieldset>
+
+        @if (targetAudience === 'SelectedMembers') {
+          <div class="member-picker form-field--wide">
+            <div class="member-picker__head">
+              <span>Select members</span>
+              <span class="member-picker__count">{{ selectedCount() }} selected</span>
+            </div>
+            <label class="member-search">
+              <span>Search</span>
+              <input
+                type="search"
+                [formControl]="memberSearchControl"
+                placeholder="Search by name, phone, email, or member ID" />
+            </label>
+            <div class="member-picker__actions">
+              <button type="button" class="btn-secondary btn-sm" (click)="selectAllVisible()">Select all shown</button>
+              <button type="button" class="btn-secondary btn-sm" (click)="clearSelection()">Clear</button>
+            </div>
+            <div class="member-picker__list">
+              @if (loadingMembers()) {
+                <p class="member-picker__empty">Loading members…</p>
+              } @else if (filteredMembers().length === 0) {
+                <p class="member-picker__empty">No members match your search.</p>
+              } @else {
+                @for (m of filteredMembers(); track m.userId) {
+                  <label class="member-row">
+                    <input
+                      type="checkbox"
+                      [checked]="isSelected(m.userId)"
+                      (change)="toggleMember(m.userId)" />
+                    <span class="member-row__main">
+                      <strong>{{ m.fullName }}</strong>
+                      <span>{{ m.phone || m.email || 'No contact' }} · ID {{ m.id }}</span>
+                    </span>
+                  </label>
+                }
+              }
+            </div>
+          </div>
+        }
+
         <label class="form-field form-field--wide">
           <span>Template</span>
           <select [(ngModel)]="selectedTemplateTitle" (ngModelChange)="applyTemplate()">
@@ -36,13 +94,15 @@
           <textarea [(ngModel)]="message" rows="4" placeholder="Push notification body"></textarea>
         </label>
       </div>
+
       <div class="preview-box">
         <span class="preview-box__label">Preview</span>
         <strong>{{ title || 'Notification title' }}</strong>
         <p>{{ message || 'Your message will appear here…' }}</p>
       </div>
+
       <div class="form-actions">
-        <button class="btn-primary" type="button" [disabled]="sending() || !title || !message" (click)="send()">
+        <button class="btn-primary" type="button" [disabled]="sending() || !canSend()" (click)="send()">
           <mat-icon>send</mat-icon>
           {{ sending() ? 'Sending…' : 'Send Push Notification' }}
         </button>

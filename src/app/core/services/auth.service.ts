@@ -16,8 +16,9 @@ import { ApiResponse } from '../../shared/models/api-response';
 
 
 
-import { AuthUser, ForgotPasswordRequest, LoginRequest, LoginResponse, ResetPasswordRequest, SessionPermissions } from '../models/auth.models';
+import { AuthUser, LoginRequest, LoginResponse, SessionPermissions } from '../models/auth.models';
 import { BrandingService } from './branding.service';
+import { createFeatureChecker } from '../navigation/menu-navigation.compat';
 
 
 
@@ -111,13 +112,17 @@ export class AuthService {
 
   readonly mustChangePassword = this.mustChangePasswordSignal.asReadonly();
 
-
-
-
-
-
+  readonly enabledFeatureCodes = computed(() => this.userSignal()?.enabledFeatureCodes ?? []);
 
   readonly isAuthenticated = computed(() => !!this.userSignal());
+
+  hasFeature(featureCode: string): boolean {
+    const user = this.userSignal();
+    if (!user) return false;
+    if (user.roles.includes('SuperAdmin')) return true;
+    if (!user.enabledFeatureCodes?.length) return true;
+    return createFeatureChecker(user.enabledFeatureCodes)(featureCode);
+  }
 
 
 
@@ -274,6 +279,14 @@ export class AuthService {
 
             this.updatePermissions(response.data);
 
+            const gymId = response.data.gymId;
+
+            if (gymId) {
+
+              this.branding.ensureLoaded(gymId, undefined, true);
+
+            }
+
           }
 
         })
@@ -296,6 +309,10 @@ export class AuthService {
 
 
 
+    confirmPassword: string;
+
+
+
   }): Observable<ApiResponse<unknown>> {
 
 
@@ -309,6 +326,10 @@ export class AuthService {
 
 
       newPassword: dto.newPassword,
+
+
+
+      confirmPassword: dto.confirmPassword,
 
 
 
@@ -470,15 +491,64 @@ export class AuthService {
 
 
 
-  forgotPassword(request: ForgotPasswordRequest): Observable<ApiResponse<ForgotPasswordResult>> {
+  forgotPassword(loginIdentifier: string): Observable<ApiResponse<ForgotPasswordResult>> {
+
+
+
     return this.http.post<ApiResponse<ForgotPasswordResult>>(
+
+
+
       `${environment.apiUrl}/auth/forgot-password`,
-      request
+
+
+
+      { loginIdentifier }
+
+
+
     );
+
+
+
   }
 
-  resetPassword(dto: ResetPasswordRequest): Observable<ApiResponse<unknown>> {
-    return this.http.post<ApiResponse<unknown>>(`${environment.apiUrl}/auth/reset-password`, dto);
+
+
+
+
+
+
+  resetPassword(dto: {
+
+
+
+    loginIdentifier: string;
+    token: string;
+
+
+
+    newPassword: string;
+
+
+
+    confirmPassword: string;
+
+
+
+  }): Observable<ApiResponse<unknown>> {
+
+
+
+    return this.http.post<ApiResponse<unknown>>(`${environment.apiUrl}/auth/reset-password`, {
+      loginIdentifier: dto.loginIdentifier,
+      token: dto.token,
+      newPassword: dto.newPassword,
+      confirmPassword: dto.confirmPassword,
+    });
+
+
+
   }
 
 
@@ -549,7 +619,13 @@ export class AuthService {
 
       permissions: data.permissions,
 
-      enabledMenuCodes: data.enabledMenuCodes,
+      enabledMenuCodes: data.enabledMenuCodes ?? [],
+
+      enabledFeatureCodes: data.enabledFeatureCodes ?? [],
+
+      showPoweredBy: data.showPoweredBy ?? !data.enabledFeatureCodes?.includes('WHITE_LABEL'),
+
+      platformProductName: data.platformProductName ?? 'Gym Management',
 
       expiresAt: data.expiresAt,
 
@@ -593,7 +669,10 @@ export class AuthService {
       gymId: session.gymId,
       roles: session.roles,
       permissions: session.permissions,
-      enabledMenuCodes: session.enabledMenuCodes ?? current.enabledMenuCodes,
+      enabledMenuCodes: session.enabledMenuCodes ?? current.enabledMenuCodes ?? [],
+      enabledFeatureCodes: session.enabledFeatureCodes ?? current.enabledFeatureCodes ?? [],
+      showPoweredBy: session.showPoweredBy ?? current.showPoweredBy,
+      platformProductName: session.platformProductName ?? current.platformProductName,
     };
     sessionStorage.setItem(USER_KEY, JSON.stringify(user));
     this.userSignal.set(user);
@@ -629,7 +708,10 @@ export class AuthService {
 
       }
 
-
+      user.enabledMenuCodes = user.enabledMenuCodes ?? [];
+      user.enabledFeatureCodes = user.enabledFeatureCodes ?? [];
+      user.showPoweredBy = user.showPoweredBy ?? !user.enabledFeatureCodes.includes('WHITE_LABEL');
+      user.platformProductName = user.platformProductName ?? 'Gym Management';
 
       return user;
 

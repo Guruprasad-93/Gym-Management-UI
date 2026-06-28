@@ -7,9 +7,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MemberService } from '../../../core/services/member.service';
+import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Permissions } from '../../../core/constants/permissions';
@@ -208,7 +209,7 @@ export class MemberDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly memberService = inject(MemberService);
   private readonly notify = inject(NotificationService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialog = inject(DialogService);
 
   member = signal<MemberDetails | null>(null);
   loading = signal(true);

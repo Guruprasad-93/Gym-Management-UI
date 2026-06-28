@@ -1,0 +1,42 @@
+@if (validationMessages.length) {
+  <div class="validation-banner" role="alert">
+    <strong>Feature dependency issues</strong>
+    <ul>
+      @for (msg of validationMessages; track msg) {
+        <li>{{ msg }}</li>
+      }
+    </ul>
+  </div>
+}
+
+<label class="search-box feature-search">
+  <mat-icon>search</mat-icon>
+  <input type="search" [formControl]="searchControl" placeholder="Search features..." aria-label="Search features" />
+</label>
+
+<div class="feature-groups">
+  @for (category of categories; track category) {
+    <section class="feature-group">
+      <h4 class="feature-group__title">{{ category }}</h4>
+      <div class="feature-group__list">
+        @for (feature of featuresInCategory(category); track feature.featureId) {
+          <label
+            class="feature-row"
+            [class.feature-row--highlight]="highlightedCodes.has(feature.featureCode.toUpperCase())">
+            <mat-checkbox
+              [checked]="isSelected(feature.featureId)"
+              [disabled]="readonly"
+              (change)="toggle(feature, $event.checked)">
+              <span class="feature-row__name">{{ feature.featureName }}</span>
+              <small class="feature-row__code">{{ feature.featureCode }}</small>
+            </mat-checkbox>
+          </label>
+        }
+      </div>
+    </section>
+  }
+
+  @if (!filteredFeatures.length) {
+    <p class="feature-empty">No features match your search.</p>
+  }
+</div>

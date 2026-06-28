@@ -31,8 +31,8 @@
       <app-saas-kpi-card label="Pending Renewals" [value]="d.pendingRenewals" icon="schedule" accent="#f79009" hint="Needs follow-up" />
     </div>
 
-    <section class="charts-row">
-      <app-saas-chart-card class="charts-row__wide" title="Monthly Revenue Trend" subtitle="Last 12 months">
+    <section class="revenue-main-row">
+      <app-saas-chart-card title="Monthly Revenue Trend" subtitle="Last 12 months">
         <div class="chart-host">
           <canvas #trendChart></canvas>
           @if (!monthly().length) {
@@ -40,27 +40,27 @@
           }
         </div>
       </app-saas-chart-card>
-    </section>
 
-    <section class="panel-shell">
-      <div class="panel-shell__head">
-        <h2>Monthly Breakdown</h2>
-        <p>Revenue by month</p>
-      </div>
-      <div class="panel-shell__body panel-shell__body--flush">
-        @if (monthly().length) {
-          <ul class="data-list">
-            @for (m of monthly(); track m.monthLabel) {
-              <li>
-                <span>{{ m.monthLabel }}</span>
-                <strong>{{ m.revenue | currency:'INR' }}</strong>
-              </li>
-            }
-          </ul>
-        } @else {
-          <p class="empty-state">No monthly revenue recorded.</p>
-        }
-      </div>
+      <section class="panel-shell panel-shell--breakdown">
+        <div class="panel-shell__head">
+          <h2>Monthly Breakdown</h2>
+          <p>Revenue by month</p>
+        </div>
+        <div class="panel-shell__body panel-shell__body--flush">
+          @if (monthly().length) {
+            <ul class="data-list data-list--scroll">
+              @for (m of monthly(); track m.monthLabel) {
+                <li>
+                  <span>{{ m.monthLabel }}</span>
+                  <strong>{{ m.revenue | currency:'INR' }}</strong>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="empty-state">No monthly revenue recorded.</p>
+          }
+        </div>
+      </section>
     </section>
   }
 </div>

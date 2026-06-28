@@ -3,10 +3,12 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { debounceTime } from 'rxjs';
 import { WorkoutService } from '../../../core/services/workout.service';
+import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Permissions } from '../../../core/constants/permissions';
@@ -21,6 +23,7 @@ import { AssignWorkoutPlanDialogComponent } from './assign-workout-plan-dialog.c
     RouterModule,
     MatTableModule,
     MatIconModule,
+    MatTooltipModule,
     MatProgressSpinnerModule,
     MatDialogModule,
   ],
@@ -32,7 +35,7 @@ export class WorkoutPlanListComponent implements OnInit {
   readonly permissions = Permissions;
   private readonly svc = inject(WorkoutService);
   private readonly notify = inject(NotificationService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialog = inject(DialogService);
 
   loading = signal(true);
   plans = signal<WorkoutPlanListItem[]>([]);
@@ -63,7 +66,8 @@ export class WorkoutPlanListComponent implements OnInit {
   assign(p: WorkoutPlanListItem): void {
     this.dialog
       .open(AssignWorkoutPlanDialogComponent, {
-        width: '480px',
+        width: '520px',
+        maxWidth: '95vw',
         data: { workoutPlanId: p.workoutPlanId, planName: p.planName },
       })
       .afterClosed()
@@ -81,14 +85,23 @@ export class WorkoutPlanListComponent implements OnInit {
   }
 
   remove(p: WorkoutPlanListItem): void {
-    if (!confirm(`Delete "${p.planName}"?`)) return;
-    this.svc.delete(p.workoutPlanId).subscribe({
-      next: () => {
-        this.notify.success('Deleted');
-        this.load();
-      },
-      error: (e) => this.notify.error(e?.error?.message || 'Delete failed'),
-    });
+    this.dialog
+      .confirm({
+        title: 'Delete workout plan',
+        message: `Delete "${p.planName}"?`,
+        tone: 'danger',
+        confirmLabel: 'Delete',
+      })
+      .subscribe((ok) => {
+        if (!ok) return;
+        this.svc.delete(p.workoutPlanId).subscribe({
+          next: () => {
+            this.notify.success('Deleted');
+            this.load();
+          },
+          error: (e) => this.notify.error(e?.error?.message || 'Delete failed'),
+        });
+      });
   }
 
   exportPdf(p: WorkoutPlanListItem): void {

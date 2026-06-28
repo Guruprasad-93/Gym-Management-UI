@@ -1,0 +1,100 @@
+@if (loading()) {
+  <div class="page-loading">
+    <mat-spinner diameter="36" />
+    <p>Loading comparison…</p>
+  </div>
+} @else {
+  <section class="panel-shell">
+    <div class="panel-shell__head">
+      <h2>Compare Plans</h2>
+      <p>Feature and quota comparison across selected plans</p>
+    </div>
+    <div class="panel-shell__body">
+      <div class="compare-select-bar">
+        @for (plan of allPlans(); track plan.id) {
+          <mat-checkbox [checked]="isSelected(plan.id)" (change)="togglePlan(plan.id, $event.checked)">
+            {{ plan.planName }}
+          </mat-checkbox>
+        }
+      </div>
+
+      @if (selectedPlans().length < 2) {
+        <p class="saas-page__subtitle">Select at least two plans to compare.</p>
+      } @else {
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>Feature / Quota</th>
+                @for (plan of selectedPlans(); track plan.id) {
+                  <th>
+                    {{ plan.planName }}
+                    @if (isCurrentPlan(plan)) {
+                      <span class="chip chip--current">Current</span>
+                    }
+                  </th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (category of categories(); track category) {
+                <tr class="category-row">
+                  <td [attr.colspan]="selectedPlans().length + 1">{{ category }}</td>
+                </tr>
+                @for (row of featuresInCategory(category); track row.featureCode) {
+                  <tr>
+                    <td>{{ row.featureName }}</td>
+                    @for (plan of selectedPlans(); track plan.id) {
+                      <td [class.feature-yes]="planHasFeature(plan, row.featureCode)" [class.feature-no]="!planHasFeature(plan, row.featureCode)">
+                        {{ planHasFeature(plan, row.featureCode) ? 'Included' : '—' }}
+                      </td>
+                    }
+                  </tr>
+                }
+              }
+
+              <tr class="category-row">
+                <td [attr.colspan]="selectedPlans().length + 1">Quotas</td>
+              </tr>
+              @for (row of quotaRows(); track row.key) {
+                <tr>
+                  <td>{{ row.label }}</td>
+                  @for (value of row.values; track $index) {
+                    <td>{{ value }}</td>
+                  }
+                </tr>
+              }
+
+              <tr class="category-row">
+                <td [attr.colspan]="selectedPlans().length + 1">Pricing Options</td>
+              </tr>
+              <tr>
+                <td>Available pricing</td>
+                @for (plan of selectedPlans(); track plan.id) {
+                  <td>
+                    @for (option of plan.pricingOptions; track option.pricingOptionId) {
+                      @if (option.isActive && auth.hasPermission(permissions.ManageSaasSubscription)) {
+                        <button
+                          class="pricing-option-btn"
+                          type="button"
+                          style="margin-bottom: 0.35rem"
+                          (click)="checkout(plan, option.pricingOptionId)">
+                          <span>{{ durationLabel(option) }}</span>
+                          <strong>{{ option.price | currency: 'INR' }}</strong>
+                        </button>
+                      }
+                    }
+                  </td>
+                }
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      }
+
+      <div class="quick-actions" style="margin-top: 1rem">
+        <a class="btn-secondary" routerLink="/gym-admin/subscription/catalog">Back to Catalog</a>
+      </div>
+    </div>
+  </section>
+}

@@ -1,17 +1,17 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BookingService } from '../../../core/services/booking.service';
-import { SlotBooking } from '../../../shared/models/booking.models';
+import { bookingStatusBadgeClass, SlotBooking } from '../../../shared/models/booking.models';
 import { SaasKpiCardComponent } from '../../../shared/components/saas-kpi-card/saas-kpi-card.component';
 
 @Component({
   selector: 'app-trainer-bookings',
   standalone: true,
-  imports: [DatePipe, FormsModule, RouterLink, MatIconModule, MatProgressSpinnerModule, SaasKpiCardComponent],
+  imports: [DatePipe, NgClass, FormsModule, RouterLink, MatIconModule, MatProgressSpinnerModule, SaasKpiCardComponent],
   templateUrl: './trainer-bookings.component.html',
   styleUrl: './trainer-bookings.component.css',
 })
@@ -22,6 +22,9 @@ export class TrainerBookingsComponent implements OnInit {
   loading = true;
   search = '';
   statusFilter = 'all';
+  statusBadgeClass = bookingStatusBadgeClass;
+
+  readonly statusOptions = ['all', 'Booked', 'CheckedIn', 'Completed', 'Cancelled', 'NoShow'];
 
   get filteredBookings(): SlotBooking[] {
     const q = this.search.trim().toLowerCase();
@@ -36,12 +39,12 @@ export class TrainerBookingsComponent implements OnInit {
     });
   }
 
-  get confirmedCount(): number {
-    return this.bookings.filter((b) => b.status === 'Confirmed').length;
+  get bookedCount(): number {
+    return this.bookings.filter((b) => b.status === 'Booked' || b.status === 'CheckedIn').length;
   }
 
-  get waitlistedCount(): number {
-    return this.bookings.filter((b) => b.status === 'Waitlisted').length;
+  get completedCount(): number {
+    return this.bookings.filter((b) => b.status === 'Completed').length;
   }
 
   ngOnInit(): void {

@@ -71,6 +71,8 @@ export interface WhiteLabelLoginBranding {
   supportPhone?: string | null;
   logoUrl?: string | null;
   loginBackgroundUrl?: string | null;
+  showPoweredBy?: boolean;
+  platformProductName?: string | null;
 }
 
 export interface WhiteLabelPreview {

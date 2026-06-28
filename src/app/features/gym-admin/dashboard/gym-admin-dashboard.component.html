@@ -1,183 +1,311 @@
 @if (loading()) {
   <div class="dashboard-loading">
-    <mat-spinner diameter="36" />
-    <p>Loading business dashboard…</p>
+    <div class="skeleton-hero">
+      <div class="skeleton-line skeleton-line--lg"></div>
+      <div class="skeleton-line skeleton-line--sm"></div>
+    </div>
+    <div class="skeleton-kpi-grid">
+      @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
+        <div class="skeleton-kpi"></div>
+      }
+    </div>
+    <div class="skeleton-charts">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="skeleton-chart"></div>
+      }
+    </div>
   </div>
 } @else if (!auth.hasPermission(permissions.ViewAnalytics)) {
   <div class="dashboard-page">
     <header class="dashboard-page__top">
-      <div>
+      <div class="dashboard-page__intro">
         <h1 class="dashboard-page__title">Welcome back, {{ auth.user()?.name ?? 'Admin' }}!</h1>
         <p class="dashboard-page__subtitle">Your gym management portal</p>
       </div>
     </header>
-    <p class="empty-state">You do not have permission to view analytics.</p>
+    <div class="empty-state-card">
+      <mat-icon class="empty-icon">lock</mat-icon>
+      <p class="empty-state">You do not have permission to view analytics.</p>
+    </div>
   </div>
 } @else if (dashboard()) {
   @let dash = dashboard()!;
-  <div class="dashboard-page">
-    <header class="dashboard-page__top">
-      <div>
+  <div class="dashboard-page dashboard-page--loaded">
+    <header class="dashboard-page__top dashboard-animate" style="--dash-i: 0">
+      <div class="dashboard-page__intro">
+        <p class="dashboard-page__eyebrow">Gym Admin Dashboard</p>
         <h1 class="dashboard-page__title">Welcome back, {{ auth.user()?.name ?? 'Admin' }}!</h1>
         <p class="dashboard-page__subtitle">Business performance at a glance</p>
+        <p class="dashboard-page__date">Today&rsquo;s overview</p>
       </div>
       <div class="dashboard-page__actions">
-        <button class="btn-icon" type="button" (click)="exportPdf()" [disabled]="exporting()" title="Export PDF">
+        <button class="btn-icon" type="button" (click)="exportPdf()" [disabled]="exporting()" matTooltip="Export PDF">
           <mat-icon>picture_as_pdf</mat-icon>
         </button>
-        <button class="btn-icon" type="button" (click)="exportExcel()" [disabled]="exporting()" title="Export Excel">
+        <button class="btn-icon" type="button" (click)="exportExcel()" [disabled]="exporting()" matTooltip="Export Excel">
           <mat-icon>table_chart</mat-icon>
         </button>
         <span class="dashboard-page__badge">
+          <span class="dashboard-page__badge-dot"></span>
           <mat-icon>insights</mat-icon>
           Live
         </span>
       </div>
     </header>
 
-    <div class="kpi-row">
-      <app-saas-kpi-card label="Total Members" [value]="dash.overview.totalMembers" icon="groups" accent="#ff6600" [hint]="activeMemberRate" />
-      <app-saas-kpi-card label="Active Members" [value]="dash.overview.activeMembers" icon="person" accent="#12b76a" />
-      <app-saas-kpi-card label="Revenue Today" [value]="dash.overview.revenueToday" icon="payments" accent="#7a5af8" [isCurrency]="true" />
-      <app-saas-kpi-card label="Revenue Month" [value]="dash.overview.revenueThisMonth" icon="calendar_month" accent="#2e90fa" [isCurrency]="true" />
-      <app-saas-kpi-card label="Expiring" [value]="dash.overview.expiringMemberships" icon="schedule" accent="#f79009" />
-      <app-saas-kpi-card label="Trainers" [value]="dash.overview.activeTrainers" icon="sports" accent="#06aed4" />
-    </div>
+    <section class="kpi-section dashboard-animate" style="--dash-i: 1" aria-label="Key metrics">
+      <div class="section-head section-head--compact">
+        <div>
+          <h2 class="section-head__title">Overview</h2>
+          <p class="section-head__sub">Real-time business KPIs</p>
+        </div>
+      </div>
+      <div class="kpi-grid">
+        <app-saas-kpi-card label="Total Members" [value]="dash.overview.totalMembers" icon="groups" accent="#FF6B00" [hint]="activeMemberRate" />
+        <app-saas-kpi-card label="Active Members" [value]="dash.overview.activeMembers" icon="person" accent="#22C55E" />
+        <app-saas-kpi-card label="Revenue Today" [value]="dash.overview.revenueToday" icon="payments" accent="#2563EB" [isCurrency]="true" />
+        <app-saas-kpi-card label="Revenue Month" [value]="dash.overview.revenueThisMonth" icon="calendar_month" accent="#7C3AED" [isCurrency]="true" />
+        <app-saas-kpi-card label="Expiring" [value]="dash.overview.expiringMemberships" icon="schedule" accent="#F59E0B" />
+        <app-saas-kpi-card label="Trainers" [value]="dash.overview.activeTrainers" icon="sports" accent="#06B6D4" />
+        <app-saas-kpi-card label="Memberships" [value]="dash.membership.activeMemberships" icon="card_membership" accent="#22C55E" />
+        <app-saas-kpi-card label="New Members" [value]="dash.membership.newRegistrationsThisMonth" icon="person_add" accent="#FF6B00" />
+        <app-saas-kpi-card label="Attendance" [value]="dash.attendance.todayAttendanceCount" icon="how_to_reg" accent="#2563EB" />
+        <app-saas-kpi-card label="Workouts" [value]="dash.workouts.activeWorkoutPlans" icon="fitness_center" accent="#F59E0B" [hint]="workoutCompletionHint(dash)" />
+        <app-saas-kpi-card label="Diet Plans" [value]="dash.diets.activeDietPlans" icon="restaurant" accent="#7C3AED" [hint]="dietComplianceHint(dash)" />
+      </div>
+    </section>
 
-    <div class="kpi-row kpi-row--secondary">
-      <app-saas-kpi-card label="Memberships" [value]="dash.membership.activeMemberships" icon="card_membership" accent="#12b76a" />
-      <app-saas-kpi-card label="New Members" [value]="dash.membership.newRegistrationsThisMonth" icon="person_add" accent="#ff6600" />
-      <app-saas-kpi-card label="Attendance" [value]="dash.attendance.todayAttendanceCount" icon="how_to_reg" accent="#2e90fa" />
-      <app-saas-kpi-card label="Workouts" [value]="dash.workouts.activeWorkoutPlans" icon="fitness_center" accent="#f79009" [hint]="workoutCompletionHint(dash)" />
-      <app-saas-kpi-card label="Diet Plans" [value]="dash.diets.activeDietPlans" icon="restaurant" accent="#7a5af8" [hint]="dietComplianceHint(dash)" />
-    </div>
-
-    <nav class="quick-strip">
+    <nav class="quick-strip dashboard-animate" style="--dash-i: 2" aria-label="Quick actions">
       @for (action of quickActions; track action.route) {
-        <a class="quick-strip__link" [routerLink]="action.route">
-          <mat-icon>{{ action.icon }}</mat-icon>
-          {{ action.label }}
+        <a class="quick-strip__link" [routerLink]="action.route" [style.--qa-accent]="action.color">
+          <span class="quick-strip__icon">
+            <mat-icon>{{ action.icon }}</mat-icon>
+          </span>
+          <span class="quick-strip__text">
+            <strong>{{ action.label }}</strong>
+            <small>{{ action.description }}</small>
+          </span>
         </a>
       }
     </nav>
 
-    <div class="dashboard-body">
-      <section class="charts-grid">
-        <app-saas-chart-card title="Revenue" subtitle="12 months">
-          <div class="chart-host">
-            <canvas #revenueChart></canvas>
-            @if (!dash.revenue.revenueTrend.length) {
-              <p class="chart-empty chart-empty--overlay">No data</p>
-            }
+    <div class="dashboard-body dashboard-animate" style="--dash-i: 3">
+      <section class="charts-section" aria-label="Analytics charts">
+        <div class="section-head">
+          <div>
+            <h2 class="section-head__title">Analytics</h2>
+            <p class="section-head__sub">Revenue, growth, attendance &amp; distribution</p>
           </div>
-        </app-saas-chart-card>
+          <span class="section-head__updated">Live data</span>
+        </div>
 
-        <app-saas-chart-card title="Growth" subtitle="New members">
-          <div class="chart-host">
-            <canvas #growthChart></canvas>
-            @if (!dash.membership.growthTrend.length) {
-              <p class="chart-empty chart-empty--overlay">No data</p>
-            }
-          </div>
-        </app-saas-chart-card>
+        <div class="charts-grid">
+          <app-saas-chart-card title="Revenue" subtitle="12 months">
+            <div class="chart-host">
+              <canvas #revenueChart></canvas>
+              @if (!dash.revenue.revenueTrend.length) {
+                <div class="chart-empty chart-empty--overlay">
+                  <mat-icon>show_chart</mat-icon>
+                  <p>No data</p>
+                </div>
+              }
+            </div>
+          </app-saas-chart-card>
 
-        <app-saas-chart-card title="Attendance" subtitle="Weekly">
-          <div class="chart-host">
-            <canvas #attendanceChart></canvas>
-            @if (!dash.attendance.weeklyTrend.length) {
-              <p class="chart-empty chart-empty--overlay">No data</p>
-            }
-          </div>
-        </app-saas-chart-card>
+          <app-saas-chart-card title="Growth" subtitle="New members">
+            <div class="chart-host">
+              <canvas #growthChart></canvas>
+              @if (!dash.membership.growthTrend.length) {
+                <div class="chart-empty chart-empty--overlay">
+                  <mat-icon>bar_chart</mat-icon>
+                  <p>No data</p>
+                </div>
+              }
+            </div>
+          </app-saas-chart-card>
 
-        <app-saas-chart-card title="Plans" subtitle="Distribution">
-          <div class="chart-host">
-            <canvas #planChart></canvas>
-            @if (!dash.membership.planDistribution.length) {
-              <p class="chart-empty chart-empty--overlay">No data</p>
-            }
-          </div>
-        </app-saas-chart-card>
+          <app-saas-chart-card title="Attendance" subtitle="Weekly">
+            <div class="chart-host">
+              <canvas #attendanceChart></canvas>
+              @if (!dash.attendance.weeklyTrend.length) {
+                <div class="chart-empty chart-empty--overlay">
+                  <mat-icon>timeline</mat-icon>
+                  <p>No data</p>
+                </div>
+              }
+            </div>
+          </app-saas-chart-card>
 
-        <app-saas-chart-card title="Payments" subtitle="By method">
-          <div class="chart-host">
-            <canvas #paymentChart></canvas>
-            @if (!dash.revenue.revenueByPaymentMethod.length) {
-              <p class="chart-empty chart-empty--overlay">No data</p>
-            }
-          </div>
-        </app-saas-chart-card>
+          <app-saas-chart-card title="Plans" subtitle="Distribution">
+            <div class="chart-host">
+              <canvas #planChart></canvas>
+              @if (!dash.membership.planDistribution.length) {
+                <div class="chart-empty chart-empty--overlay">
+                  <mat-icon>donut_large</mat-icon>
+                  <p>No data</p>
+                </div>
+              }
+            </div>
+          </app-saas-chart-card>
+
+          <app-saas-chart-card title="Payments" subtitle="By method">
+            <div class="chart-host">
+              <canvas #paymentChart></canvas>
+              @if (!dash.revenue.revenueByPaymentMethod.length) {
+                <div class="chart-empty chart-empty--overlay">
+                  <mat-icon>pie_chart</mat-icon>
+                  <p>No data</p>
+                </div>
+              }
+            </div>
+          </app-saas-chart-card>
+        </div>
       </section>
 
-      <section class="widgets-grid">
-        <article class="widget">
-          <h3>Recent Payments</h3>
-          @if (dash.widgets.recentPayments.length) {
-            <ul class="widget-list">
-              @for (p of dash.widgets.recentPayments.slice(0, 3); track p.paymentId) {
-                <li>
-                  <span>{{ p.memberName ?? 'Member' }}</span>
-                  <em>{{ p.amount | currency:'INR' }}</em>
-                </li>
-              }
-            </ul>
-          } @else {
-            <p class="widget-empty">None</p>
-          }
-        </article>
+      <aside class="widgets-section" aria-label="Activity feed">
+        <div class="section-head section-head--compact">
+          <div>
+            <h2 class="section-head__title">Activity</h2>
+            <p class="section-head__sub">Latest updates across your gym</p>
+          </div>
+        </div>
 
-        <article class="widget">
-          <h3>Expiring</h3>
-          @if (dash.widgets.expiringMemberships.length) {
-            <ul class="widget-list">
-              @for (m of dash.widgets.expiringMemberships.slice(0, 3); track m.membershipId) {
-                <li>
-                  <span>{{ m.memberName }}</span>
-                  <em>{{ m.endDate | date:'MMM d' }}</em>
-                </li>
-              }
-            </ul>
-          } @else {
-            <p class="widget-empty">None</p>
-          }
-        </article>
+        <div class="widgets-grid">
+          <article class="widget">
+            <header class="widget__head">
+              <span class="widget__icon widget__icon--payments">
+                <mat-icon>payments</mat-icon>
+              </span>
+              <h3>Recent Payments</h3>
+            </header>
+            @if (dash.widgets.recentPayments.length) {
+              <ul class="widget-list">
+                @for (p of dash.widgets.recentPayments.slice(0, 3); track p.paymentId) {
+                  <li class="widget-list__item">
+                    <div class="widget-list__lead">
+                      <span class="widget-avatar widget-avatar--payments" aria-hidden="true">
+                        {{ (p.memberName ?? 'M').charAt(0) }}
+                      </span>
+                      <div class="widget-list__meta">
+                        <span class="widget-list__name">{{ p.memberName ?? 'Member' }}</span>
+                        <span class="widget-list__time">Payment received</span>
+                      </div>
+                    </div>
+                    <span class="status-chip status-chip--paid">{{ p.amount | currency:'INR' }}</span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <div class="widget-empty">
+                <mat-icon>receipt_long</mat-icon>
+                <p>None</p>
+              </div>
+            }
+          </article>
 
-        <article class="widget">
-          <h3>New Members</h3>
-          @if (dash.widgets.newMembers.length) {
-            <ul class="widget-list">
-              @for (m of dash.widgets.newMembers.slice(0, 3); track m.memberId) {
-                <li>
-                  <span>{{ m.memberName }}</span>
-                  <em>{{ m.joinDate | date:'MMM d' }}</em>
-                </li>
-              }
-            </ul>
-          } @else {
-            <p class="widget-empty">None</p>
-          }
-        </article>
+          <article class="widget">
+            <header class="widget__head">
+              <span class="widget__icon widget__icon--expiring">
+                <mat-icon>schedule</mat-icon>
+              </span>
+              <h3>Expiring</h3>
+            </header>
+            @if (dash.widgets.expiringMemberships.length) {
+              <ul class="widget-list">
+                @for (m of dash.widgets.expiringMemberships.slice(0, 3); track m.membershipId) {
+                  <li class="widget-list__item">
+                    <div class="widget-list__lead">
+                      <span class="widget-avatar widget-avatar--expiring" aria-hidden="true">
+                        {{ m.memberName.charAt(0) }}
+                      </span>
+                      <div class="widget-list__meta">
+                        <span class="widget-list__name">{{ m.memberName }}</span>
+                        <span class="widget-list__time">{{ m.endDate | date:'MMM d, y' }}</span>
+                      </div>
+                    </div>
+                    <span class="status-chip status-chip--expiring">Expiring</span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <div class="widget-empty">
+                <mat-icon>event_busy</mat-icon>
+                <p>None</p>
+              </div>
+            }
+          </article>
 
-        <article class="widget">
-          <h3>Notifications</h3>
-          @if (dash.widgets.recentNotifications.length) {
-            <ul class="widget-list">
-              @for (n of dash.widgets.recentNotifications.slice(0, 3); track n.logId) {
-                <li>
-                  <span>{{ n.notificationType }}</span>
-                  <em>{{ n.status }}</em>
-                </li>
-              }
-            </ul>
-          } @else {
-            <p class="widget-empty">None</p>
-          }
-        </article>
-      </section>
+          <article class="widget">
+            <header class="widget__head">
+              <span class="widget__icon widget__icon--members">
+                <mat-icon>person_add</mat-icon>
+              </span>
+              <h3>New Members</h3>
+            </header>
+            @if (dash.widgets.newMembers.length) {
+              <ul class="widget-list">
+                @for (m of dash.widgets.newMembers.slice(0, 3); track m.memberId) {
+                  <li class="widget-list__item">
+                    <div class="widget-list__lead">
+                      <span class="widget-avatar widget-avatar--members" aria-hidden="true">
+                        {{ m.memberName.charAt(0) }}
+                      </span>
+                      <div class="widget-list__meta">
+                        <span class="widget-list__name">{{ m.memberName }}</span>
+                        <span class="widget-list__time">Joined {{ m.joinDate | date:'MMM d' }}</span>
+                      </div>
+                    </div>
+                    <span class="status-chip status-chip--new">New</span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <div class="widget-empty">
+                <mat-icon>group_add</mat-icon>
+                <p>None</p>
+              </div>
+            }
+          </article>
+
+          <article class="widget">
+            <header class="widget__head">
+              <span class="widget__icon widget__icon--notifications">
+                <mat-icon>notifications</mat-icon>
+              </span>
+              <h3>Notifications</h3>
+            </header>
+            @if (dash.widgets.recentNotifications.length) {
+              <ul class="widget-list">
+                @for (n of dash.widgets.recentNotifications.slice(0, 3); track n.logId) {
+                  <li class="widget-list__item">
+                    <div class="widget-list__lead">
+                      <span class="widget-avatar widget-avatar--notifications" aria-hidden="true">
+                        <mat-icon>notifications</mat-icon>
+                      </span>
+                      <div class="widget-list__meta">
+                        <span class="widget-list__name">{{ n.notificationType }}</span>
+                        <span class="widget-list__time">Just now</span>
+                      </div>
+                    </div>
+                    <span class="status-chip" [class.status-chip--active]="n.status === 'Sent'" [class.status-chip--pending]="n.status !== 'Sent'">
+                      {{ n.status }}
+                    </span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <div class="widget-empty">
+                <mat-icon>notifications_off</mat-icon>
+                <p>None</p>
+              </div>
+            }
+          </article>
+        </div>
+      </aside>
     </div>
   </div>
 } @else {
-  <div class="dashboard-loading">
+  <div class="dashboard-loading dashboard-loading--error">
     <mat-icon class="empty-icon">dashboard</mat-icon>
     <p>Unable to load business dashboard.</p>
   </div>

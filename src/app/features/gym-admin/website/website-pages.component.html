@@ -1,0 +1,106 @@
+<div class="member-page cms-layout">
+  <header class="saas-page__header">
+    <div>
+      <h1 class="saas-page__title">Website Pages</h1>
+      <p class="saas-page__subtitle">Custom content pages on your public site</p>
+    </div>
+    <div class="member-page__actions">
+      <app-website-view-link />
+      <a class="btn-secondary" routerLink="/gym-admin/website-builder">
+        <mat-icon>arrow_back</mat-icon>
+        Builder
+      </a>
+      <a class="btn-secondary" routerLink="/gym-admin/website-builder/gallery">
+        <mat-icon>photo_library</mat-icon>
+        Gallery
+      </a>
+    </div>
+  </header>
+
+  <section class="panel-shell">
+    <div class="panel-shell__head">
+      <h2>Create page</h2>
+      <p>Add a new page visitors can browse on your website</p>
+    </div>
+    <div class="panel-shell__body">
+      <p class="cms-hint">
+        The slug becomes the URL path: <code>/website/your-slug/your-page-slug</code>. Use lowercase letters and hyphens only.
+      </p>
+      <form [formGroup]="form" (ngSubmit)="create()" class="form-grid">
+        <label class="form-field">
+          <span>Page name *</span>
+          <input type="text" formControlName="pageName" placeholder="e.g. Facilities" />
+        </label>
+        <label class="form-field">
+          <span>URL slug *</span>
+          <input type="text" formControlName="slug" placeholder="e.g. facilities" />
+        </label>
+        <label class="form-field">
+          <span>Display order</span>
+          <input type="number" formControlName="displayOrder" min="0" />
+        </label>
+        <label class="form-field form-field--wide">
+          <span>Page content</span>
+          <textarea formControlName="pageContent" rows="5" placeholder="Write your page content…"></textarea>
+        </label>
+        <div class="form-actions">
+          <button class="btn-primary" type="submit" [disabled]="form.invalid || saving()">
+            <mat-icon>add</mat-icon>
+            {{ saving() ? 'Creating…' : 'Create page' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="table-shell">
+    <div class="table-shell__head">
+      <div>
+        <h2>All pages</h2>
+        <p>{{ pages().length }} custom page{{ pages().length === 1 ? '' : 's' }}</p>
+      </div>
+    </div>
+    <div class="table-wrap">
+      @if (loading()) {
+        <div class="page-loading">
+          <mat-spinner diameter="32" />
+          <p>Loading pages…</p>
+        </div>
+      } @else {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Page</th>
+              <th>Slug</th>
+              <th>Content preview</th>
+              <th>Order</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of pages(); track p.id) {
+              <tr>
+                <td><strong>{{ p.pageName }}</strong></td>
+                <td><span class="page-row__slug">/{{ p.slug }}</span></td>
+                <td><span class="page-row__preview">{{ p.pageContent || '—' }}</span></td>
+                <td>{{ p.displayOrder }}</td>
+                <td>
+                  <div class="row-actions">
+                    <button class="btn-icon-danger" type="button" (click)="remove(p.id)">
+                      <mat-icon>delete</mat-icon>
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="empty-cell">No custom pages yet. Create your first page above.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </section>
+</div>

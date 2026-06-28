@@ -23,13 +23,16 @@ export class AttendanceCheckInComponent implements OnInit {
 
   members = signal<Member[]>([]);
   saving = signal(false);
-  form = this.fb.nonNullable.group({ memberId: [0, Validators.required], notes: [''] });
+  form = this.fb.nonNullable.group({ memberId: [0, [Validators.required, Validators.min(1)]], notes: [''] });
+
+  attendanceHomeLink(): string {
+    return this.router.url.includes('/trainer/') ? '/trainer/attendance' : '/gym-admin/attendance';
+  }
 
   ngOnInit(): void {
-    this.memberSvc.getPaged(null, { pageNumber: 1, pageSize: 500, sortColumn: 'FullName' }).subscribe({
-      next: (res) => {
-        if (res.success && res.data) this.members.set(res.data.items);
-      },
+    this.memberSvc.getAll().subscribe({
+      next: (items) => this.members.set(items),
+      error: () => this.notify.error('Failed to load members'),
     });
   }
 
@@ -42,7 +45,7 @@ export class AttendanceCheckInComponent implements OnInit {
         this.saving.set(false);
         if (res.success) {
           this.notify.success('Checked in');
-          this.router.navigate(['../']);
+          void this.router.navigateByUrl(this.attendanceHomeLink());
         } else this.notify.error(res.message ?? 'Check-in failed');
       },
       error: (e) => {

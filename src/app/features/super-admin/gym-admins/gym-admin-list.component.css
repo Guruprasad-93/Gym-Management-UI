@@ -115,46 +115,9 @@
 
 .table-toolbar__filters {
   display: flex;
-  align-items: center;
-  gap: 0.625rem;
+  align-items: flex-end;
+  gap: 0.75rem;
   flex-wrap: wrap;
-}
-
-.filter-select {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  border: 1px solid #e4e7ec;
-  border-radius: 10px;
-  padding: 0.45rem 0.75rem;
-  background: #fff;
-  color: #344054;
-  font-size: 0.8125rem;
-  font-weight: 500;
-}
-
-.filter-select select {
-  appearance: none;
-  border: none;
-  outline: none;
-  background: transparent;
-  font: inherit;
-  color: inherit;
-  padding-right: 1rem;
-  cursor: pointer;
-  min-width: 140px;
-  max-width: 220px;
-}
-
-.filter-select mat-icon {
-  position: absolute;
-  right: 0.5rem;
-  pointer-events: none;
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-  color: #98a2b3;
 }
 
 .table-wrap {

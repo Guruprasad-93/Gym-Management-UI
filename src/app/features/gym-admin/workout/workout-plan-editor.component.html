@@ -1,0 +1,149 @@
+<div class="member-page workout-plan-editor-page">
+  <header class="saas-page__header">
+    <div>
+      <a class="workout-plan-editor-back" [routerLink]="workoutPlansPath">
+        <mat-icon>arrow_back</mat-icon>
+        Back to workout plans
+      </a>
+      <h1 class="saas-page__title">
+        {{ !canManage && isEdit() ? 'View Workout Plan' : isEdit() ? 'Edit Workout Plan' : 'New Workout Plan' }}
+      </h1>
+      <p class="saas-page__subtitle">
+        {{ canManage ? 'Structure training days, exercises, sets, and rest periods' : 'Review program details and exercises' }}
+      </p>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="page-loading">
+      <mat-spinner diameter="36" />
+      <p>Loading workout plan…</p>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="save()" class="workout-plan-form">
+      <section class="panel-shell">
+        <div class="panel-shell__head">
+          <h2>Plan Details</h2>
+          <p>Name, goal, and program duration</p>
+        </div>
+        <div class="panel-shell__body">
+          <div class="form-grid">
+            <label class="form-field">
+              <span>Plan name *</span>
+              <input type="text" formControlName="planName" placeholder="e.g. Strength — 4 Week Block" />
+            </label>
+            <label class="form-field">
+              <span>Goal</span>
+              <input type="text" formControlName="goal" placeholder="e.g. Muscle gain, fat loss" />
+            </label>
+            <label class="form-field">
+              <span>Duration (weeks)</span>
+              <input type="number" formControlName="durationWeeks" min="1" placeholder="e.g. 8" />
+            </label>
+            <label class="form-field form-field--checkbox">
+              <span>Status</span>
+              <label class="checkbox-field">
+                <input type="checkbox" formControlName="isActive" />
+                <span>Active plan</span>
+              </label>
+            </label>
+            <label class="form-field form-field--wide">
+              <span>Description</span>
+              <textarea formControlName="description" rows="2" placeholder="Program overview for trainers and members"></textarea>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-shell">
+        <div class="panel-shell__head panel-shell__head--split">
+          <div>
+            <h2>Exercises</h2>
+            <p>{{ exercises.length }} row{{ exercises.length === 1 ? '' : 's' }} · {{ dayCount() }} training day{{ dayCount() === 1 ? '' : 's' }}</p>
+          </div>
+          @if (canManage) {
+            <button class="btn-secondary" type="button" (click)="addRow()">
+              <mat-icon>add</mat-icon>
+              Add exercise
+            </button>
+          }
+        </div>
+        <div class="panel-shell__body">
+          <div formArrayName="exercises" class="exercise-items">
+            @for (row of exercises.controls; track $index; let i = $index) {
+              <article class="exercise-item-card" [formGroupName]="i">
+                <header class="exercise-item-card__head">
+                  <span class="exercise-item-card__index">#{{ i + 1 }}</span>
+                  @if (canManage) {
+                    <button
+                      class="row-actions__btn row-actions__btn--warn"
+                      type="button"
+                      (click)="removeRow(i)"
+                      [disabled]="exercises.length === 1"
+                      matTooltip="Remove exercise">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  }
+                </header>
+                <div class="form-grid">
+                  <label class="form-field">
+                    <span>Day *</span>
+                    <input type="number" formControlName="dayNumber" min="1" placeholder="1" />
+                  </label>
+                  <label class="form-field form-field--wide">
+                    <span>Exercise *</span>
+                    <select formControlName="exerciseId">
+                      <option value="">Select exercise</option>
+                      @for (e of library(); track e.exerciseId) {
+                        <option [value]="e.exerciseId">
+                          {{ e.exerciseName }}{{ e.muscleGroup ? ' · ' + e.muscleGroup : '' }}
+                        </option>
+                      }
+                    </select>
+                    @if (!exercisesLoaded()) {
+                      <small class="form-field__hint">Loading exercise library…</small>
+                    } @else if (library().length === 0) {
+                      <small class="form-field__hint">No exercises available. Refresh the page or contact your admin.</small>
+                    }
+                  </label>
+                  <label class="form-field">
+                    <span>Sets</span>
+                    <input type="number" formControlName="sets" min="1" placeholder="3" />
+                  </label>
+                  <label class="form-field">
+                    <span>Reps</span>
+                    <input type="text" formControlName="reps" placeholder="e.g. 10-12" />
+                  </label>
+                  <label class="form-field">
+                    <span>Weight</span>
+                    <input type="text" formControlName="weight" placeholder="e.g. 20 kg" />
+                  </label>
+                  <label class="form-field">
+                    <span>Rest (sec)</span>
+                    <input type="number" formControlName="restSeconds" min="0" placeholder="60" />
+                  </label>
+                  <label class="form-field form-field--wide">
+                    <span>Notes</span>
+                    <input type="text" formControlName="notes" placeholder="Form cues or substitutions" />
+                  </label>
+                </div>
+              </article>
+            } @empty {
+              <p class="empty-state">No exercises yet. Add at least one row to the plan.</p>
+            }
+          </div>
+        </div>
+      </section>
+
+      <footer class="workout-plan-form__actions">
+        <a class="btn-secondary" [routerLink]="workoutPlansPath">{{ canManage ? 'Cancel' : 'Back' }}</a>
+        @if (canManage) {
+          <button class="btn-primary" type="submit" [disabled]="saving() || form.invalid">
+            <mat-icon>save</mat-icon>
+            {{ saving() ? 'Saving…' : isEdit() ? 'Save Changes' : 'Create Plan' }}
+          </button>
+        }
+      </footer>
+    </form>
+  }
+</div>

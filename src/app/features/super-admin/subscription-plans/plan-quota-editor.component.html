@@ -1,0 +1,22 @@
+<div class="quota-grid">
+  @for (field of fields; track field.key) {
+    <div class="quota-field">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ field.label }}</mat-label>
+        <input
+          matInput
+          type="number"
+          min="0"
+          [formControl]="form.controls[field.key]"
+          [readonly]="readonly || unlimited[field.key]"
+          (input)="onValueChange()" />
+      </mat-form-field>
+      <mat-checkbox
+        [checked]="unlimited[field.key]"
+        [disabled]="readonly"
+        (change)="toggleUnlimited(field.key, $event.checked)">
+        Unlimited
+      </mat-checkbox>
+    </div>
+  }
+</div>

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject, signal } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -42,6 +42,8 @@ export class FileUploadComponent {
   private readonly fileService = inject(FileService);
   private readonly notify = inject(NotificationService);
 
+  @ViewChild('fileInput') private fileInput?: ElementRef<HTMLInputElement>;
+
   @Input() label = 'Upload file';
   @Input() accept = 'image/*';
   @Input() disabled = false;
@@ -50,6 +52,12 @@ export class FileUploadComponent {
   @Output() readonly uploaded = new EventEmitter<StoredFile>();
 
   uploading = signal(false);
+
+  openPicker(): void {
+    if (!this.disabled && !this.uploading()) {
+      this.fileInput?.nativeElement.click();
+    }
+  }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;

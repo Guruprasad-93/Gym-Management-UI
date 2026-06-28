@@ -1,0 +1,150 @@
+<div class="member-page cms-layout">
+  <header class="saas-page__header">
+    <div>
+      <h1 class="saas-page__title">Website Gallery</h1>
+      <p class="saas-page__subtitle">Upload photos for your public gym website — no file IDs needed</p>
+    </div>
+    <div class="member-page__actions">
+      <app-website-view-link />
+      <a class="btn-secondary" routerLink="/gym-admin/website-builder">
+        <mat-icon>arrow_back</mat-icon>
+        Builder
+      </a>
+    </div>
+  </header>
+
+  <section class="panel-shell">
+    <div class="panel-shell__head">
+      <h2>Upload images</h2>
+      <p>Drag and drop or select multiple photos — they upload and appear in your gallery automatically</p>
+    </div>
+    <div class="panel-shell__body">
+      <div
+        class="upload-zone"
+        [class.upload-zone--active]="dragOver()"
+        [class.upload-zone--busy]="uploading()"
+        (drop)="onDrop($event)"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)">
+        <mat-icon class="upload-zone__icon">cloud_upload</mat-icon>
+        <p class="upload-zone__title">Drop images here</p>
+        <p class="upload-zone__hint">JPG, PNG, WebP, or GIF · Max 5 MB each · Multiple files supported</p>
+        <label class="btn-primary upload-zone__btn">
+          <mat-icon>add_photo_alternate</mat-icon>
+          Upload Images
+          <input
+            type="file"
+            class="upload-zone__input"
+            [accept]="accept"
+            multiple
+            [disabled]="uploading()"
+            (change)="onFilesSelected($event)" />
+        </label>
+      </div>
+
+      @if (uploadTasks().length) {
+        <div class="upload-queue">
+          @for (task of uploadTasks(); track task.key) {
+            <div class="upload-queue__item" [class.upload-queue__item--error]="task.status === 'error'">
+              <img [src]="task.previewUrl" [alt]="task.fileName" class="upload-queue__thumb" />
+              <div class="upload-queue__meta">
+                <span class="upload-queue__name">{{ task.fileName }}</span>
+                @if (task.status === 'error') {
+                  <span class="upload-queue__error">{{ task.error }}</span>
+                } @else {
+                  <mat-progress-bar mode="determinate" [value]="task.progress" />
+                  <span class="upload-queue__status">
+                    @switch (task.status) {
+                      @case ('queued') { Waiting… }
+                      @case ('uploading') { Uploading… }
+                      @case ('saving') { Adding to gallery… }
+                      @case ('done') { Done }
+                    }
+                  </span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="table-shell">
+    <div class="table-shell__head">
+      <div>
+        <h2>Gallery</h2>
+        <p>
+          {{ gallery().length }} image{{ gallery().length === 1 ? '' : 's' }}
+          @if (reordering()) { · Saving order… }
+          @else if (gallery().length > 1) { · Drag cards to reorder }
+        </p>
+      </div>
+    </div>
+    <div class="panel-shell__body gallery-body">
+      @if (loading()) {
+        <div class="page-loading">
+          <mat-spinner diameter="32" />
+          <p>Loading gallery…</p>
+        </div>
+      } @else if (gallery().length === 0 && !uploading()) {
+        <p class="empty-cell">No images yet. Upload photos using the area above.</p>
+      } @else {
+        <div
+          class="gallery-grid gallery-grid--sortable"
+          cdkDropList
+          (cdkDropListDropped)="drop($event)">
+          @for (item of gallery(); track item.id) {
+            <article class="gallery-card" cdkDrag>
+              <div class="gallery-card__handle" cdkDragHandle matTooltip="Drag to reorder">
+                <mat-icon>drag_indicator</mat-icon>
+              </div>
+              <button type="button" class="gallery-card__media" (click)="openPreview(item)">
+                @if (item.publicUrl) {
+                  <img [src]="item.publicUrl" [alt]="item.caption ?? 'Gallery image'" loading="lazy" />
+                } @else {
+                  <div class="gallery-card__placeholder">
+                    <mat-icon>broken_image</mat-icon>
+                  </div>
+                }
+                <span class="gallery-card__preview-hint">
+                  <mat-icon>zoom_in</mat-icon>
+                </span>
+              </button>
+              <div class="gallery-card__body">
+                <label class="gallery-card__caption">
+                  <span>Caption</span>
+                  <input
+                    type="text"
+                    [value]="item.caption ?? ''"
+                    (blur)="saveCaption(item, $any($event.target).value)"
+                    placeholder="Add a caption" />
+                </label>
+                <div class="gallery-card__actions">
+                  <button class="btn-icon-danger" type="button" (click)="remove(item)">
+                    <mat-icon>delete</mat-icon>
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </div>
+  </section>
+</div>
+
+@if (previewItem(); as item) {
+  <div class="preview-overlay" role="dialog" aria-modal="true" (click)="closePreview()">
+    <div class="preview-dialog" (click)="$event.stopPropagation()">
+      <button type="button" class="preview-dialog__close" (click)="closePreview()" aria-label="Close">
+        <mat-icon>close</mat-icon>
+      </button>
+      @if (item.publicUrl) {
+        <img [src]="item.publicUrl" [alt]="item.caption ?? 'Preview'" class="preview-dialog__img" />
+      }
+      <p class="preview-dialog__caption">{{ item.caption || item.originalFileName || 'Gallery image' }}</p>
+    </div>
+  </div>
+}

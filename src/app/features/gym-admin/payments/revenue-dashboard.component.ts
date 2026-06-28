@@ -21,6 +21,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { SaasKpiCardComponent } from '../../../shared/components/saas-kpi-card/saas-kpi-card.component';
 import { SaasChartCardComponent } from '../../../shared/components/saas-chart-card/saas-chart-card.component';
 import { MonthlyRevenue, RevenueDashboard } from '../../../shared/models/membership-payment.models';
+import { sortMonthlyChronologically } from '../../../shared/utils/chart.util';
 
 Chart.register(...registerables);
 
@@ -82,7 +83,7 @@ export class RevenueDashboardComponent implements OnInit, OnDestroy {
   }
 
   private renderChart(): void {
-    const data = this.monthly();
+    const data = sortMonthlyChronologically(this.monthly());
     if (!this.trendChartRef?.nativeElement || !data.length) return;
     this.charts.forEach((c) => c.destroy());
     this.charts = [];

@@ -48,7 +48,7 @@ export class BranchListComponent implements OnInit {
         this.form.reset();
         this.load();
       },
-      error: () => this.notify.error('Failed to create branch'),
+      error: (err) => this.notify.error(err.error?.message ?? 'Failed to create branch'),
     });
   }
 }

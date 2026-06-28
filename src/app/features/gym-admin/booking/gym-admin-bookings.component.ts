@@ -4,9 +4,12 @@ import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
+import { AuthService } from '../../../core/services/auth.service';
 import { BookingService } from '../../../core/services/booking.service';
+import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification.service';
-import { SlotBooking } from '../../../shared/models/booking.models';
+import { Permissions } from '../../../core/constants/permissions';
+import { bookingStatusBadgeClass, canCancelBooking, SlotBooking } from '../../../shared/models/booking.models';
 
 @Component({
   selector: 'app-gym-admin-bookings',
@@ -18,12 +21,20 @@ import { SlotBooking } from '../../../shared/models/booking.models';
 export class GymAdminBookingsComponent implements OnInit {
   private readonly svc = inject(BookingService);
   private readonly notify = inject(NotificationService);
+  private readonly dialog = inject(DialogService);
+  private readonly auth = inject(AuthService);
 
+  readonly canManage = this.auth.hasPermission(Permissions.ManageBookings);
   loading = signal(true);
   bookings = signal<SlotBooking[]>([]);
-  cols = ['member', 'class', 'schedule', 'trainer', 'status'];
+  cols = ['member', 'class', 'schedule', 'trainer', 'status', 'actions'];
 
   ngOnInit(): void {
+    this.load();
+  }
+
+  load(): void {
+    this.loading.set(true);
     this.svc.getBookings(1, 100).subscribe({
       next: (r) => {
         this.loading.set(false);
@@ -45,17 +56,26 @@ export class GymAdminBookingsComponent implements OnInit {
       .join('');
   }
 
-  statusBadgeClass(status: string): string {
-    switch (status) {
-      case 'Confirmed':
-      case 'CheckedIn':
-        return 'status-badge--confirmed';
-      case 'Cancelled':
-        return 'status-badge--cancelled';
-      case 'NoShow':
-        return 'status-badge--noshow';
-      default:
-        return 'status-badge--muted';
-    }
+  statusBadgeClass = bookingStatusBadgeClass;
+  canCancel = canCancelBooking;
+
+  cancelBooking(row: SlotBooking): void {
+    this.dialog
+      .confirm({
+        title: 'Cancel booking',
+        message: `Cancel ${row.memberName}'s booking for ${row.className}?`,
+        tone: 'danger',
+        confirmLabel: 'Cancel booking',
+      })
+      .subscribe((ok) => {
+        if (!ok) return;
+        this.svc.cancel(row.id).subscribe({
+          next: () => {
+            this.notify.success('Booking cancelled');
+            this.load();
+          },
+          error: (e) => this.notify.error(e.error?.message ?? 'Cancel failed'),
+        });
+      });
   }
 }

@@ -13,21 +13,12 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrl: './header.component.css',
 })
 export class HeaderComponent {
-  @Input() title = '';
+  @Input() portalLabel = '';
   @Input() userName = '';
   @Input() userEmail = '';
   @Output() menuToggle = new EventEmitter<void>();
 
   private readonly auth = inject(AuthService);
-
-  get searchPlaceholder(): string {
-    const normalized = this.title.toLowerCase();
-    if (normalized.includes('super')) return 'Search gyms, members, subscriptions...';
-    if (normalized.includes('gym admin')) return 'Search members, trainers, payments...';
-    if (normalized.includes('member')) return 'Search goals, workouts, progress...';
-    if (normalized.includes('trainer')) return 'Search members, sessions, schedules...';
-    return 'Search...';
-  }
 
   logout(): void {
     this.auth.logout();

@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin, map, of, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response';
 import { PagedResult } from '../../shared/models/paged.models';
@@ -38,6 +38,33 @@ export class LeadService {
     if (query.leadSource) params = params.set('leadSource', query.leadSource);
     if (query.gymId) params = params.set('gymId', query.gymId);
     return this.http.get<ApiResponse<PagedResult<Lead>>>(this.base, { params });
+  }
+
+  /** Loads all leads for kanban by paging in chunks of 100. */
+  getAll(query: Omit<LeadSearchQuery, 'pageNumber' | 'pageSize'> = {}): Observable<Lead[]> {
+    const pageSize = 100;
+    const baseQuery: LeadSearchQuery = {
+      ...query,
+      pageSize,
+      sortColumn: query.sortColumn ?? 'CreatedDate',
+      sortDirection: query.sortDirection ?? 'DESC',
+    };
+
+    return this.getPaged({ ...baseQuery, pageNumber: 1 }).pipe(
+      switchMap((first) => {
+        const items = first.data?.items ?? [];
+        const total = first.data?.totalCount ?? items.length;
+        const totalPages = Math.ceil(total / pageSize);
+        if (totalPages <= 1) return of(items);
+
+        const pageRequests = Array.from({ length: totalPages - 1 }, (_, i) =>
+          this.getPaged({ ...baseQuery, pageNumber: i + 2 })
+        );
+        return forkJoin(pageRequests).pipe(
+          map((pages) => items.concat(...pages.map((p) => p.data?.items ?? [])))
+        );
+      })
+    );
   }
 
   getById(id: number, gymId?: string): Observable<ApiResponse<LeadDetail>> {

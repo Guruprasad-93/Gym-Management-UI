@@ -14,7 +14,7 @@
     </div>
     <div class="sidebar__brand-text">
       <strong>{{ branding.appName() }}</strong>
-      <span>{{ title }}</span>
+      <span>{{ portalLabel }}</span>
     </div>
   </div>
 
@@ -32,6 +32,11 @@
   </nav>
 
   <div class="sidebar__footer">
+    @if (branding.showPoweredBy()) {
+      <div class="sidebar__powered-by">
+        Powered by {{ branding.platformProductName() }}
+      </div>
+    }
     <div class="sidebar__promo">
       <strong>All-in-one platform</strong>
       <p>Manage your gym operations and fitness journey from one place.</p>
@@ -41,7 +46,7 @@
         <div class="sidebar__avatar">{{ userName.charAt(0).toUpperCase() }}</div>
         <div>
           <strong>{{ userName }}</strong>
-          <span>{{ userEmail || title }}</span>
+          <span>{{ userEmail || portalLabel }}</span>
         </div>
       </div>
     }

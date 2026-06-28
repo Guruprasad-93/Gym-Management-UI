@@ -172,8 +172,20 @@ export interface MemberDashboardPayment {
   invoiceNumber?: string;
 }
 
+export interface MemberTodayVisit {
+  checkInAt?: string;
+  checkOutAt?: string;
+  statusCode: string;
+  statusName: string;
+  checkoutType?: string;
+  isAutoCheckout?: boolean;
+  isCurrentlyCheckedIn?: boolean;
+  checkedOutByName?: string;
+}
+
 export interface MemberSelfServiceDashboard {
   activeMembership?: MemberDashboardMembership;
+  todayVisit?: MemberTodayVisit;
   attendancePercentage: number;
   currentGoal?: MemberGoal;
   todayWorkout?: WorkoutTracking;

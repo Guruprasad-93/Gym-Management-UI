@@ -12,7 +12,7 @@ import { untilDestroyed } from '../../core/utils/destroy-ref.util';
   template: `
     <app-main-layout
       [menuItems]="menuService.memberMenu()"
-      title="Member Portal"
+      portalLabel="Member Portal"
       [userName]="auth.user()?.name ?? ''"
       [userEmail]="auth.user()?.email ?? ''" />
   `,

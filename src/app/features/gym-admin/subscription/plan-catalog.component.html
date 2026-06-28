@@ -1,0 +1,90 @@
+@if (loading()) {
+  <div class="page-loading">
+    <mat-spinner diameter="36" />
+    <p>Loading plans…</p>
+  </div>
+} @else {
+  <section class="panel-shell">
+    <div class="panel-shell__head">
+      <h2>Plan Catalog</h2>
+      <p>Dynamic plans and pricing from your platform catalog</p>
+    </div>
+    <div class="panel-shell__body">
+      @if (selectedForCompare().size >= 2) {
+        <div class="compare-select-bar">
+          <span>{{ selectedForCompare().size }} plans selected</span>
+          <button class="btn-primary" type="button" (click)="openCompare()">
+            <mat-icon>compare</mat-icon>
+            Compare Selected
+          </button>
+        </div>
+      }
+
+      <div class="plan-grid">
+        @for (plan of plans(); track plan.id) {
+          <article class="plan-card" [class.plan-card--current]="isCurrentPlan(plan)">
+            <header class="plan-card__head">
+              <div>
+                <h3>{{ plan.planName }}</h3>
+                @if (plan.description) {
+                  <p class="saas-page__subtitle">{{ plan.description }}</p>
+                }
+              </div>
+              @if (isCurrentPlan(plan)) {
+                <span class="chip chip--current">Current</span>
+              } @else {
+                <span class="chip">{{ plan.planCode }}</span>
+              }
+            </header>
+
+            <label class="compare-select-bar" style="margin: 0">
+              <mat-checkbox
+                [checked]="selectedForCompare().has(plan.id)"
+                (change)="toggleCompare(plan.id, $event.checked)">
+                Compare
+              </mat-checkbox>
+            </label>
+
+            <ul class="feature-list">
+              @for (feature of topFeatures(plan); track feature.featureCode) {
+                <li>{{ feature.featureName }}</li>
+              }
+              @if (plan.features.length > 5) {
+                <li>+ {{ plan.features.length - 5 }} more features</li>
+              }
+            </ul>
+
+            @if (lowestPrice(plan) != null) {
+              <p>
+                From <strong>{{ lowestPrice(plan) | currency: 'INR' }}</strong>
+              </p>
+            }
+
+            <div class="pricing-options">
+              @for (option of plan.pricingOptions; track option.pricingOptionId) {
+                @if (option.isActive) {
+                  <button
+                    class="pricing-option-btn"
+                    type="button"
+                    [disabled]="!canCheckout()"
+                    (click)="checkout(plan, option.pricingOptionId)">
+                    <span>{{ durationLabel(option) }}</span>
+                    <strong>{{ option.price | currency: 'INR' }}</strong>
+                  </button>
+                }
+              }
+            </div>
+
+            @if (!canCheckout()) {
+              <small class="saas-page__subtitle">You need manage subscription permission to purchase.</small>
+            }
+          </article>
+        }
+      </div>
+
+      @if (!plans().length) {
+        <p class="saas-page__subtitle">No public plans are available right now.</p>
+      }
+    </div>
+  </section>
+}

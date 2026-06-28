@@ -1,10 +1,63 @@
-@import '../../../shared/styles/member-page.css';
-
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.875rem;
   margin-bottom: 1.25rem;
+}
+
+.kpi-grid--secondary {
+  margin-bottom: 1.5rem;
+}
+
+.settings-panel {
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid #eef0f4;
+  border-radius: 12px;
+  background: #fcfcfd;
+}
+
+.settings-panel__head h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.settings-panel__head p {
+  margin: 0.25rem 0 0.75rem;
+  color: #667085;
+  font-size: 0.8125rem;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+}
+
+.settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  color: #475467;
+}
+
+.settings-field--checkbox {
+  flex-direction: row;
+  align-items: center;
+  grid-column: 1 / -1;
+}
+
+.settings-field input[type='time'],
+.settings-field input[type='number'] {
+  padding: 0.5rem 0.625rem;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+}
+
+.settings-actions {
+  margin-top: 0.875rem;
 }
 
 .table-shell__head {

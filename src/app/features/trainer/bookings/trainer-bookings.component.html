@@ -15,8 +15,8 @@
   @if (!loading && bookings.length) {
     <div class="kpi-grid">
       <app-saas-kpi-card label="Total" [value]="bookings.length" icon="event_note" accent="#ff6600" hint="Bookings" />
-      <app-saas-kpi-card label="Confirmed" [value]="confirmedCount" icon="check_circle" accent="#12b76a" hint="Active" />
-      <app-saas-kpi-card label="Waitlisted" [value]="waitlistedCount" icon="hourglass_top" accent="#f79009" hint="Pending" />
+      <app-saas-kpi-card label="Booked" [value]="bookedCount" icon="check_circle" accent="#12b76a" hint="Active" />
+      <app-saas-kpi-card label="Completed" [value]="completedCount" icon="task_alt" accent="#175cd3" hint="Done" />
     </div>
   }
 
@@ -31,10 +31,11 @@
           <span>Status</span>
           <select [(ngModel)]="statusFilter" aria-label="Filter by status">
             <option value="all">All</option>
-            <option value="Confirmed">Confirmed</option>
+            <option value="Booked">Booked</option>
+            <option value="CheckedIn">Checked In</option>
             <option value="Completed">Completed</option>
-            <option value="Waitlisted">Waitlisted</option>
             <option value="Cancelled">Cancelled</option>
+            <option value="NoShow">No Show</option>
           </select>
           <mat-icon>expand_more</mat-icon>
         </label>
@@ -58,14 +59,7 @@
                 <small>{{ b.branchName }} · {{ b.startTime }} – {{ b.endTime }}</small>
               </div>
             </div>
-            <span
-              class="status-badge"
-              [class.status-badge--active]="b.status === 'Confirmed'"
-              [class.status-badge--completed]="b.status === 'Completed'"
-              [class.status-badge--warn]="b.status === 'Waitlisted' || b.status === 'Cancelled'"
-              [class.status-badge--muted]="b.status !== 'Confirmed' && b.status !== 'Completed' && b.status !== 'Waitlisted' && b.status !== 'Cancelled'">
-              {{ b.status }}
-            </span>
+            <span class="status-badge" [ngClass]="statusBadgeClass(b.status)">{{ b.status }}</span>
           </div>
         }
       </div>

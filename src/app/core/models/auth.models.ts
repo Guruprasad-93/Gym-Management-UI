@@ -7,19 +7,6 @@ export interface ApiResponse<T> {
 export interface LoginRequest {
   loginIdentifier: string;
   password: string;
-  gymId?: string | null;
-}
-
-export interface ForgotPasswordRequest {
-  loginIdentifier: string;
-  gymId?: string | null;
-}
-
-export interface ResetPasswordRequest {
-  loginIdentifier: string;
-  gymId?: string | null;
-  token: string;
-  newPassword: string;
 }
 
 export interface LoginResponse {
@@ -37,7 +24,10 @@ export interface LoginResponse {
   roles: string[];
   permissions: string[];
   enabledMenuCodes?: string[];
+  enabledFeatureCodes?: string[];
   mustChangePassword?: boolean;
+  showPoweredBy?: boolean;
+  platformProductName?: string | null;
 }
 
 export interface AuthUser {
@@ -47,7 +37,10 @@ export interface AuthUser {
   gymId?: string | null;
   roles: string[];
   permissions: string[];
-  enabledMenuCodes?: string[];
+  enabledMenuCodes: string[];
+  enabledFeatureCodes: string[];
+  showPoweredBy?: boolean;
+  platformProductName?: string | null;
   expiresAt: string;
   mustChangePassword?: boolean;
 }
@@ -61,5 +54,8 @@ export interface SessionPermissions {
   roles: string[];
   permissions: string[];
   enabledMenuCodes?: string[];
+  enabledFeatureCodes?: string[];
   refreshedAt: string;
+  showPoweredBy?: boolean;
+  platformProductName?: string | null;
 }

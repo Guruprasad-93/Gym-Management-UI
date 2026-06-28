@@ -1,19 +1,18 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { Subscription } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
-import { BrandingService } from '../../../core/services/branding.service';
-
-function passwordMatchValidator(control: AbstractControl) {
-  const password = control.get('password')?.value;
-  const confirm = control.get('confirmPassword')?.value;
-  return password === confirm ? null : { passwordMismatch: true };
-}
+import { PasswordFieldComponent } from '../../../shared/components/password-field/password-field.component';
+import {
+  PASSWORD_MISMATCH_MESSAGE,
+  confirmPasswordValidator,
+} from '../../../shared/validators/password.validators';
 
 @Component({
   selector: 'app-reset-password-page',
@@ -25,6 +24,7 @@ function passwordMatchValidator(control: AbstractControl) {
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    PasswordFieldComponent,
   ],
   template: `
     <div class="auth-page">
@@ -34,23 +34,24 @@ function passwordMatchValidator(control: AbstractControl) {
           <form [formGroup]="form" (ngSubmit)="submit()">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Login ID</mat-label>
-              <input matInput type="text" formControlName="loginIdentifier" maxlength="20" />
+              <input matInput type="text" formControlName="loginIdentifier" />
             </mat-form-field>
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Reset Token</mat-label>
               <input matInput formControlName="token" />
             </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>New Password</mat-label>
-              <input matInput type="password" formControlName="password" />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Confirm Password</mat-label>
-              <input matInput type="password" formControlName="confirmPassword" />
-              @if (form.hasError('passwordMismatch') && form.touched) {
-                <mat-error>Passwords do not match</mat-error>
-              }
-            </mat-form-field>
+            <app-password-field
+              label="New Password"
+              [control]="form.controls.password"
+              autocomplete="new-password"
+              minLengthMessage="Minimum 8 characters"
+            />
+            <app-password-field
+              label="Confirm Password"
+              [control]="form.controls.confirmPassword"
+              autocomplete="new-password"
+              [mismatchMessage]="mismatchMessage"
+            />
             <button mat-flat-button color="primary" class="full-width" [disabled]="loading">
               Reset Password
             </button>
@@ -84,32 +85,41 @@ function passwordMatchValidator(control: AbstractControl) {
     `,
   ],
 })
-export class ResetPasswordPageComponent implements OnInit {
+export class ResetPasswordPageComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly notify = inject(NotificationService);
-  private readonly branding = inject(BrandingService);
 
+  readonly mismatchMessage = PASSWORD_MISMATCH_MESSAGE;
   loading = false;
+  private subs = new Subscription();
 
-  readonly form = this.fb.nonNullable.group(
-    {
-      loginIdentifier: ['', [Validators.required, Validators.maxLength(20)]],
-      token: ['', Validators.required],
-      password: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: ['', Validators.required],
-    },
-    { validators: passwordMatchValidator }
-  );
+  readonly form = this.fb.nonNullable.group({
+    loginIdentifier: ['', [Validators.required, Validators.maxLength(100)]],
+    token: ['', Validators.required],
+    password: ['', [Validators.required, Validators.minLength(8)]],
+    confirmPassword: ['', [Validators.required, confirmPasswordValidator('password')]],
+  });
 
   ngOnInit(): void {
-    const loginIdentifier = this.route.snapshot.queryParamMap.get('loginIdentifier')
-      ?? this.route.snapshot.queryParamMap.get('email');
+    const loginIdentifier =
+      this.route.snapshot.queryParamMap.get('loginIdentifier') ??
+      this.route.snapshot.queryParamMap.get('email');
     const token = this.route.snapshot.queryParamMap.get('token');
     if (loginIdentifier) this.form.controls.loginIdentifier.setValue(loginIdentifier);
     if (token) this.form.controls.token.setValue(token);
+
+    this.subs.add(
+      this.form.controls.password.valueChanges.subscribe(() =>
+        this.form.controls.confirmPassword.updateValueAndValidity({ emitEvent: false })
+      )
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
   }
 
   submit(): void {
@@ -117,14 +127,14 @@ export class ResetPasswordPageComponent implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
-    const { loginIdentifier, token, password } = this.form.getRawValue();
+    const { loginIdentifier, token, password, confirmPassword } = this.form.getRawValue();
     this.loading = true;
     this.auth
       .resetPassword({
         loginIdentifier,
-        gymId: this.branding.branding()?.gymId ?? null,
         token,
         newPassword: password,
+        confirmPassword,
       })
       .subscribe({
       next: (res) => {

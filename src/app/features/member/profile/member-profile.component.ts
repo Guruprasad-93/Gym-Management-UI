@@ -1,6 +1,6 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, signal } from '@angular/core';
 
 import { RouterLink } from '@angular/router';
 
@@ -37,6 +37,15 @@ import {
   WorkoutTracking,
 
 } from '../../../shared/models/member-self-service.models';
+
+
+
+/** Member Profile page action buttons — set a flag to `true` to show it again. */
+export const MEMBER_PROFILE_ACTION_VISIBILITY = {
+  payMembership: false,
+  updatePhoto: true,
+  editProfile: false,
+} as const;
 
 
 
@@ -81,6 +90,10 @@ interface ProfileTab {
 })
 
 export class MemberProfileComponent implements OnInit {
+
+  readonly profileActions = MEMBER_PROFILE_ACTION_VISIBILITY;
+
+  @ViewChild('photoManager') photoManager?: ProfilePhotoManagerComponent;
 
   readonly auth = inject(AuthService);
 
@@ -344,6 +357,10 @@ export class MemberProfileComponent implements OnInit {
 
     return goalType.replace(/([a-z])([A-Z])/g, '$1 $2');
 
+  }
+
+  triggerUpdatePhoto(): void {
+    this.photoManager?.openUploadPicker();
   }
 
 

@@ -32,11 +32,22 @@
         <form class="singup-form" [formGroup]="form" (ngSubmit)="submit()">
           <input type="text" placeholder="Gym name" formControlName="gymName" />
           <input type="text" placeholder="Owner name" formControlName="ownerName" class="mt-3" />
-          <input type="tel" placeholder="Mobile (WhatsApp)" formControlName="mobile" class="mt-3" />
-          <input type="text" placeholder="Login ID (max 20 chars)" formControlName="loginIdentifier" maxlength="20" class="mt-3" />
-          <input type="email" placeholder="Email (optional)" formControlName="email" class="mt-3" />
+          <input type="tel" placeholder="Mobile e.g. +91 9876543210" formControlName="mobile" class="mt-3" />
+          @if (submitted && form.controls.mobile.invalid) {
+            <div class="text-danger mt-1">{{ phoneErrorMessage(form.controls.mobile.errors) }}</div>
+          }
+          <input type="email" placeholder="Email" formControlName="email" class="mt-3" />
           <input type="text" placeholder="Address (optional)" formControlName="address" class="mt-3" />
-          <input type="password" placeholder="Password (optional — temp password emailed)" formControlName="password" class="mt-3" />
+          <div class="password-input mt-3">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              placeholder="Password (optional — temp password emailed)"
+              formControlName="password"
+            />
+            <button type="button" class="password-toggle" (click)="showPassword = !showPassword" [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+              {{ showPassword ? 'Hide' : 'Show' }}
+            </button>
+          </div>
 
           @if (submitted && form.invalid) {
             <div class="text-danger mt-2">Please fill in all required fields correctly.</div>

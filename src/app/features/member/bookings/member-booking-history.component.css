@@ -1,5 +1,3 @@
-@import '../../../shared/styles/member-page.css';
-
 .empty-state a {
   color: #ff6600;
   font-weight: 600;
@@ -8,4 +6,30 @@
 
 .empty-state a:hover {
   text-decoration: underline;
+}
+
+.status-badge--confirmed {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.status-badge--completed {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.status-badge--cancelled {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.status-badge--noshow {
+  background: #fff6ed;
+  color: #c4320a;
+}
+
+.list-row__aside {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }

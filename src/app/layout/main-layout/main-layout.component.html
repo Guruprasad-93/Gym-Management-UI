@@ -7,14 +7,14 @@
     [fixedInViewport]="true">
     <app-sidebar
       [menuItems]="menuItems"
-      [title]="title"
+      [portalLabel]="portalLabel"
       [userName]="userName"
       [userEmail]="userEmail" />
   </mat-sidenav>
 
   <mat-sidenav-content class="layout-content">
     <app-header
-      [title]="title"
+      [portalLabel]="portalLabel"
       [userName]="userName"
       [userEmail]="userEmail"
       (menuToggle)="toggleSidenav()" />

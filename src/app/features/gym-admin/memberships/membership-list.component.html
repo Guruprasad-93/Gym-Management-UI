@@ -75,12 +75,12 @@
             <td mat-cell *matCellDef="let row">
               <div class="row-actions">
                 @if (auth.hasPermission(permissions.RenewMembership) && row.status === 'Active') {
-                  <button class="row-actions__btn" type="button" (click)="renew(row)" title="Renew">
+                  <button class="row-actions__btn" type="button" (click)="renew(row)" matTooltip="Renew">
                     <mat-icon>autorenew</mat-icon>
                   </button>
                 }
                 @if (auth.hasPermission(permissions.UpdateMembership) && row.status === 'Active') {
-                  <button class="row-actions__btn row-actions__btn--warn" type="button" (click)="cancel(row)" title="Cancel">
+                  <button class="row-actions__btn row-actions__btn--warn" type="button" (click)="cancel(row)" matTooltip="Cancel">
                     <mat-icon>cancel</mat-icon>
                   </button>
                 }

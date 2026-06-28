@@ -1,0 +1,106 @@
+<div class="member-page cms-layout">
+  <header class="saas-page__header">
+    <div>
+      <h1 class="saas-page__title">Testimonials</h1>
+      <p class="saas-page__subtitle">Member reviews displayed on your public website</p>
+    </div>
+    <div class="member-page__actions">
+      <app-website-view-link />
+      <a class="btn-secondary" routerLink="/gym-admin/website-builder">
+        <mat-icon>arrow_back</mat-icon>
+        Builder
+      </a>
+      <a class="btn-secondary" routerLink="/gym-admin/website-builder/gallery">
+        <mat-icon>photo_library</mat-icon>
+        Gallery
+      </a>
+    </div>
+  </header>
+
+  <section class="panel-shell">
+    <div class="panel-shell__head">
+      <h2>Add testimonial</h2>
+      <p>Share member feedback on your homepage</p>
+    </div>
+    <div class="panel-shell__body">
+      <form [formGroup]="form" (ngSubmit)="create()" class="form-grid">
+        <label class="form-field">
+          <span>Member name *</span>
+          <input type="text" formControlName="memberName" placeholder="e.g. Jane Doe" />
+        </label>
+        <div class="form-field">
+          <span>Rating *</span>
+          <div class="rating-picker" role="group" aria-label="Rating">
+            @for (star of [1, 2, 3, 4, 5]; track star) {
+              <button
+                type="button"
+                [class.active]="form.value.rating! >= star"
+                (click)="setRating(star)"
+                [attr.aria-label]="star + ' stars'">
+                ★
+              </button>
+            }
+          </div>
+        </div>
+        <label class="form-field form-field--wide">
+          <span>Review text</span>
+          <textarea formControlName="reviewText" rows="4" placeholder="What did the member say about your gym?"></textarea>
+        </label>
+        <label class="form-field form-field--check">
+          <input type="checkbox" formControlName="isApproved" />
+          <span>Show on public website immediately</span>
+        </label>
+        <div class="form-actions">
+          <button class="btn-primary" type="submit" [disabled]="form.invalid || saving()">
+            <mat-icon>rate_review</mat-icon>
+            {{ saving() ? 'Adding…' : 'Add testimonial' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="table-shell">
+    <div class="table-shell__head">
+      <div>
+        <h2>All testimonials</h2>
+        <p>{{ items().length }} review{{ items().length === 1 ? '' : 's' }}</p>
+      </div>
+    </div>
+    <div class="panel-shell__body" style="padding-top: 0">
+      @if (loading()) {
+        <div class="page-loading">
+          <mat-spinner diameter="32" />
+          <p>Loading testimonials…</p>
+        </div>
+      } @else if (items().length === 0) {
+        <p class="empty-cell">No testimonials yet. Add your first member review above.</p>
+      } @else {
+        <div class="testimonial-grid">
+          @for (t of items(); track t.id) {
+            <article class="testimonial-card">
+              <div class="testimonial-card__head">
+                <h3 class="testimonial-card__name">{{ t.memberName }}</h3>
+                <span class="testimonial-card__stars">{{ stars(t.rating) }}</span>
+              </div>
+              <p class="testimonial-card__text">{{ t.reviewText || 'No review text provided.' }}</p>
+              <footer class="testimonial-card__foot">
+                <span class="chip" [class.chip--success]="t.isApproved" [class.chip--muted]="!t.isApproved">
+                  {{ t.isApproved ? 'Published' : 'Draft' }}
+                </span>
+                <div class="row-actions">
+                  <button class="btn-secondary btn-sm" type="button" (click)="toggleApproved(t)">
+                    {{ t.isApproved ? 'Unpublish' : 'Publish' }}
+                  </button>
+                  <button class="btn-icon-danger" type="button" (click)="remove(t.id)" matTooltip="Delete">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </footer>
+            </article>
+          }
+        </div>
+      }
+    </div>
+  </section>
+</div>

@@ -25,11 +25,49 @@ export interface PushCampaignHistory {
   sentCount: number;
 }
 
+export type PushCampaignAudience =
+  | 'AllMembers'
+  | 'ActiveMembers'
+  | 'ExpiringMembers'
+  | 'SelectedMembers';
+
+export interface PushCampaignAudienceOption {
+  value: PushCampaignAudience;
+  label: string;
+  description: string;
+}
+
 export interface SendPushCampaign {
   title: string;
   message: string;
+  targetAudience: PushCampaignAudience;
+  userIds?: string[];
   branchId?: number;
+  expiringWithinDays?: number;
 }
+
+export const PushCampaignAudienceOptions: PushCampaignAudienceOption[] = [
+  {
+    value: 'AllMembers',
+    label: 'All Members',
+    description: 'Every member with the app installed (includes inactive members)',
+  },
+  {
+    value: 'ActiveMembers',
+    label: 'Active Members',
+    description: 'Members marked active who have a registered device',
+  },
+  {
+    value: 'ExpiringMembers',
+    label: 'Expiring Members',
+    description: 'Active memberships ending within the next 30 days',
+  },
+  {
+    value: 'SelectedMembers',
+    label: 'Selected Members',
+    description: 'Pick specific members from a searchable list',
+  },
+];
 
 export const PushTemplates = [
   { title: 'Membership Reminder', message: 'Your membership is expiring soon. Renew today to stay active!' },

@@ -1,0 +1,124 @@
+<div class="member-page">
+  <header class="saas-page__header">
+    <div>
+      <h1 class="saas-page__title">{{ pageTitle }}</h1>
+      <p class="saas-page__subtitle">{{ pageSubtitle }}</p>
+    </div>
+    <div class="member-page__actions">
+      <a class="btn-secondary" [routerLink]="backLink()">
+        <mat-icon>arrow_back</mat-icon>
+        Back
+      </a>
+      @if (lastResult() || lastError()) {
+        <button class="btn-primary" type="button" (click)="clearResult()">
+          <mat-icon>qr_code_scanner</mat-icon>
+          Scan Again
+        </button>
+      }
+    </div>
+  </header>
+
+  @if (showTabs()) {
+    <nav class="scan-tabs" aria-label="Check-in mode">
+      <button
+        type="button"
+        class="scan-tabs__btn"
+        [class.scan-tabs__btn--active]="activeTab() === 'attendance'"
+        (click)="setTab('attendance')"
+      >
+        Gym Attendance
+      </button>
+      <button
+        type="button"
+        class="scan-tabs__btn"
+        [class.scan-tabs__btn--active]="activeTab() === 'booking'"
+        (click)="setTab('booking')"
+      >
+        Class Booking
+      </button>
+    </nav>
+  }
+
+  <div class="scan-layout">
+    <section class="panel-shell scan-panel">
+      <div class="panel-shell__head">
+        <h2>Camera scanner</h2>
+        <p>Point the camera at the member's QR code from their dashboard</p>
+      </div>
+      <div class="panel-shell__body scan-panel__body">
+        @if (scanning() && !processing()) {
+          <app-qr-scanner (scanned)="onScanned($event)" />
+        } @else if (processing()) {
+          <div class="scan-panel__loading">
+            <mat-spinner diameter="40" />
+            <p>Processing check-in…</p>
+          </div>
+        } @else {
+          <p class="scan-panel__paused">Scanner paused after successful scan. Tap "Scan Again" to continue.</p>
+        }
+      </div>
+    </section>
+
+    <section class="panel-shell result-panel">
+      <div class="panel-shell__head">
+        <h2>Check-in result</h2>
+      </div>
+      <div class="panel-shell__body">
+        @if (lastResult(); as result) {
+          <div class="result-card result-card--success">
+            <mat-icon>check_circle</mat-icon>
+            <p class="result-card__title">Check-in successful</p>
+            <dl class="result-card__details">
+              <div><dt>Member</dt><dd>{{ result.memberName }}</dd></div>
+              <div>
+                <dt>Membership</dt>
+                <dd>{{ result.membershipStatus || '—' }}</dd>
+              </div>
+              @if (result.membershipPlanName) {
+                <div><dt>Plan</dt><dd>{{ result.membershipPlanName }}</dd></div>
+              }
+              @if (result.bookingStatus) {
+                <div><dt>Booking status</dt><dd>{{ result.bookingStatus }}</dd></div>
+              }
+              @if (result.className) {
+                <div><dt>Class</dt><dd>{{ result.className }}</dd></div>
+              }
+              @if (result.attendanceId) {
+                <div><dt>Attendance ID</dt><dd>#{{ result.attendanceId }}</dd></div>
+              }
+              @if (result.bookingId) {
+                <div><dt>Booking ID</dt><dd>#{{ result.bookingId }}</dd></div>
+              }
+            </dl>
+          </div>
+        } @else if (lastError()) {
+          <div class="result-card result-card--error">
+            <mat-icon>error</mat-icon>
+            <p class="result-card__title">Check-in failed</p>
+            <p>{{ lastError() }}</p>
+          </div>
+        } @else {
+          <p class="result-panel__empty">Scan a QR code to see member details here.</p>
+        }
+      </div>
+    </section>
+  </div>
+
+  <section class="panel-shell manual-panel">
+    <div class="panel-shell__head">
+      <h2>Manual entry</h2>
+      <p>Paste QR payload if the camera is unavailable</p>
+    </div>
+    <div class="panel-shell__body">
+      <form [formGroup]="manualForm" (ngSubmit)="submitManual()" class="manual-form">
+        <label class="form-field form-field--wide">
+          <span>QR payload</span>
+          <input type="text" formControlName="qrPayload" placeholder="GMS:{gymId}:{memberId}:{token}" />
+        </label>
+        <button class="btn-secondary" type="submit" [disabled]="manualForm.invalid || processing()">
+          Submit payload
+        </button>
+      </form>
+    </div>
+  </section>
+</div>

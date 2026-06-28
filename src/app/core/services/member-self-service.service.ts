@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response';
+import { QrScanResult } from '../../shared/models/qr-checkin.models';
 import {
   CreateMemberFeedbackDto,
   CreateMemberGoalDto,
@@ -134,6 +135,10 @@ export class MemberSelfServiceService {
 
   getQrCode(): Observable<ApiResponse<MemberQrCode>> {
     return this.http.get<ApiResponse<MemberQrCode>>(`${this.base}/qr-code`);
+  }
+
+  scanAttendanceQr(qrPayload: string): Observable<ApiResponse<QrScanResult>> {
+    return this.http.post<ApiResponse<QrScanResult>>(`${this.base}/attendance/qr-scan`, { qrPayload });
   }
 
   exportProgressPdf(): Observable<Blob> {

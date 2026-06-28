@@ -1,19 +1,17 @@
-import { Component, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Subscription } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
-
-function passwordMatchValidator(control: AbstractControl) {
-  const password = control.get('newPassword')?.value;
-  const confirm = control.get('confirmPassword')?.value;
-  return password === confirm ? null : { passwordMismatch: true };
-}
+import { PasswordFieldComponent } from '../../../shared/components/password-field/password-field.component';
+import {
+  PASSWORD_MISMATCH_MESSAGE,
+  confirmPasswordValidator,
+} from '../../../shared/validators/password.validators';
 
 @Component({
   selector: 'app-change-password-page',
@@ -22,10 +20,9 @@ function passwordMatchValidator(control: AbstractControl) {
     ReactiveFormsModule,
     RouterModule,
     MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    PasswordFieldComponent,
   ],
   template: `
     <div class="auth-page">
@@ -40,24 +37,23 @@ function passwordMatchValidator(control: AbstractControl) {
         </mat-card-subtitle>
         <mat-card-content>
           <form [formGroup]="form" (ngSubmit)="submit()">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Current Password</mat-label>
-              <input matInput type="password" formControlName="currentPassword" autocomplete="current-password" />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>New Password</mat-label>
-              <input matInput type="password" formControlName="newPassword" autocomplete="new-password" />
-              @if (form.controls.newPassword.hasError('minlength') && form.controls.newPassword.touched) {
-                <mat-error>Minimum 8 characters</mat-error>
-              }
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Confirm New Password</mat-label>
-              <input matInput type="password" formControlName="confirmPassword" autocomplete="new-password" />
-              @if (form.hasError('passwordMismatch') && form.touched) {
-                <mat-error>Passwords do not match</mat-error>
-              }
-            </mat-form-field>
+            <app-password-field
+              label="Current Password"
+              [control]="form.controls.currentPassword"
+              autocomplete="current-password"
+            />
+            <app-password-field
+              label="New Password"
+              [control]="form.controls.newPassword"
+              autocomplete="new-password"
+              minLengthMessage="Minimum 8 characters"
+            />
+            <app-password-field
+              label="Confirm New Password"
+              [control]="form.controls.confirmPassword"
+              autocomplete="new-password"
+              [mismatchMessage]="mismatchMessage"
+            />
             <button mat-flat-button color="primary" class="full-width submit-btn" [disabled]="loading">
               @if (loading) {
                 <mat-spinner diameter="22" />
@@ -101,31 +97,42 @@ function passwordMatchValidator(control: AbstractControl) {
     `,
   ],
 })
-export class ChangePasswordPageComponent {
+export class ChangePasswordPageComponent implements OnInit, OnDestroy {
   readonly auth = inject(AuthService);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly notify = inject(NotificationService);
 
+  readonly mismatchMessage = PASSWORD_MISMATCH_MESSAGE;
   loading = false;
+  private subs = new Subscription();
 
-  readonly form = this.fb.nonNullable.group(
-    {
-      currentPassword: ['', Validators.required],
-      newPassword: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: ['', Validators.required],
-    },
-    { validators: passwordMatchValidator }
-  );
+  readonly form = this.fb.nonNullable.group({
+    currentPassword: ['', Validators.required],
+    newPassword: ['', [Validators.required, Validators.minLength(8)]],
+    confirmPassword: ['', [Validators.required, confirmPasswordValidator('newPassword')]],
+  });
+
+  ngOnInit(): void {
+    this.subs.add(
+      this.form.controls.newPassword.valueChanges.subscribe(() =>
+        this.form.controls.confirmPassword.updateValueAndValidity({ emitEvent: false })
+      )
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
+  }
 
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
-    const { currentPassword, newPassword } = this.form.getRawValue();
+    const { currentPassword, newPassword, confirmPassword } = this.form.getRawValue();
     this.loading = true;
-    this.auth.changePassword({ currentPassword, newPassword }).subscribe({
+    this.auth.changePassword({ currentPassword, newPassword, confirmPassword }).subscribe({
       next: (res) => {
         this.loading = false;
         if (res.success) {

@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin, map, of, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response';
 import { Member } from '../../shared/models/member.models';
@@ -32,6 +32,32 @@ export class TrainerService {
     if (paging.search) params = params.set('search', paging.search);
     if (gymId) params = params.set('gymId', gymId);
     return this.http.get<ApiResponse<PagedResult<Trainer>>>(this.base, { params });
+  }
+
+  /** Loads all trainers by paging at the API max (100) until complete. */
+  getAll(gymId: string | null = null, includeInactive = false): Observable<Trainer[]> {
+    const pageSize = 100;
+    const basePaging: PagedRequest = {
+      pageSize,
+      sortColumn: 'UserName',
+      sortDirection: 'asc',
+    };
+
+    return this.getPaged(gymId, { ...basePaging, pageNumber: 1 }, includeInactive).pipe(
+      switchMap((first) => {
+        const items = first.data?.items ?? [];
+        const total = first.data?.totalCount ?? items.length;
+        const totalPages = Math.ceil(total / pageSize);
+        if (totalPages <= 1) return of(items);
+
+        const pageRequests = Array.from({ length: totalPages - 1 }, (_, i) =>
+          this.getPaged(gymId, { ...basePaging, pageNumber: i + 2 }, includeInactive)
+        );
+        return forkJoin(pageRequests).pipe(
+          map((pages) => items.concat(...pages.map((p) => p.data?.items ?? [])))
+        );
+      })
+    );
   }
 
   getMe(): Observable<ApiResponse<Trainer>> {

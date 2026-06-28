@@ -4,9 +4,13 @@ import { Component, OnInit, AfterViewInit, ElementRef, ViewChild, inject, signal
 
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
+import { MatIconModule } from '@angular/material/icon';
+
 import { Chart, registerables } from 'chart.js';
 
 import { MemberSelfServiceService } from '../../../core/services/member-self-service.service';
+
+import { DietService } from '../../../core/services/diet.service';
 
 import { NotificationService } from '../../../core/services/notification.service';
 
@@ -28,7 +32,7 @@ Chart.register(...registerables);
 
   standalone: true,
 
-  imports: [DatePipe, ReactiveFormsModule, SaasChartCardComponent, SaasKpiCardComponent],
+  imports: [DatePipe, ReactiveFormsModule, MatIconModule, SaasChartCardComponent, SaasKpiCardComponent],
 
   templateUrl: './member-diets.component.html',
 
@@ -44,6 +48,8 @@ export class MemberDietsComponent implements OnInit, AfterViewInit {
 
   private readonly service = inject(MemberSelfServiceService);
 
+  private readonly dietService = inject(DietService);
+
   private readonly notify = inject(NotificationService);
 
   private readonly fb = inject(FormBuilder);
@@ -56,11 +62,15 @@ export class MemberDietsComponent implements OnInit, AfterViewInit {
 
   compliance = signal<DietComplianceSummary | null>(null);
 
+  activePlanId = signal<number | null>(null);
+
+  activePlanName = signal<string | null>(null);
+
+  planLoading = signal(true);
+
 
 
   form = this.fb.group({
-
-    dietPlanId: [1, Validators.required],
 
     mealsCompleted: [3, Validators.required],
 
@@ -73,6 +83,8 @@ export class MemberDietsComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
 
     this.load();
+
+    this.loadActivePlan();
 
     this.service.getDietCompliance().subscribe({
 
@@ -118,13 +130,61 @@ export class MemberDietsComponent implements OnInit, AfterViewInit {
 
 
 
+  loadActivePlan(): void {
+
+    this.planLoading.set(true);
+
+    this.dietService.getMyDiet().subscribe({
+
+      next: (r) => {
+
+        this.planLoading.set(false);
+
+        const plan = r.data;
+
+        this.activePlanId.set(plan?.dietPlanId ?? null);
+
+        this.activePlanName.set(plan?.planName ?? null);
+
+      },
+
+      error: () => {
+
+        this.planLoading.set(false);
+
+        this.activePlanId.set(null);
+
+        this.activePlanName.set(null);
+
+        this.notify.error('Failed to load your diet plan');
+
+      },
+
+    });
+
+  }
+
+
+
   save(): void {
+
+    const dietPlanId = this.activePlanId();
+
+    if (!dietPlanId) {
+
+      this.notify.error('No active diet plan is assigned to your account.');
+
+      return;
+
+    }
+
+    if (this.form.invalid) return;
 
     const v = this.form.getRawValue();
 
     this.service.upsertDiet({
 
-      dietPlanId: v.dietPlanId!,
+      dietPlanId,
 
       mealsCompleted: v.mealsCompleted!,
 

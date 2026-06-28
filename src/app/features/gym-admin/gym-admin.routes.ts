@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '../../core/guards/auth.guard';
-import { gymMenuGuard } from '../../core/guards/gym-menu.guard';
 import { permissionGuard } from '../../core/guards/permission.guard';
+import { featureGuard } from '../../core/guards/feature.guard';
 import { roleGuard } from '../../core/guards/role.guard';
 import { Permissions } from '../../core/constants/permissions';
 import { Roles } from '../../core/constants/roles';
@@ -12,7 +12,6 @@ export const GYM_ADMIN_ROUTES: Routes = [
     loadComponent: () =>
       import('./gym-admin-layout.component').then((m) => m.GymAdminLayoutComponent),
     canActivate: [authGuard, roleGuard(Roles.GymAdmin)],
-    canActivateChild: [gymMenuGuard],
     children: [
       {
         path: '',
@@ -173,68 +172,86 @@ export const GYM_ADMIN_ROUTES: Routes = [
       },
       {
         path: 'bookings',
-        canActivate: [permissionGuard(Permissions.ViewBookings)],
+        canActivate: [permissionGuard(Permissions.ViewBookings), featureGuard('BOOKINGS')],
         loadComponent: () =>
           import('./booking/gym-admin-bookings.component').then((m) => m.GymAdminBookingsComponent),
       },
       {
         path: 'schedules',
-        canActivate: [permissionGuard(Permissions.ManageSchedules)],
+        canActivate: [permissionGuard(Permissions.ManageSchedules), featureGuard('BOOKINGS')],
         loadComponent: () =>
           import('./booking/schedule-list.component').then((m) => m.ScheduleListComponent),
       },
       {
+        path: 'schedules/new',
+        canActivate: [permissionGuard(Permissions.ManageSchedules), featureGuard('BOOKINGS')],
+        loadComponent: () =>
+          import('./booking/schedule-editor.component').then((m) => m.ScheduleEditorComponent),
+      },
+      {
+        path: 'schedules/:id/edit',
+        canActivate: [permissionGuard(Permissions.ManageSchedules), featureGuard('BOOKINGS')],
+        loadComponent: () =>
+          import('./booking/schedule-editor.component').then((m) => m.ScheduleEditorComponent),
+      },
+      {
+        path: 'schedules/settings',
+        canActivate: [permissionGuard(Permissions.ManageSchedules), featureGuard('BOOKINGS')],
+        loadComponent: () =>
+          import('./booking/booking-settings.component').then((m) => m.BookingSettingsComponent),
+      },
+      {
         path: 'booking-analytics',
-        canActivate: [permissionGuard(Permissions.ViewBookingAnalytics)],
+        canActivate: [permissionGuard(Permissions.ViewBookingAnalytics), featureGuard('BOOKINGS')],
         loadComponent: () =>
           import('./booking/booking-analytics.component').then((m) => m.BookingAnalyticsComponent),
       },
       {
         path: 'website-builder',
-        canActivate: [permissionGuard(Permissions.ViewWebsiteBuilder)],
+        canActivate: [permissionGuard(Permissions.ViewWebsiteBuilder), featureGuard('WEBSITE_BUILDER')],
         loadComponent: () =>
           import('./website/website-builder.component').then((m) => m.WebsiteBuilderComponent),
       },
       {
         path: 'website-builder/pages',
-        canActivate: [permissionGuard(Permissions.ManageWebsiteBuilder)],
+        canActivate: [permissionGuard(Permissions.ManageWebsiteBuilder), featureGuard('WEBSITE_BUILDER')],
         loadComponent: () =>
           import('./website/website-pages.component').then((m) => m.WebsitePagesComponent),
       },
       {
         path: 'website-builder/gallery',
-        canActivate: [permissionGuard(Permissions.ManageWebsiteBuilder)],
+        canActivate: [permissionGuard(Permissions.ManageWebsiteBuilder), featureGuard('WEBSITE_BUILDER')],
         loadComponent: () =>
           import('./website/website-gallery.component').then((m) => m.WebsiteGalleryComponent),
       },
       {
         path: 'website-builder/testimonials',
-        canActivate: [permissionGuard(Permissions.ManageWebsiteBuilder)],
+        canActivate: [permissionGuard(Permissions.ManageWebsiteBuilder), featureGuard('WEBSITE_BUILDER')],
         loadComponent: () =>
           import('./website/website-testimonials.component').then((m) => m.WebsiteTestimonialsComponent),
       },
       {
         path: 'website-builder/analytics',
-        canActivate: [permissionGuard(Permissions.ViewWebsiteAnalytics)],
+        canActivate: [permissionGuard(Permissions.ViewWebsiteAnalytics), featureGuard('WEBSITE_BUILDER')],
         loadComponent: () =>
           import('./website/website-analytics.component').then((m) => m.WebsiteAnalyticsComponent),
       },
       {
         path: 'branding',
-        canActivate: [permissionGuard(Permissions.ViewWhiteLabel)],
+        canActivate: [permissionGuard(Permissions.ViewWhiteLabel), featureGuard('WHITE_LABEL')],
         loadComponent: () =>
           import('./white-label/white-label-settings.component').then((m) => m.WhiteLabelSettingsComponent),
         data: { title: 'Branding' },
       },
       {
         path: 'white-label',
-        canActivate: [permissionGuard(Permissions.ViewWhiteLabel)],
+        canActivate: [permissionGuard(Permissions.ViewWhiteLabel), featureGuard('WHITE_LABEL')],
         loadComponent: () =>
           import('./white-label/white-label-settings.component').then((m) => m.WhiteLabelSettingsComponent),
       },
       {
         path: 'white-label/preview',
-        canActivate: [permissionGuard(Permissions.ViewWhiteLabel)],
+        canActivate: [permissionGuard(Permissions.ViewWhiteLabel), featureGuard('WHITE_LABEL')],
         loadComponent: () =>
           import('./white-label/white-label-preview.component').then((m) => m.WhiteLabelPreviewComponent),
       },
@@ -303,6 +320,20 @@ export const GYM_ADMIN_ROUTES: Routes = [
         canActivate: [permissionGuard(Permissions.ManageAttendance)],
         loadComponent: () =>
           import('./attendance/attendance-check-in.component').then((m) => m.AttendanceCheckInComponent),
+      },
+      {
+        path: 'attendance/scan-qr',
+        canActivate: [permissionGuard(Permissions.ManageAttendance), featureGuard('ATTENDANCE')],
+        loadComponent: () =>
+          import('./attendance/qr-scan-page.component').then((m) => m.QrScanPageComponent),
+        data: { scanMode: 'attendance' },
+      },
+      {
+        path: 'reception/scan',
+        canActivate: [permissionGuard(Permissions.ManageAttendance), featureGuard('ATTENDANCE')],
+        loadComponent: () =>
+          import('./attendance/qr-scan-page.component').then((m) => m.QrScanPageComponent),
+        data: { scanMode: 'reception' },
       },
       {
         path: 'attendance/check-out',
@@ -386,7 +417,44 @@ export const GYM_ADMIN_ROUTES: Routes = [
         path: 'subscription',
         canActivate: [permissionGuard(Permissions.ViewSaasSubscription)],
         loadComponent: () =>
-          import('./subscription/gym-subscription.component').then((m) => m.GymSubscriptionComponent),
+          import('./subscription/subscription-layout.component').then((m) => m.SubscriptionLayoutComponent),
+        children: [
+          { path: '', redirectTo: 'overview', pathMatch: 'full' },
+          {
+            path: 'overview',
+            loadComponent: () =>
+              import('./subscription/subscription-overview.component').then((m) => m.SubscriptionOverviewComponent),
+          },
+          {
+            path: 'catalog',
+            loadComponent: () =>
+              import('./subscription/plan-catalog.component').then((m) => m.PlanCatalogComponent),
+          },
+          {
+            path: 'compare',
+            loadComponent: () =>
+              import('./subscription/plan-compare.component').then((m) => m.PlanCompareComponent),
+          },
+          {
+            path: 'checkout',
+            canActivate: [permissionGuard(Permissions.ManageSaasSubscription)],
+            loadComponent: () =>
+              import('./subscription/plan-checkout.component').then((m) => m.PlanCheckoutComponent),
+          },
+          {
+            path: 'my-features',
+            loadComponent: () =>
+              import('./subscription/my-features.component').then((m) => m.MyFeaturesComponent),
+          },
+        ],
+      },
+      {
+        path: 'renew-subscription',
+        canActivate: [permissionGuard(Permissions.ManageSaasSubscription)],
+        loadComponent: () =>
+          import('./subscription/renew-subscription-redirect.component').then(
+            (m) => m.RenewSubscriptionRedirectComponent,
+          ),
       },
       {
         path: 'settings/branding',

@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -12,10 +12,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { GymAdminService } from '../../../core/services/gym-admin.service';
 import { GymService } from '../../../core/services/gym.service';
+import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Permissions } from '../../../core/constants/permissions';
-import { GymAdmin } from '../../../shared/models/gym-admin.models';
+import { GymAdmin, CreateGymAdminResult } from '../../../shared/models/gym-admin.models';
 import { Gym } from '../../../shared/models/gym.models';
 import { GymAdminFormDialogComponent } from './gym-admin-form-dialog.component';
 import { TemporaryPasswordDialogComponent } from './temporary-password-dialog.component';
@@ -44,13 +45,13 @@ export class GymAdminListComponent implements OnInit {
   private readonly gymAdminService = inject(GymAdminService);
   private readonly gymService = inject(GymService);
   private readonly notify = inject(NotificationService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialog = inject(DialogService);
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
 
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns = ['name', 'loginIdentifier', 'email', 'gymName', 'status', 'actions'];
+  displayedColumns = ['name', 'email', 'gymName', 'status', 'actions'];
   dataSource = new MatTableDataSource<GymAdmin>([]);
   gyms = signal<Gym[]>([]);
   loading = signal(false);
@@ -150,7 +151,11 @@ export class GymAdminListComponent implements OnInit {
 
   openCreate(): void {
     const presetGymId = this.gymFilter.value || undefined;
-    const ref = this.dialog.open(GymAdminFormDialogComponent, {
+    const ref = this.dialog.open<
+      GymAdminFormDialogComponent,
+      GymAdmin | { presetGymId: string } | null,
+      CreateGymAdminResult
+    >(GymAdminFormDialogComponent, {
       width: '480px',
       data: presetGymId ? { presetGymId } : null,
     });
@@ -162,7 +167,6 @@ export class GymAdminListComponent implements OnInit {
           width: '440px',
           data: {
             title: 'Temporary Password Created',
-            loginIdentifier: result.admin.loginIdentifier,
             email: result.admin.email,
             temporaryPassword: result.temporaryPassword,
             message: result.message,
@@ -182,38 +186,54 @@ export class GymAdminListComponent implements OnInit {
   }
 
   resendPassword(admin: GymAdmin): void {
-    if (!confirm(`Generate a new temporary password for ${admin.loginIdentifier}?`)) return;
-    this.gymAdminService.resendTemporaryPassword(admin.userId).subscribe({
-      next: (res) => {
-        if (res.success && res.data) {
-          this.loadAdmins();
-          this.dialog.open(TemporaryPasswordDialogComponent, {
-            width: '440px',
-            data: {
-              title: 'New Temporary Password',
-              loginIdentifier: res.data.loginIdentifier,
-              email: res.data.email,
-              temporaryPassword: res.data.temporaryPassword,
-              message: res.data.message,
-            },
-          });
-        }
-      },
-      error: (err) => this.notify.error(err.error?.message ?? 'Failed to reset password'),
-    });
+    this.dialog
+      .confirm({
+        title: 'Reset password',
+        message: `Generate a new temporary password for ${admin.email}?`,
+        confirmLabel: 'Generate',
+      })
+      .subscribe((ok) => {
+        if (!ok) return;
+        this.gymAdminService.resendTemporaryPassword(admin.userId).subscribe({
+          next: (res) => {
+            if (res.success && res.data) {
+              this.loadAdmins();
+              this.dialog.open(TemporaryPasswordDialogComponent, {
+                width: '440px',
+                data: {
+                  title: 'New Temporary Password',
+                  email: res.data.email,
+                  temporaryPassword: res.data.temporaryPassword,
+                  message: res.data.message,
+                },
+              });
+            }
+          },
+          error: (err) => this.notify.error(err.error?.message ?? 'Failed to reset password'),
+        });
+      });
   }
 
   deactivate(admin: GymAdmin): void {
-    if (!confirm(`Deactivate gym admin "${admin.name}"?`)) return;
-    this.gymAdminService.deactivate(admin.userId).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.notify.success('Gym admin deactivated');
-          this.loadAdmins();
-        }
-      },
-      error: () => this.notify.error('Deactivation failed'),
-    });
+    this.dialog
+      .confirm({
+        title: 'Deactivate admin',
+        message: `Deactivate gym admin "${admin.name}"?`,
+        tone: 'danger',
+        confirmLabel: 'Deactivate',
+      })
+      .subscribe((ok) => {
+        if (!ok) return;
+        this.gymAdminService.deactivate(admin.userId).subscribe({
+          next: (res) => {
+            if (res.success) {
+              this.notify.success('Gym admin deactivated');
+              this.loadAdmins();
+            }
+          },
+          error: () => this.notify.error('Deactivation failed'),
+        });
+      });
   }
 
   activate(admin: GymAdmin): void {

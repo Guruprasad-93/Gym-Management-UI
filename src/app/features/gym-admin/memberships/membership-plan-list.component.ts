@@ -2,9 +2,11 @@ import { CurrencyPipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MembershipService } from '../../../core/services/membership.service';
+import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Permissions } from '../../../core/constants/permissions';
@@ -18,6 +20,7 @@ import { MembershipPlanFormDialogComponent } from './membership-plan-form-dialog
     CurrencyPipe,
     MatTableModule,
     MatIconModule,
+    MatTooltipModule,
     MatDialogModule,
     MatProgressSpinnerModule,
   ],
@@ -29,7 +32,7 @@ export class MembershipPlanListComponent implements OnInit {
   readonly permissions = Permissions;
   private readonly svc = inject(MembershipService);
   private readonly notify = inject(NotificationService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialog = inject(DialogService);
 
   loading = signal(true);
   plans = signal<MembershipPlan[]>([]);
@@ -74,15 +77,24 @@ export class MembershipPlanListComponent implements OnInit {
   }
 
   remove(p: MembershipPlan): void {
-    if (!confirm(`Deactivate plan "${p.planName}"?`)) return;
-    this.svc.deletePlan(p.id).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.notify.success('Plan deactivated');
-          this.load();
-        }
-      },
-      error: () => this.notify.error('Delete failed'),
-    });
+    this.dialog
+      .confirm({
+        title: 'Deactivate plan',
+        message: `Deactivate plan "${p.planName}"?`,
+        tone: 'danger',
+        confirmLabel: 'Deactivate',
+      })
+      .subscribe((ok) => {
+        if (!ok) return;
+        this.svc.deletePlan(p.id).subscribe({
+          next: (res) => {
+            if (res.success) {
+              this.notify.success('Plan deactivated');
+              this.load();
+            }
+          },
+          error: () => this.notify.error('Delete failed'),
+        });
+      });
   }
 }

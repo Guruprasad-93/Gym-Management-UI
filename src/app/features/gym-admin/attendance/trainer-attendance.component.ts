@@ -66,8 +66,9 @@ export class TrainerAttendanceComponent implements OnInit {
   pageIndex = 0;
 
   ngOnInit(): void {
-    this.trainerSvc.getPaged(null, { pageNumber: 1, pageSize: 200, sortColumn: 'UserName' }).subscribe({
-      next: (r) => { if (r.success && r.data) this.trainers.set(r.data.items); },
+    this.trainerSvc.getAll(null, false).subscribe({
+      next: (trainers) => this.trainers.set(trainers),
+      error: () => this.notify.error('Failed to load trainers'),
     });
     this.load();
   }

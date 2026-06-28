@@ -75,6 +75,9 @@ export class WhiteLabelSettingsComponent implements OnInit {
           });
         }
       },
+      error: () => {
+        // Mobile settings are optional on first visit.
+      },
     });
   }
 
@@ -131,8 +134,14 @@ export class WhiteLabelSettingsComponent implements OnInit {
   }
 
   private patchForm(s: WhiteLabelSettings): void {
+    const brandedName = this.branding.appName();
+    const defaultBrand =
+      s.brandName?.trim() ||
+      (brandedName !== 'Gym Management' ? brandedName : '') ||
+      this.auth.user()?.name?.trim() ||
+      'My Gym';
     this.form.patchValue({
-      brandName: s.brandName,
+      brandName: defaultBrand,
       appDisplayName: s.appDisplayName ?? '',
       primaryColor: s.primaryColor ?? '#ff6600',
       secondaryColor: s.secondaryColor ?? '#101828',

@@ -83,23 +83,23 @@
             <td mat-cell *matCellDef="let row">
               <div class="row-actions">
                 @if (auth.hasPermission(permissions.AssignDietPlan)) {
-                  <button class="row-actions__btn" type="button" (click)="openAssign(row)" title="Assign to member">
+                  <button class="row-actions__btn" type="button" (click)="openAssign(row)" matTooltip="Assign to members">
                     <mat-icon>person_add</mat-icon>
                   </button>
                 }
                 @if (auth.hasPermission(permissions.ManageDietPlans)) {
-                  <button class="row-actions__btn" type="button" (click)="clone(row)" title="Clone plan">
+                  <button class="row-actions__btn" type="button" (click)="clone(row)" matTooltip="Clone plan">
                     <mat-icon>content_copy</mat-icon>
                   </button>
-                  <a class="row-actions__btn" [routerLink]="[row.dietPlanId, 'edit']" title="Edit plan">
+                  <a class="row-actions__btn" [routerLink]="[row.dietPlanId, 'edit']" matTooltip="Edit plan">
                     <mat-icon>edit</mat-icon>
                   </a>
-                  <button class="row-actions__btn row-actions__btn--warn" type="button" (click)="remove(row)" title="Delete plan">
+                  <button class="row-actions__btn row-actions__btn--warn" type="button" (click)="remove(row)" matTooltip="Delete plan">
                     <mat-icon>delete_outline</mat-icon>
                   </button>
                 }
                 @if (auth.hasPermission(permissions.ExportDietPlans)) {
-                  <button class="row-actions__btn" type="button" (click)="exportPdf(row)" title="Export PDF">
+                  <button class="row-actions__btn" type="button" (click)="exportPdf(row)" matTooltip="Export PDF">
                     <mat-icon>picture_as_pdf</mat-icon>
                   </button>
                 }

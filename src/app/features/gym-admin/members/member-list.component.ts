@@ -5,11 +5,13 @@ import { RouterModule } from '@angular/router';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, Sort } from '@angular/material/sort';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { MemberService } from '../../../core/services/member.service';
+import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Permissions } from '../../../core/constants/permissions';
@@ -29,6 +31,7 @@ import { AssignTrainerDialogComponent } from './assign-trainer-dialog.component'
     MatSortModule,
     MatDialogModule,
     MatIconModule,
+    MatTooltipModule,
     MatProgressSpinnerModule,
   ],
   templateUrl: './member-list.component.html',
@@ -39,7 +42,7 @@ export class MemberListComponent implements OnInit {
   readonly permissions = Permissions;
   private readonly memberService = inject(MemberService);
   private readonly notify = inject(NotificationService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialog = inject(DialogService);
   private readonly fb = inject(FormBuilder);
 
   displayedColumns = ['fullName', 'phone', 'membership', 'trainer', 'joinDate', 'status', 'actions'];
@@ -145,15 +148,24 @@ export class MemberListComponent implements OnInit {
   }
 
   remove(member: Member): void {
-    if (!confirm(`Delete member "${member.fullName}"? This soft-deletes the record.`)) return;
-    this.memberService.delete(member.id).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.notify.success('Member deleted');
-          this.load();
-        }
-      },
-      error: () => this.notify.error('Delete failed'),
-    });
+    this.dialog
+      .confirm({
+        title: 'Delete member',
+        message: `Delete member "${member.fullName}"? This soft-deletes the record.`,
+        tone: 'danger',
+        confirmLabel: 'Delete',
+      })
+      .subscribe((ok) => {
+        if (!ok) return;
+        this.memberService.delete(member.id).subscribe({
+          next: (res) => {
+            if (res.success) {
+              this.notify.success('Member deleted');
+              this.load();
+            }
+          },
+          error: () => this.notify.error('Delete failed'),
+        });
+      });
   }
 }

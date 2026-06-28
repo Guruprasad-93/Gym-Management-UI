@@ -12,7 +12,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { BrandingService } from '../../../core/services/branding.service';
+import { PasswordFieldComponent } from '../../../shared/components/password-field/password-field.component';
 import { getDefaultRouteForUser } from '../../../core/constants/menu.config';
+
+const REMEMBER_LOGIN_KEY = 'gym_remember_login_id';
+const LEGACY_REMEMBER_EMAIL_KEY = 'gym_remember_email';
 
 @Component({
   selector: 'app-login-page',
@@ -28,6 +32,7 @@ import { getDefaultRouteForUser } from '../../../core/constants/menu.config';
     MatCheckboxModule,
     MatProgressSpinnerModule,
     MatIconModule,
+    PasswordFieldComponent,
   ],
   template: `
     <div class="auth-page" [ngStyle]="pageBackgroundStyle">
@@ -47,18 +52,18 @@ import { getDefaultRouteForUser } from '../../../core/constants/menu.config';
           <form [formGroup]="form" (ngSubmit)="submit()">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Login ID</mat-label>
-              <input matInput type="text" formControlName="loginIdentifier" autocomplete="username" maxlength="20" />
+              <input matInput type="text" formControlName="loginIdentifier" autocomplete="username" />
               @if (form.controls.loginIdentifier.invalid && form.controls.loginIdentifier.touched) {
-                <mat-error>Login ID is required (max 20 characters)</mat-error>
+                <mat-error>Login ID is required</mat-error>
               }
             </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Password</mat-label>
-              <input matInput type="password" formControlName="password" autocomplete="current-password" />
-              @if (form.controls.password.invalid && form.controls.password.touched) {
-                <mat-error>Password is required (min 6 characters)</mat-error>
-              }
-            </mat-form-field>
+            <app-password-field
+              label="Password"
+              [control]="form.controls.password"
+              autocomplete="current-password"
+              requiredMessage="Password is required (min 6 characters)"
+              minLengthMessage="Password is required (min 6 characters)"
+            />
             <mat-checkbox formControlName="rememberMe">Remember me</mat-checkbox>
             <button mat-flat-button class="full-width submit-btn" [disabled]="loading" [style.background]="primaryColor">
               @if (loading) {
@@ -123,7 +128,12 @@ export class LoginPageComponent implements OnInit {
   loading = false;
 
   readonly form = this.fb.nonNullable.group({
-    loginIdentifier: [localStorage.getItem('gym_remember_login_id') ?? '', [Validators.required, Validators.maxLength(20)]],
+    loginIdentifier: [
+      localStorage.getItem(REMEMBER_LOGIN_KEY) ??
+        localStorage.getItem(LEGACY_REMEMBER_EMAIL_KEY) ??
+        '',
+      [Validators.required, Validators.maxLength(100)],
+    ],
     password: ['', [Validators.required, Validators.minLength(6)]],
     rememberMe: [false],
   });
@@ -161,14 +171,19 @@ export class LoginPageComponent implements OnInit {
 
     this.loading = true;
     const { loginIdentifier, password, rememberMe } = this.form.getRawValue();
+    const trimmedId = loginIdentifier.trim();
     if (rememberMe) {
-      localStorage.setItem('gym_remember_login_id', loginIdentifier);
+      localStorage.setItem(REMEMBER_LOGIN_KEY, trimmedId);
     } else {
-      localStorage.removeItem('gym_remember_login_id');
+      localStorage.removeItem(REMEMBER_LOGIN_KEY);
     }
 
-    const gymId = this.branding.branding()?.gymId ?? null;
-    this.auth.login({ loginIdentifier, password, gymId }).subscribe({
+    this.auth
+      .login({
+        loginIdentifier: trimmedId,
+        password,
+      })
+      .subscribe({
       next: (res) => {
         this.loading = false;
         if (res.success && res.data) {

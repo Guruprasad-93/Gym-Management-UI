@@ -5,6 +5,14 @@
       <p class="saas-page__subtitle">Manage recurring class schedules by branch</p>
     </div>
     <div class="member-page__actions">
+      <a class="btn-primary" routerLink="new">
+        <mat-icon>add</mat-icon>
+        Add schedule
+      </a>
+      <a class="btn-secondary" routerLink="settings">
+        <mat-icon>settings</mat-icon>
+        Settings
+      </a>
       <a class="btn-secondary" routerLink="../bookings">
         <mat-icon>event</mat-icon>
         Bookings
@@ -34,9 +42,7 @@
                   <small>{{ s.branchName }} · {{ s.trainerName }}</small>
                 </div>
               </div>
-              <span class="status-badge" [class.status-badge--active]="s.status === 'Active'" [class.status-badge--muted]="s.status !== 'Active'">
-                {{ s.status }}
-              </span>
+              <span class="status-badge status-badge--active">{{ s.status }}</span>
             </header>
             <div class="schedule-card__meta">
               <span class="chip">{{ dayNames[s.dayOfWeek] }}</span>
@@ -44,9 +50,13 @@
               <span class="capacity">Capacity {{ s.capacity }}</span>
             </div>
             <footer class="schedule-card__actions">
+              <a class="btn-secondary" [routerLink]="[s.id, 'edit']">
+                <mat-icon>edit</mat-icon>
+                Edit
+              </a>
               <button class="btn-secondary btn-secondary--warn" type="button" (click)="remove(s.id)">
-                <mat-icon>cancel</mat-icon>
-                Cancel schedule
+                <mat-icon>delete</mat-icon>
+                Delete schedule
               </button>
             </footer>
           </article>

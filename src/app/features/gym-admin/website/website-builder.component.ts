@@ -6,11 +6,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { WebsiteService } from '../../../core/services/website.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { GymWebsiteSettings } from '../../../shared/models/website.models';
+import { WebsiteViewLinkComponent } from './website-view-link.component';
 
 @Component({
   selector: 'app-website-builder',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, MatIconModule, MatProgressSpinnerModule],
+  imports: [ReactiveFormsModule, RouterLink, MatIconModule, MatProgressSpinnerModule, WebsiteViewLinkComponent],
   templateUrl: './website-builder.component.html',
   styleUrl: './website-builder.component.css',
 })

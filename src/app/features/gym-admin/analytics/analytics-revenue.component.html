@@ -37,16 +37,18 @@
       <app-saas-kpi-card label="Failed Payments" [value]="rev.failedPaymentsCount" icon="error_outline" accent="#f04438" hint="Needs attention" />
     </div>
 
-    <section class="charts-row">
+    <section class="charts-row charts-row--primary">
       <app-saas-chart-card class="charts-row__wide" title="Monthly Revenue Trend" subtitle="Last 12 months">
-        <div class="chart-host">
+        <div class="chart-host chart-host--tall">
           <canvas #trendChart></canvas>
           @if (!rev.revenueTrend.length) {
             <p class="chart-empty chart-empty--overlay">No revenue trend data yet.</p>
           }
         </div>
       </app-saas-chart-card>
+    </section>
 
+    <section class="charts-row charts-row--secondary">
       <app-saas-chart-card title="Revenue by Plan" subtitle="Amount per membership plan">
         <div class="chart-host">
           <canvas #planChart></canvas>

@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
+import { DialogService } from '../../../core/services/dialog.service';
 import { FileService } from '../../../core/services/file.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Permissions } from '../../../core/constants/permissions';
@@ -112,6 +113,7 @@ import { FileUploadComponent } from '../file-upload/file-upload.component';
 export class MemberFilesGalleryComponent implements OnInit {
   private readonly fileService = inject(FileService);
   private readonly auth = inject(AuthService);
+  private readonly dialog = inject(DialogService);
   private readonly notify = inject(NotificationService);
 
   @Input({ required: true }) memberId!: number;
@@ -174,15 +176,24 @@ export class MemberFilesGalleryComponent implements OnInit {
   }
 
   remove(file: MemberFile): void {
-    if (!confirm('Delete this file?')) return;
-    this.fileService.delete(file.fileId).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.notify.success('File deleted.');
-          this.load();
-        }
-      },
-      error: () => this.notify.error('Delete failed'),
-    });
+    this.dialog
+      .confirm({
+        title: 'Delete file',
+        message: 'Delete this file?',
+        tone: 'danger',
+        confirmLabel: 'Delete',
+      })
+      .subscribe((ok) => {
+        if (!ok) return;
+        this.fileService.delete(file.fileId).subscribe({
+          next: (res) => {
+            if (res.success) {
+              this.notify.success('File deleted.');
+              this.load();
+            }
+          },
+          error: () => this.notify.error('Delete failed'),
+        });
+      });
   }
 }

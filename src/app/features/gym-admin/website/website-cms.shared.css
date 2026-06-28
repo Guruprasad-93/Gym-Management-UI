@@ -1,0 +1,237 @@
+.cms-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cms-hint {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  color: #475467;
+  background: #f8f9fb;
+  border: 1px solid #eef0f4;
+  border-radius: 10px;
+  line-height: 1.5;
+}
+
+.cms-hint code {
+  font-size: 0.75rem;
+  padding: 0.1rem 0.35rem;
+  background: #fff;
+  border-radius: 4px;
+  border: 1px solid #e4e7ec;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+}
+
+/* Gallery */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.gallery-card {
+  border: 1px solid #e4e7ec;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(16, 24, 40, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.gallery-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+}
+
+.gallery-card__media {
+  aspect-ratio: 4 / 3;
+  background: #f2f4f7;
+  overflow: hidden;
+}
+
+.gallery-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery-card__placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #98a2b3;
+}
+
+.gallery-card__body {
+  padding: 0.875rem 1rem 1rem;
+}
+
+.gallery-card__body p {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+  color: #344054;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.gallery-card__meta {
+  font-size: 0.75rem;
+  color: #667085;
+  margin-bottom: 0.75rem;
+}
+
+/* Testimonial cards */
+.testimonial-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.testimonial-card {
+  border: 1px solid #e4e7ec;
+  border-radius: 14px;
+  padding: 1.125rem;
+  background: #fff;
+}
+
+.testimonial-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.625rem;
+}
+
+.testimonial-card__name {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #101828;
+}
+
+.testimonial-card__stars {
+  color: #f59e0b;
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+}
+
+.testimonial-card__text {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #475467;
+  line-height: 1.55;
+}
+
+.testimonial-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f2f4f7;
+}
+
+/* Rating picker */
+.rating-picker {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.rating-picker button {
+  border: 1px solid #e4e7ec;
+  background: #fff;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #d0d5dd;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.rating-picker button.active,
+.rating-picker button:hover {
+  color: #f59e0b;
+  border-color: #fcd34d;
+  background: #fffbeb;
+}
+
+/* Page rows */
+.page-row__slug {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  font-family: ui-monospace, monospace;
+  color: #475467;
+  background: #f2f4f7;
+  border-radius: 6px;
+}
+
+.page-row__preview {
+  max-width: 360px;
+  font-size: 0.8125rem;
+  color: #667085;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row-actions {
+  display: flex;
+  gap: 0.35rem;
+  justify-content: flex-end;
+}
+
+.btn-icon-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #b42318;
+  background: #fff;
+  border: 1px solid #fecdca;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-icon-danger:hover {
+  background: #fef3f2;
+}
+
+.btn-icon-danger mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.chip--success {
+  background: #ecfdf3;
+  color: #027a48;
+  border-color: #abefc6;
+}
+
+.chip--muted {
+  background: #f2f4f7;
+  color: #667085;
+  border-color: #e4e7ec;
+}
+
+.empty-cell {
+  text-align: center;
+  padding: 2.5rem 1rem !important;
+  color: #667085;
+  font-size: 0.9375rem;
+}

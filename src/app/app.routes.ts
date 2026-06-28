@@ -42,6 +42,7 @@ export const routes: Routes = [
       { path: 'trainers', loadComponent: () => import('./features/public-website/public-website.component').then((m) => m.PublicWebsiteTrainersComponent) },
       { path: 'gallery', loadComponent: () => import('./features/public-website/public-website.component').then((m) => m.PublicWebsiteGalleryPageComponent) },
       { path: 'contact', loadComponent: () => import('./features/public-website/public-website.component').then((m) => m.PublicWebsiteContactComponent) },
+      { path: ':pageSlug', loadComponent: () => import('./features/public-website/public-website.component').then((m) => m.PublicWebsiteCustomPageComponent) },
     ],
   },
   { path: '**', redirectTo: 'auth/login' },

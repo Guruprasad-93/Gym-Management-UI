@@ -19,6 +19,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { SaasKpiCardComponent } from '../../../shared/components/saas-kpi-card/saas-kpi-card.component';
 import { SaasChartCardComponent } from '../../../shared/components/saas-chart-card/saas-chart-card.component';
 import { WebsiteAnalyticsOverview } from '../../../shared/models/website.models';
+import { WebsiteViewLinkComponent } from './website-view-link.component';
 
 Chart.register(...registerables);
 
@@ -31,6 +32,7 @@ Chart.register(...registerables);
     MatProgressSpinnerModule,
     SaasKpiCardComponent,
     SaasChartCardComponent,
+    WebsiteViewLinkComponent,
   ],
   templateUrl: './website-analytics.component.html',
   styleUrl: './website-analytics.component.css',

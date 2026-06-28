@@ -13,6 +13,8 @@ export interface ApplicationBranding {
   loginBackgroundUrl?: string | null;
   supportEmail?: string | null;
   supportPhone?: string | null;
+  showPoweredBy?: boolean;
+  platformProductName?: string | null;
 }
 
 const STORAGE_KEY = 'gym_branding';
@@ -33,6 +35,8 @@ export class BrandingService {
   readonly logoUrl = computed(() => this.brandingSignal()?.logoUrl ?? null);
   readonly primaryColor = computed(() => this.brandingSignal()?.primaryColor ?? DEFAULT_PRIMARY_COLOR);
   readonly secondaryColor = computed(() => this.brandingSignal()?.secondaryColor ?? DEFAULT_SECONDARY_COLOR);
+  readonly showPoweredBy = computed(() => this.brandingSignal()?.showPoweredBy ?? false);
+  readonly platformProductName = computed(() => this.brandingSignal()?.platformProductName ?? DEFAULT_APP_NAME);
 
   /** Map WhiteLabel login/preview branding to application state (shared with preview). */
   static fromSettings(settings: WhiteLabelSettings, gymId: string): ApplicationBranding {
@@ -60,6 +64,8 @@ export class BrandingService {
       loginBackgroundUrl: source.loginBackgroundUrl,
       supportEmail: source.supportEmail,
       supportPhone: source.supportPhone,
+      showPoweredBy: source.showPoweredBy ?? false,
+      platformProductName: source.platformProductName ?? DEFAULT_APP_NAME,
     };
   }
 

@@ -6,6 +6,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { MatIconModule } from '@angular/material/icon';
 
+import { MatTooltipModule } from '@angular/material/tooltip';
+
 import { MatTableModule } from '@angular/material/table';
 
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -13,6 +15,8 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { ExpenseService } from '../../../core/services/financial.service';
+
+import { DialogService } from '../../../core/services/dialog.service';
 
 import { NotificationService } from '../../../core/services/notification.service';
 
@@ -40,6 +44,8 @@ import { EXPENSE_PAYMENT_METHODS, Expense, ExpenseCategory } from '../../../shar
 
     MatIconModule,
 
+    MatTooltipModule,
+
     MatTableModule,
 
     MatPaginatorModule,
@@ -57,6 +63,8 @@ import { EXPENSE_PAYMENT_METHODS, Expense, ExpenseCategory } from '../../../shar
 export class ExpenseListComponent implements OnInit {
 
   private readonly expenseService = inject(ExpenseService);
+
+  private readonly dialog = inject(DialogService);
 
   private readonly notify = inject(NotificationService);
 
@@ -92,9 +100,9 @@ export class ExpenseListComponent implements OnInit {
 
   form = this.fb.group({
 
-    categoryId: [null as number | null, Validators.required],
+    categoryId: [0, [Validators.required, Validators.min(1)]],
 
-    amount: [0, [Validators.required, Validators.min(0.01)]],
+    amount: [null as number | null, [Validators.required, Validators.min(0.01)]],
 
     expenseDate: [new Date().toISOString().slice(0, 10), Validators.required],
 
@@ -128,9 +136,23 @@ export class ExpenseListComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.expenseService.getCategories().subscribe((r) => this.categories.set(r.data ?? []));
+    this.loadCategories();
 
     this.load();
+
+  }
+
+
+
+  private loadCategories(): void {
+
+    this.expenseService.getCategories().subscribe({
+
+      next: (r) => this.categories.set(r.data ?? []),
+
+      error: () => this.notify.error('Failed to load expense categories'),
+
+    });
 
   }
 
@@ -176,6 +198,8 @@ export class ExpenseListComponent implements OnInit {
 
     this.editing = row ?? null;
 
+    this.loadCategories();
+
     if (row) {
 
       this.form.patchValue({
@@ -200,11 +224,13 @@ export class ExpenseListComponent implements OnInit {
 
       this.form.reset({
 
+        categoryId: 0,
+
         paymentMethod: 'Cash',
 
         expenseDate: new Date().toISOString().slice(0, 10),
 
-        amount: 0,
+        amount: null,
 
       });
 
@@ -268,21 +294,30 @@ export class ExpenseListComponent implements OnInit {
 
   remove(row: Expense): void {
 
-    if (!confirm('Delete this expense?')) return;
+    this.dialog
+      .confirm({
+        title: 'Delete expense',
+        message: 'Delete this expense?',
+        tone: 'danger',
+        confirmLabel: 'Delete',
+      })
+      .subscribe((ok) => {
+        if (!ok) return;
 
-    this.expenseService.delete(row.id).subscribe({
+        this.expenseService.delete(row.id).subscribe({
 
-      next: () => {
+          next: () => {
 
-        this.notify.success('Deleted');
+            this.notify.success('Deleted');
 
-        this.load();
+            this.load();
 
-      },
+          },
 
-      error: () => this.notify.error('Delete failed'),
+          error: () => this.notify.error('Delete failed'),
 
-    });
+        });
+      });
 
   }
 

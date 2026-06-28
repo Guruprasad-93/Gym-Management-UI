@@ -11,7 +11,7 @@ import { untilDestroyed } from '../../core/utils/destroy-ref.util';
   template: `
     <app-main-layout
       [menuItems]="menuService.superAdminMenu()"
-      title="Super Admin"
+      portalLabel="Super Admin"
       [userName]="auth.user()?.name ?? ''"
       [userEmail]="auth.user()?.email ?? ''" />
   `,

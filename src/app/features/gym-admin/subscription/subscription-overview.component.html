@@ -1,0 +1,108 @@
+@if (loading()) {
+  <div class="page-loading">
+    <mat-spinner diameter="36" />
+    <p>Loading subscription…</p>
+  </div>
+} @else {
+  @if (subscription(); as sub) {
+    @if (sub.bannerMessage || !sub.hasAccess) {
+      <div class="status-banner" [class]="statusBannerClass(sub)" role="status">
+        {{ sub.bannerMessage || 'Your subscription has expired. Renew to restore access.' }}
+      </div>
+    }
+
+    <section class="current-plan-card">
+      <div class="current-plan-card__head">
+        <div>
+          <h2 class="current-plan-card__title">{{ sub.planName }}</h2>
+          <p class="saas-page__subtitle">{{ sub.planCode }} · {{ sub.status }}</p>
+        </div>
+        <span class="current-plan-card__badge">Current Plan</span>
+      </div>
+
+      <div class="dates-grid">
+        <div class="date-item">
+          <span class="date-item__label">Subscription Start</span>
+          <span class="date-item__value">{{ sub.startDate | date: 'mediumDate' }}</span>
+        </div>
+        <div class="date-item">
+          <span class="date-item__label">Current Period Ends</span>
+          <span class="date-item__value">
+            {{ sub.currentPeriodEnd ? (sub.currentPeriodEnd | date: 'mediumDate') : (sub.endDate | date: 'mediumDate') }}
+          </span>
+        </div>
+        @if (sub.trialEndsAt) {
+          <div class="date-item">
+            <span class="date-item__label">Trial Ends</span>
+            <span class="date-item__value">{{ sub.trialEndsAt | date: 'mediumDate' }}</span>
+          </div>
+        }
+        @if (sub.graceEndsAt) {
+          <div class="date-item">
+            <span class="date-item__label">Grace Period Ends</span>
+            <span class="date-item__value">{{ sub.graceEndsAt | date: 'mediumDate' }}</span>
+          </div>
+        }
+        <div class="date-item">
+          <span class="date-item__label">Days to Expiry</span>
+          <span class="date-item__value">{{ sub.daysToExpiry ?? '—' }}</span>
+        </div>
+        <div class="date-item">
+          <span class="date-item__label">Grace Days Remaining</span>
+          <span class="date-item__value">{{ sub.graceDaysRemaining ?? 0 }}</span>
+        </div>
+        @if (sub.durationValue && sub.durationUnit) {
+          <div class="date-item">
+            <span class="date-item__label">Billing Duration</span>
+            <span class="date-item__value">{{ sub.durationValue }} {{ sub.durationUnit }}</span>
+          </div>
+        }
+        @if (sub.remainingTrialDays != null) {
+          <div class="date-item">
+            <span class="date-item__label">Trial Days Left</span>
+            <span class="date-item__value">{{ sub.remainingTrialDays }}</span>
+          </div>
+        }
+      </div>
+    </section>
+
+    <div class="kpi-grid">
+      <app-saas-kpi-card label="Access Mode" [value]="sub.subscriptionAccessMode || (sub.hasAccess ? 'Active' : 'Locked')" icon="verified_user" accent="#2e90fa" />
+      <app-saas-kpi-card label="Members" [value]="usage()?.memberCount ?? 0" icon="groups" accent="#12b76a" />
+      <app-saas-kpi-card label="Trainers" [value]="usage()?.trainerCount ?? 0" icon="sports" accent="#7a5af8" />
+      <app-saas-kpi-card label="Member Limit" [value]="sub.maxMembers < 0 ? 'Unlimited' : sub.maxMembers" icon="group_add" accent="#ff6600" />
+    </div>
+
+    <div class="quick-actions">
+      <a class="btn-primary" routerLink="/gym-admin/subscription/catalog">
+        <mat-icon>storefront</mat-icon>
+        Browse Plans
+      </a>
+      <a class="btn-secondary" routerLink="/gym-admin/subscription/compare">
+        <mat-icon>compare</mat-icon>
+        Compare Plans
+      </a>
+      <a class="btn-secondary" routerLink="/gym-admin/subscription/my-features">
+        <mat-icon>extension</mat-icon>
+        My Features
+      </a>
+      @if (auth.hasPermission(permissions.ManageSaasSubscription)) {
+        <a class="btn-secondary" routerLink="/gym-admin/subscription/checkout" [queryParams]="{ action: 'renew', planId: sub.saasPlanId }">
+          <mat-icon>autorenew</mat-icon>
+          Renew Plan
+        </a>
+      }
+    </div>
+
+    @if (sub.status === 'Active' && sub.cancelAtPeriodEnd === false && auth.hasPermission(permissions.ManageSaasSubscription)) {
+      <div class="cancel-section" style="margin-top: 1.25rem">
+        <button class="btn-secondary btn-secondary--warn" type="button" (click)="cancel()">
+          Cancel at period end
+        </button>
+      </div>
+    }
+  } @else {
+    <div class="hint-box">No active subscription found. Browse plans to get started.</div>
+    <a class="btn-primary" routerLink="/gym-admin/subscription/catalog">Browse Plans</a>
+  }
+}

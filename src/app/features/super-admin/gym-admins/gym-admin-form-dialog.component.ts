@@ -10,12 +10,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { GymAdminService } from '../../../core/services/gym-admin.service';
 import { GymService } from '../../../core/services/gym.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { PasswordFieldComponent } from '../../../shared/components/password-field/password-field.component';
 import { GymAdmin } from '../../../shared/models/gym-admin.models';
 import { Gym } from '../../../shared/models/gym.models';
-import {
-  loginIdentifierValidators,
-  optionalEmailValidator,
-} from '../../../core/validators/login-identifier.validators';
 
 @Component({
   selector: 'app-gym-admin-form-dialog',
@@ -29,6 +26,7 @@ import {
     MatButtonModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
+    PasswordFieldComponent,
   ],
   template: `
     <h2 mat-dialog-title>{{ isEdit ? 'Edit Gym Admin' : 'Create Gym Admin' }}</h2>
@@ -47,11 +45,7 @@ import {
           <input matInput formControlName="name" />
         </mat-form-field>
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Login ID</mat-label>
-          <input matInput formControlName="loginIdentifier" maxlength="20" />
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email (optional)</mat-label>
+          <mat-label>Email</mat-label>
           <input matInput type="email" formControlName="email" />
         </mat-form-field>
         @if (!isEdit) {
@@ -59,10 +53,11 @@ import {
             Generate temporary password
           </mat-checkbox>
           @if (!form.controls.generateTemporaryPassword.value) {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Password</mat-label>
-              <input matInput type="password" formControlName="password" />
-            </mat-form-field>
+            <app-password-field
+              label="Password"
+              [control]="form.controls.password"
+              autocomplete="new-password"
+            />
           }
         }
       </form>
@@ -115,8 +110,7 @@ export class GymAdminFormDialogComponent implements OnInit {
   readonly form = this.fb.nonNullable.group({
     gymId: [this.editAdmin?.gymId ?? this.presetGymId ?? '', Validators.required],
     name: [this.editAdmin?.name ?? '', Validators.required],
-    loginIdentifier: [this.editAdmin?.loginIdentifier ?? '', loginIdentifierValidators],
-    email: [this.editAdmin?.email ?? '', optionalEmailValidator],
+    email: [this.editAdmin?.email ?? '', [Validators.required, Validators.email]],
     generateTemporaryPassword: [true],
     password: [''],
   });
@@ -143,8 +137,7 @@ export class GymAdminFormDialogComponent implements OnInit {
         .update(this.editAdmin.userId, {
           gymId: raw.gymId,
           name: raw.name,
-          loginIdentifier: raw.loginIdentifier,
-          email: raw.email || undefined,
+          email: raw.email,
         })
         .subscribe({
           next: (res) => {
@@ -166,8 +159,7 @@ export class GymAdminFormDialogComponent implements OnInit {
       .create({
         gymId: raw.gymId,
         name: raw.name,
-        loginIdentifier: raw.loginIdentifier,
-        email: raw.email || undefined,
+        email: raw.email,
         password: raw.generateTemporaryPassword ? undefined : raw.password,
         generateTemporaryPassword: raw.generateTemporaryPassword,
       })

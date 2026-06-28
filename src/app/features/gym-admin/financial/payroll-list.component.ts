@@ -6,6 +6,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { MatIconModule } from '@angular/material/icon';
 
+import { MatTooltipModule } from '@angular/material/tooltip';
+
 import { MatTableModule } from '@angular/material/table';
 
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -41,6 +43,8 @@ import { Payroll } from '../../../shared/models/financial.models';
     ReactiveFormsModule,
 
     MatIconModule,
+
+    MatTooltipModule,
 
     MatTableModule,
 

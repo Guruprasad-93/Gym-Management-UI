@@ -12,9 +12,13 @@ import { NotificationService } from '../../../core/services/notification.service
 
 import { SaasSubscriptionService } from '../../../core/services/saas-subscription.service';
 
+import { BrandingService } from '../../../core/services/branding.service';
+
 import { ProfilePhotoManagerComponent } from '../../../shared/components/profile-photo-manager/profile-photo-manager.component';
 
 import { FileCategories } from '../../../shared/models/file.models';
+
+import { StoredFile } from '../../../shared/models/file.models';
 
 import { GymBranding } from '../../../shared/models/saas.models';
 
@@ -39,6 +43,8 @@ export class GymBrandingComponent implements OnInit {
   private readonly auth = inject(AuthService);
 
   private readonly saas = inject(SaasSubscriptionService);
+
+  private readonly branding = inject(BrandingService);
 
   private readonly notify = inject(NotificationService);
 
@@ -124,7 +130,10 @@ export class GymBrandingComponent implements OnInit {
 
           this.saving.set(false);
 
-          if (res.success) this.notify.success('Branding saved');
+          if (res.success) {
+            this.notify.success('Branding saved');
+            this.branding.refresh().subscribe();
+          }
 
         },
 
@@ -141,6 +150,10 @@ export class GymBrandingComponent implements OnInit {
   }
 
 
+
+  onLogoChanged(_file: StoredFile): void {
+    this.branding.refresh().subscribe();
+  }
 
   private patchForm(b: GymBranding): void {
 

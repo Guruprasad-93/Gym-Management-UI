@@ -16,6 +16,8 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 import { credentialsInterceptor } from './core/interceptors/credentials.interceptor';
 
+import { csrfInterceptor } from './core/interceptors/csrf.interceptor';
+
 import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor';
 
 import { GlobalErrorHandler } from './core/errors/global-error.handler';
@@ -42,7 +44,7 @@ export const appConfig: ApplicationConfig = {
 
       }),
 
-      withInterceptors([credentialsInterceptor, authInterceptor, httpErrorInterceptor])
+      withInterceptors([credentialsInterceptor, csrfInterceptor, authInterceptor, httpErrorInterceptor])
 
     ),
 

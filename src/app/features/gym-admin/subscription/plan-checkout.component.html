@@ -1,0 +1,75 @@
+@if (loading()) {
+  <div class="page-loading">
+    <mat-spinner diameter="36" />
+    <p>Preparing checkout…</p>
+  </div>
+} @else {
+  @if (plan(); as selectedPlan) {
+  <section class="panel-shell">
+    <div class="panel-shell__head">
+      <h2>{{ checkoutActionLabel(action()) }} — {{ selectedPlan.planName }}</h2>
+      <p>Secure payment via Razorpay using dynamic pricing options</p>
+    </div>
+    <div class="panel-shell__body">
+      @if (subscription(); as sub) {
+        <div class="status-banner status-banner--info" style="margin-bottom: 1rem">
+          Current plan: <strong>{{ sub.planName }}</strong>
+          @if (sub.currentPeriodEnd) {
+            · Renews/ends {{ sub.currentPeriodEnd | date: 'mediumDate' }}
+          }
+        </div>
+      }
+
+      <div class="checkout-summary">
+        <dl>
+          <div>
+            <dt>Action</dt>
+            <dd>{{ checkoutActionLabel(action()) }}</dd>
+          </div>
+          <div>
+            <dt>Plan</dt>
+            <dd>{{ selectedPlan.planName }} ({{ selectedPlan.planCode }})</dd>
+          </div>
+          @if (pricingOption(); as option) {
+            <div>
+              <dt>Duration</dt>
+              <dd>{{ durationLabel(option) }}</dd>
+            </div>
+            <div>
+              <dt>Amount</dt>
+              <dd>{{ option.price | currency: 'INR' }}</dd>
+            </div>
+          }
+        </dl>
+      </div>
+
+      <h3 style="margin: 1.25rem 0 0.75rem; font-size: 0.9375rem">Select pricing option</h3>
+      <div class="pricing-options" style="max-width: 420px">
+        @for (option of selectedPlan.pricingOptions; track option.pricingOptionId) {
+          @if (option.isActive) {
+            <button
+              class="pricing-option-btn"
+              type="button"
+              [style.border-color]="pricingOption()?.pricingOptionId === option.pricingOptionId ? '#ff6600' : ''"
+              (click)="selectPricingOption(option)">
+              <span>{{ durationLabel(option) }}</span>
+              <strong>{{ option.price | currency: 'INR' }}</strong>
+            </button>
+          }
+        }
+      </div>
+
+      <div class="quick-actions" style="margin-top: 1.25rem">
+        <button class="btn-primary" type="button" (click)="pay()" [disabled]="paying() || !pricingOption()">
+          <mat-icon>payments</mat-icon>
+          {{ paying() ? 'Processing…' : 'Pay with Razorpay' }}
+        </button>
+        <a class="btn-secondary" routerLink="/gym-admin/subscription/catalog">Cancel</a>
+      </div>
+    </div>
+  </section>
+  } @else {
+  <div class="hint-box">Unable to load checkout. Return to the catalog and try again.</div>
+  <a class="btn-secondary" routerLink="/gym-admin/subscription/catalog">Back to Catalog</a>
+  }
+}

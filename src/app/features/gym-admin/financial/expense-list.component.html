@@ -58,10 +58,10 @@
             <td mat-cell *matCellDef="let row">
               @if (auth.hasPermission(permissions.ManageExpenses)) {
                 <div class="row-actions">
-                  <button class="row-actions__btn" type="button" (click)="openForm(row)" title="Edit">
+                  <button class="row-actions__btn" type="button" (click)="openForm(row)" matTooltip="Edit">
                     <mat-icon>edit</mat-icon>
                   </button>
-                  <button class="row-actions__btn row-actions__btn--warn" type="button" (click)="remove(row)" title="Delete">
+                  <button class="row-actions__btn row-actions__btn--warn" type="button" (click)="remove(row)" matTooltip="Delete">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </div>
@@ -103,7 +103,7 @@
           <label class="form-field">
             <span>Category</span>
             <select formControlName="categoryId">
-              <option [ngValue]="null" disabled>Select category</option>
+              <option [ngValue]="0" disabled>Select category</option>
               @for (c of categories(); track c.id) {
                 <option [ngValue]="c.id">{{ c.name }}</option>
               }

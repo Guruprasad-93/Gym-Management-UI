@@ -61,12 +61,12 @@
               @if (auth.hasPermission(permissions.ManagePayroll)) {
                 <div class="row-actions">
                   @if (row.status === 'Draft') {
-                    <button class="row-actions__btn" type="button" (click)="approve(row)" title="Approve">
+                    <button class="row-actions__btn" type="button" (click)="approve(row)" matTooltip="Approve">
                       <mat-icon>check_circle</mat-icon>
                     </button>
                   }
                   @if (row.status !== 'Paid') {
-                    <button class="row-actions__btn row-actions__btn--primary" type="button" (click)="pay(row)" title="Mark paid">
+                    <button class="row-actions__btn row-actions__btn--primary" type="button" (click)="pay(row)" matTooltip="Mark paid">
                       <mat-icon>paid</mat-icon>
                     </button>
                   }
@@ -97,7 +97,7 @@
 
 @if (showGenerate) {
   <div class="modal-overlay" (click)="showGenerate = false">
-    <form class="modal-card" [formGroup]="genForm" (ngSubmit)="generate()" (click)="$event.stopPropagation()">
+    <form class="modal-card modal-card--narrow" [formGroup]="genForm" (ngSubmit)="generate()" (click)="$event.stopPropagation()">
       <header class="modal-card__head">
         <h2>Generate Monthly Payroll</h2>
         <button class="modal-card__close" type="button" (click)="showGenerate = false" aria-label="Close">

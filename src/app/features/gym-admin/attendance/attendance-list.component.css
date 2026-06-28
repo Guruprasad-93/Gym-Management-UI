@@ -1,0 +1,31 @@
+.attendance-list-page {
+  max-width: 1440px;
+}
+
+.attendance-list-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+  color: #667085;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.attendance-list-back:hover {
+  color: var(--brand-primary, #ff6600);
+}
+
+.attendance-list-back mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 768px) {
+  .table-toolbar__filters {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}

@@ -123,6 +123,9 @@ export interface RazorpayOrder {
   memberName?: string;
   memberEmail?: string;
   planName?: string;
+  useMockCheckout?: boolean;
+  mockPaymentId?: string;
+  mockSignature?: string;
 }
 
 export interface VerifyRazorpayPaymentRequest {

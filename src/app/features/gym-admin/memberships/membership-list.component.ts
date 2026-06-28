@@ -5,10 +5,12 @@ import { RouterModule } from '@angular/router';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { MembershipService } from '../../../core/services/membership.service';
+import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Permissions } from '../../../core/constants/permissions';
@@ -27,6 +29,7 @@ import { RenewMembershipDialogComponent } from './renew-membership-dialog.compon
     MatTableModule,
     MatPaginatorModule,
     MatIconModule,
+    MatTooltipModule,
     MatDialogModule,
     MatProgressSpinnerModule,
   ],
@@ -38,7 +41,7 @@ export class MembershipListComponent implements OnInit, AfterViewInit {
   readonly permissions = Permissions;
   private readonly svc = inject(MembershipService);
   private readonly notify = inject(NotificationService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialog = inject(DialogService);
   private readonly fb = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
 
@@ -130,15 +133,24 @@ export class MembershipListComponent implements OnInit, AfterViewInit {
   }
 
   cancel(m: Membership): void {
-    if (!confirm(`Cancel membership for ${m.memberName}?`)) return;
-    this.svc.cancel(m.id).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.notify.success('Cancelled');
-          this.load();
-        }
-      },
-      error: () => this.notify.error('Cancel failed'),
-    });
+    this.dialog
+      .confirm({
+        title: 'Cancel membership',
+        message: `Cancel membership for ${m.memberName}?`,
+        tone: 'danger',
+        confirmLabel: 'Cancel membership',
+      })
+      .subscribe((ok) => {
+        if (!ok) return;
+        this.svc.cancel(m.id).subscribe({
+          next: (res) => {
+            if (res.success) {
+              this.notify.success('Cancelled');
+              this.load();
+            }
+          },
+          error: () => this.notify.error('Cancel failed'),
+        });
+      });
   }
 }

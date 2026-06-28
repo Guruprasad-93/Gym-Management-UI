@@ -14,6 +14,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AnalyticsService } from '../../../core/services/analytics.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -41,6 +42,7 @@ interface QuickAction {
     DatePipe,
     RouterLink,
     MatIconModule,
+    MatTooltipModule,
     MatProgressSpinnerModule,
     SaasKpiCardComponent,
     SaasChartCardComponent,

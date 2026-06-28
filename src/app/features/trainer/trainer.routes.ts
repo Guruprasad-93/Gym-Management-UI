@@ -43,6 +43,13 @@ export const TRAINER_ROUTES: Routes = [
           import('../gym-admin/attendance/attendance-check-in.component').then((m) => m.AttendanceCheckInComponent),
       },
       {
+        path: 'attendance/scan-qr',
+        canActivate: [permissionGuard(Permissions.ManageAttendance)],
+        loadComponent: () =>
+          import('../gym-admin/attendance/qr-scan-page.component').then((m) => m.QrScanPageComponent),
+        data: { scanMode: 'attendance' },
+      },
+      {
         path: 'attendance/check-out',
         canActivate: [permissionGuard(Permissions.ManageAttendance)],
         loadComponent: () =>
@@ -53,6 +60,18 @@ export const TRAINER_ROUTES: Routes = [
         canActivate: [permissionGuard(Permissions.ViewWorkoutPlans)],
         loadComponent: () =>
           import('../gym-admin/workout/workout-plan-list.component').then((m) => m.WorkoutPlanListComponent),
+      },
+      {
+        path: 'workout-plans/exercises',
+        canActivate: [permissionGuard(Permissions.ViewWorkoutPlans)],
+        loadComponent: () =>
+          import('../gym-admin/workout/exercise-library.component').then((m) => m.ExerciseLibraryComponent),
+      },
+      {
+        path: 'workout-plans/:id/edit',
+        canActivate: [permissionGuard(Permissions.ViewWorkoutPlans)],
+        loadComponent: () =>
+          import('../gym-admin/workout/workout-plan-editor.component').then((m) => m.WorkoutPlanEditorComponent),
       },
       {
         path: 'members/:memberId/workout',

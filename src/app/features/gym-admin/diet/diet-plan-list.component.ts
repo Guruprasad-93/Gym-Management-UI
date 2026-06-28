@@ -8,13 +8,17 @@ import { MatTableModule } from '@angular/material/table';
 
 import { MatIconModule } from '@angular/material/icon';
 
+import { MatTooltipModule } from '@angular/material/tooltip';
+
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 import { DietService } from '../../../core/services/diet.service';
+
+import { DialogService } from '../../../core/services/dialog.service';
 
 import { NotificationService } from '../../../core/services/notification.service';
 
@@ -44,6 +48,8 @@ import { AssignDietPlanDialogComponent } from './assign-diet-plan-dialog.compone
 
     MatIconModule,
 
+    MatTooltipModule,
+
     MatProgressSpinnerModule,
 
     MatDialogModule,
@@ -66,7 +72,7 @@ export class DietPlanListComponent implements OnInit {
 
   private readonly notify = inject(NotificationService);
 
-  private readonly dialog = inject(MatDialog);
+  private readonly dialog = inject(DialogService);
 
 
 
@@ -150,7 +156,7 @@ export class DietPlanListComponent implements OnInit {
 
     this.dialog
 
-      .open(AssignDietPlanDialogComponent, { width: '480px', data: { dietPlanId: plan.dietPlanId, planName: plan.planName } })
+      .open(AssignDietPlanDialogComponent, { width: '520px', maxWidth: '95vw', data: { dietPlanId: plan.dietPlanId, planName: plan.planName } })
 
       .afterClosed()
 
@@ -186,25 +192,34 @@ export class DietPlanListComponent implements OnInit {
 
   remove(plan: DietPlanListItem): void {
 
-    if (!confirm(`Delete diet plan "${plan.planName}"?`)) return;
+    this.dialog
+      .confirm({
+        title: 'Delete diet plan',
+        message: `Delete diet plan "${plan.planName}"?`,
+        tone: 'danger',
+        confirmLabel: 'Delete',
+      })
+      .subscribe((ok) => {
+        if (!ok) return;
 
-    this.svc.delete(plan.dietPlanId).subscribe({
+        this.svc.delete(plan.dietPlanId).subscribe({
 
-      next: (res) => {
+          next: (res) => {
 
-        if (res.success) {
+            if (res.success) {
 
-          this.notify.success('Plan deleted');
+              this.notify.success('Plan deleted');
 
-          this.load();
+              this.load();
 
-        }
+            }
 
-      },
+          },
 
-      error: (err) => this.notify.error(err?.error?.message || 'Delete failed'),
+          error: (err) => this.notify.error(err?.error?.message || 'Delete failed'),
 
-    });
+        });
+      });
 
   }
 

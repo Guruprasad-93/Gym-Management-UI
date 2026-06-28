@@ -65,7 +65,7 @@ export class MemberAttendanceHistoryComponent implements OnInit {
   }
 
   exportExcel(): void {
-    this.svc.downloadMemberHistoryExcel(this.memberId, { pageNumber: 1, pageSize: 5000 }).subscribe({
+    this.svc.downloadMemberHistoryExcel(this.memberId, { pageNumber: 1, pageSize: 100 }).subscribe({
       next: (blob) => this.downloadBlob(blob, `member-${this.memberId}-attendance.xlsx`),
       error: () => this.notify.error('Export failed'),
     });

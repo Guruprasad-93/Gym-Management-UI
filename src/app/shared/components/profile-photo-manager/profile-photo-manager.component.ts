@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, inject, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { AuthService } from '../../../core/services/auth.service';
 import { FileService } from '../../../core/services/file.service';
@@ -24,6 +24,8 @@ import { FileUploadComponent } from '../file-upload/file-upload.component';
         [circle]="circle" />
       @if (canUpload()) {
         <app-file-upload
+          class="photo-manager__upload"
+          [class.photo-manager__upload--hidden]="hideUploadButton"
           [label]="uploadLabel"
           accept="image/jpeg,image/png,image/webp,image/gif"
           [request]="uploadRequest"
@@ -38,6 +40,15 @@ import { FileUploadComponent } from '../file-upload/file-upload.component';
         flex-direction: column;
         align-items: flex-start;
         gap: 0.75rem;
+      }
+
+      .photo-manager__upload--hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
       }
     `,
   ],
@@ -55,8 +66,12 @@ export class ProfilePhotoManagerComponent implements OnInit {
   @Input() size = 120;
   @Input() circle = true;
   @Input() uploadLabel = 'Change photo';
+  /** Hides the default upload button; use openUploadPicker() to trigger the same file input. */
+  @Input() hideUploadButton = false;
 
   @Output() readonly photoChanged = new EventEmitter<StoredFile>();
+
+  @ViewChild(FileUploadComponent) private fileUpload?: FileUploadComponent;
 
   photoUrl = signal<string | null>(null);
 
@@ -116,7 +131,16 @@ export class ProfilePhotoManagerComponent implements OnInit {
         next: (res) => {
           if (res.data?.publicUrl) this.photoUrl.set(res.data.publicUrl);
         },
+        error: () => {
+          // No logo uploaded yet — not an error state for branding pages.
+        },
       });
+    }
+  }
+
+  openUploadPicker(): void {
+    if (this.canUpload()) {
+      this.fileUpload?.openPicker();
     }
   }
 

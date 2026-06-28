@@ -1,5 +1,11 @@
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
+@import './theme/material-m3-tokens.css';
 @import 'ngx-toastr/toastr';
+@import './app/shared/styles/dropdown.css';
+@import './app/shared/styles/dialog-shell.css';
+@import './app/shared/styles/saas-data-table.css';
+@import './app/shared/styles/member-page.css';
+@import './app/features/public-website/public-website.shared.css';
 
 :root {
   --brand-primary: #ff6600;
@@ -27,12 +33,35 @@ a {
   color: inherit;
 }
 
-.mat-mdc-dialog-content {
-  max-height: 70vh !important;
+/* Searchable select overlay — above cards, tables, and Material dialogs */
+.cdk-overlay-pane.searchable-select-overlay-pane {
+  z-index: 1300 !important;
+  max-width: calc(100vw - 16px);
 }
 
 @media (max-width: 768px) {
   .mat-mdc-table {
     font-size: 0.85rem;
   }
+}
+
+/* Material tooltips — above ngx-toastr (z-index: 999999), tables, dialogs, and sticky headers */
+.cdk-overlay-container {
+  z-index: 1000000;
+}
+
+.mat-mdc-tooltip-panel {
+  pointer-events: none;
+}
+
+.mat-mdc-tooltip .mdc-tooltip__surface,
+.mat-mdc-tooltip-surface {
+  max-width: min(360px, calc(100vw - 32px));
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.audit-tooltip .mdc-tooltip__surface {
+  max-width: min(480px, calc(100vw - 32px));
 }

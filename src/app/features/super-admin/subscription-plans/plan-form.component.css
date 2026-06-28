@@ -1,0 +1,40 @@
+.loading-text {
+  color: #667085;
+  font-size: 0.9375rem;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.section-header .form-card__title {
+  margin-bottom: 0;
+}
+
+.toggle-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  align-items: center;
+  grid-column: 1 / -1;
+}
+
+.span-2 {
+  grid-column: 1 / -1;
+}
+
+.plan-table {
+  width: 100%;
+}
+
+.gym-page__header .gym-page__back-btn {
+  margin-bottom: 0.75rem;
+}
+
+.gym-page__header .gym-page__title {
+  margin-top: 0.5rem;
+}

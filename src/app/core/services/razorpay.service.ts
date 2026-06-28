@@ -64,6 +64,10 @@ export class RazorpayService {
   }
 
   openCheckout(order: RazorpayOrder, onSuccess: (response: RazorpaySuccessResponse) => void, onDismiss?: () => void): Observable<void> {
+    if (this.tryMockCheckout(order, onSuccess)) {
+      return from(Promise.resolve());
+    }
+
     return this.loadScript().pipe(
       switchMap(() => {
         if (!window.Razorpay) {
@@ -87,6 +91,27 @@ export class RazorpayService {
         return from(Promise.resolve());
       })
     );
+  }
+
+  private tryMockCheckout(
+    order: RazorpayOrder,
+    onSuccess: (response: RazorpaySuccessResponse) => void,
+  ): boolean {
+    const useMock =
+      order.useMockCheckout
+      || order.keyId === 'rzp_test_mock'
+      || order.razorpayOrderId?.startsWith('order_mock_');
+
+    if (!useMock || !order.mockPaymentId || !order.mockSignature) {
+      return false;
+    }
+
+    onSuccess({
+      razorpay_order_id: order.razorpayOrderId,
+      razorpay_payment_id: order.mockPaymentId,
+      razorpay_signature: order.mockSignature,
+    });
+    return true;
   }
 
   private loadScript(): Observable<void> {

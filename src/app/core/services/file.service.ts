@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -11,6 +11,19 @@ export class FileService {
   private readonly base = `${environment.apiUrl}/files`;
 
   upload(file: File, request: UploadFileRequest): Observable<ApiResponse<StoredFile>> {
+    const form = this.buildFormData(file, request);
+    return this.http.post<ApiResponse<StoredFile>>(`${this.base}/upload`, form);
+  }
+
+  uploadWithProgress(file: File, request: UploadFileRequest): Observable<HttpEvent<ApiResponse<StoredFile>>> {
+    const form = this.buildFormData(file, request);
+    return this.http.post<ApiResponse<StoredFile>>(`${this.base}/upload`, form, {
+      reportProgress: true,
+      observe: 'events',
+    });
+  }
+
+  private buildFormData(file: File, request: UploadFileRequest): FormData {
     const form = new FormData();
     form.append('file', file, file.name);
     form.append('fileCategory', request.fileCategory);
@@ -23,7 +36,7 @@ export class FileService {
     if (request.assignedWorkoutPlanId != null) form.append('assignedWorkoutPlanId', String(request.assignedWorkoutPlanId));
     if (request.notes) form.append('notes', request.notes);
     if (request.takenAt) form.append('takenAt', request.takenAt);
-    return this.http.post<ApiResponse<StoredFile>>(`${this.base}/upload`, form);
+    return form;
   }
 
   delete(fileId: number): Observable<ApiResponse<unknown>> {

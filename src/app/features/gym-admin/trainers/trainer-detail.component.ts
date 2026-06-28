@@ -5,9 +5,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TrainerService } from '../../../core/services/trainer.service';
+import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Permissions } from '../../../core/constants/permissions';
@@ -179,7 +180,7 @@ export class TrainerDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly trainerService = inject(TrainerService);
   private readonly notify = inject(NotificationService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialog = inject(DialogService);
 
   trainer = signal<Trainer | null>(null);
   dashboard = signal<TrainerDashboard | null>(null);
@@ -245,16 +246,25 @@ export class TrainerDetailComponent implements OnInit {
   }
 
   unassign(member: Member): void {
-    if (!confirm(`Remove ${member.fullName} from this trainer?`)) return;
-    this.trainerService.removeMemberAssignment(member.id).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.notify.success('Assignment removed');
-          const t = this.trainer();
-          if (t) this.load(t.id);
-        }
-      },
-      error: () => this.notify.error('Failed to remove assignment'),
-    });
+    this.dialog
+      .confirm({
+        title: 'Remove assignment',
+        message: `Remove ${member.fullName} from this trainer?`,
+        tone: 'danger',
+        confirmLabel: 'Remove',
+      })
+      .subscribe((ok) => {
+        if (!ok) return;
+        this.trainerService.removeMemberAssignment(member.id).subscribe({
+          next: (res) => {
+            if (res.success) {
+              this.notify.success('Assignment removed');
+              const t = this.trainer();
+              if (t) this.load(t.id);
+            }
+          },
+          error: () => this.notify.error('Failed to remove assignment'),
+        });
+      });
   }
 }

@@ -13,7 +13,7 @@ import { BrandingService } from '../../core/services/branding.service';
 })
 export class SidebarComponent implements OnChanges {
   @Input() menuItems: AppMenuItem[] = [];
-  @Input() title = 'Gym SaaS';
+  @Input() portalLabel = 'Gym SaaS';
   @Input() userName = '';
   @Input() userEmail = '';
 

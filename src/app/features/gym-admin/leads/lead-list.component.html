@@ -2,7 +2,7 @@
   <header class="saas-page__header">
     <div>
       <h1 class="saas-page__title">Leads & CRM</h1>
-      <p class="saas-page__subtitle">Capture enquiries, schedule trials, and convert prospects</p>
+      <p class="saas-page__subtitle">Capture enquiries, schedule trials, and convert prospects into members</p>
     </div>
     <div class="member-page__actions">
       @if (auth.hasPermission(permissions.ViewLeadAnalytics)) {
@@ -20,7 +20,71 @@
     </div>
   </header>
 
-  <section class="table-shell">
+  @if (dashboardLoading()) {
+    <div class="leads-kpi-skeleton">
+      @for (i of [1, 2, 3, 4, 5]; track i) {
+        <div class="leads-kpi-skeleton__card"></div>
+      }
+    </div>
+  } @else if (dashboard()) {
+    <div class="leads-kpi-row">
+      <app-saas-kpi-card
+        label="Total Leads"
+        [value]="dashboard()!.totalLeads"
+        icon="groups"
+        accent="var(--brand-primary)"
+        hint="Pipeline" />
+      <app-saas-kpi-card
+        label="New Today"
+        [value]="dashboard()!.newLeadsToday"
+        icon="fiber_new"
+        accent="#2e90fa"
+        hint="Fresh" />
+      <app-saas-kpi-card
+        label="Pending Follow-ups"
+        [value]="dashboard()!.pendingFollowUps"
+        icon="schedule"
+        accent="#f79009"
+        hint="Action needed" />
+      <app-saas-kpi-card
+        label="Trials Today"
+        [value]="dashboard()!.todaysTrials"
+        icon="fitness_center"
+        accent="#7a5af8"
+        hint="Scheduled" />
+      <app-saas-kpi-card
+        label="Conversion Rate"
+        [value]="conversionRateLabel()"
+        icon="trending_up"
+        accent="#12b76a"
+        [hint]="convertedHint()" />
+    </div>
+  }
+
+  <nav class="leads-quick-strip" aria-label="Lead shortcuts">
+    <a class="leads-quick-strip__link" routerLink="followups">
+      <mat-icon>event_note</mat-icon>
+      Follow-ups
+      @if (dashboard()?.pendingFollowUps) {
+        <span class="leads-quick-strip__badge">{{ dashboard()!.pendingFollowUps }}</span>
+      }
+    </a>
+    <a class="leads-quick-strip__link" routerLink="trials">
+      <mat-icon>event</mat-icon>
+      Today's Trials
+      @if (dashboard()?.todaysTrials) {
+        <span class="leads-quick-strip__badge">{{ dashboard()!.todaysTrials }}</span>
+      }
+    </a>
+    @if (auth.hasPermission(permissions.ViewLeadAnalytics)) {
+      <a class="leads-quick-strip__link" routerLink="analytics">
+        <mat-icon>bar_chart</mat-icon>
+        Pipeline Analytics
+      </a>
+    }
+  </nav>
+
+  <section class="table-shell leads-table-shell">
     <div class="table-toolbar">
       <label class="search-box">
         <mat-icon>search</mat-icon>
@@ -35,7 +99,7 @@
         <label class="filter-select">
           <span>Status</span>
           <select [formControl]="statusControl" aria-label="Filter by status">
-            <option value="">All</option>
+            <option value="">All statuses</option>
             @for (s of statuses; track s) {
               <option [value]="s">{{ statusLabel(s) }}</option>
             }
@@ -46,20 +110,30 @@
         <label class="filter-select">
           <span>Source</span>
           <select [formControl]="sourceControl" aria-label="Filter by source">
-            <option value="">All</option>
+            <option value="">All sources</option>
             @for (src of sources; track src) {
-              <option [value]="src">{{ src }}</option>
+              <option [value]="src">{{ sourceLabel(src) }}</option>
             }
           </select>
           <mat-icon>expand_more</mat-icon>
         </label>
 
-        <div class="view-toggle">
-          <button type="button" class="view-toggle__btn" [class.view-toggle__btn--active]="viewMode() === 'list'" (click)="viewMode.set('list')">
+        <div class="view-toggle" role="group" aria-label="View mode">
+          <button
+            type="button"
+            class="view-toggle__btn"
+            [class.view-toggle__btn--active]="viewMode() === 'list'"
+            (click)="viewMode.set('list')"
+            [attr.aria-pressed]="viewMode() === 'list'">
             <mat-icon>view_list</mat-icon>
             List
           </button>
-          <button type="button" class="view-toggle__btn" [class.view-toggle__btn--active]="viewMode() === 'kanban'" (click)="viewMode.set('kanban')">
+          <button
+            type="button"
+            class="view-toggle__btn"
+            [class.view-toggle__btn--active]="viewMode() === 'kanban'"
+            (click)="viewMode.set('kanban')"
+            [attr.aria-pressed]="viewMode() === 'kanban'">
             <mat-icon>view_kanban</mat-icon>
             Kanban
           </button>
@@ -73,87 +147,119 @@
         <p>Loading leads…</p>
       </div>
     } @else if (viewMode() === 'list') {
-      <div class="table-wrap">
-        <table mat-table [dataSource]="dataSource" class="saas-table">
-          <ng-container matColumnDef="fullName">
-            <th mat-header-cell *matHeaderCellDef>Name</th>
-            <td mat-cell *matCellDef="let row">
-              <div class="item-cell">
-                <span class="item-cell__avatar">{{ leadInitials(row.fullName) }}</span>
-                <div class="item-cell__text">
-                  <a class="lead-link" [routerLink]="[row.id]">{{ row.fullName }}</a>
-                  @if (row.email) {
-                    <small>{{ row.email }}</small>
+      @if (!totalCount()) {
+        <div class="leads-empty">
+          <div class="leads-empty__icon">
+            <mat-icon>person_search</mat-icon>
+          </div>
+          <h2>No leads yet</h2>
+          <p>Start capturing walk-ins, referrals, and online enquiries to grow your gym.</p>
+          @if (auth.hasPermission(permissions.ManageLeads)) {
+            <a class="btn-primary" routerLink="create">
+              <mat-icon>person_add</mat-icon>
+              Add your first lead
+            </a>
+          }
+        </div>
+      } @else {
+        <div class="table-wrap">
+          <table mat-table [dataSource]="dataSource" class="saas-table">
+            <ng-container matColumnDef="fullName">
+              <th mat-header-cell *matHeaderCellDef>Lead</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="item-cell">
+                  <span class="item-cell__avatar" [class]="avatarToneClass(row.status)">{{ leadInitials(row.fullName) }}</span>
+                  <div class="item-cell__text">
+                    <a class="lead-link" [routerLink]="[row.id]">{{ row.fullName }}</a>
+                    @if (row.email) {
+                      <small>{{ row.email }}</small>
+                    }
+                    @if (row.interestedPlanName) {
+                      <small class="leads-plan-hint">Interested: {{ row.interestedPlanName }}</small>
+                    }
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="mobileNumber">
+              <th mat-header-cell *matHeaderCellDef>Mobile</th>
+              <td mat-cell *matCellDef="let row">
+                <a class="leads-phone" [href]="'tel:' + row.mobileNumber">{{ row.mobileNumber }}</a>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="leadSource">
+              <th mat-header-cell *matHeaderCellDef>Source</th>
+              <td mat-cell *matCellDef="let row">
+                <span class="chip">{{ sourceLabel(row.leadSource) }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let row">
+                <span class="status-badge" [ngClass]="statusBadgeClass(row.status)">{{ statusLabel(row.status) }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="trainer">
+              <th mat-header-cell *matHeaderCellDef>Trainer</th>
+              <td mat-cell *matCellDef="let row">
+                @if (row.assignedTrainerName) {
+                  <span class="chip chip--muted">{{ row.assignedTrainerName }}</span>
+                } @else {
+                  <span class="status-badge status-badge--muted">Unassigned</span>
+                }
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="createdDate">
+              <th mat-header-cell *matHeaderCellDef>Created</th>
+              <td mat-cell *matCellDef="let row">{{ row.createdDate | date:'MMM d, y' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="row-actions">
+                  <a class="row-actions__btn" [routerLink]="[row.id]" matTooltip="View details">
+                    <mat-icon>visibility</mat-icon>
+                  </a>
+                  @if (auth.hasPermission(permissions.ManageLeads)) {
+                    <a class="row-actions__btn" [routerLink]="['edit', row.id]" matTooltip="Edit lead">
+                      <mat-icon>edit</mat-icon>
+                    </a>
                   }
                 </div>
-              </div>
-            </td>
-          </ng-container>
+              </td>
+            </ng-container>
 
-          <ng-container matColumnDef="mobileNumber">
-            <th mat-header-cell *matHeaderCellDef>Mobile</th>
-            <td mat-cell *matCellDef="let row">{{ row.mobileNumber }}</td>
-          </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns" class="saas-row"></tr>
+          </table>
+        </div>
 
-          <ng-container matColumnDef="leadSource">
-            <th mat-header-cell *matHeaderCellDef>Source</th>
-            <td mat-cell *matCellDef="let row">
-              <span class="chip">{{ row.leadSource }}</span>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef>Status</th>
-            <td mat-cell *matCellDef="let row">
-              <span class="status-badge" [ngClass]="statusBadgeClass(row.status)">{{ statusLabel(row.status) }}</span>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="trainer">
-            <th mat-header-cell *matHeaderCellDef>Trainer</th>
-            <td mat-cell *matCellDef="let row">{{ row.assignedTrainerName || '—' }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="createdDate">
-            <th mat-header-cell *matHeaderCellDef>Created</th>
-            <td mat-cell *matCellDef="let row">{{ row.createdDate | date:'MMM d, y' }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
-            <td mat-cell *matCellDef="let row">
-              <div class="row-actions">
-                <a class="row-actions__btn" [routerLink]="['edit', row.id]" title="View / Edit">
-                  <mat-icon>edit</mat-icon>
-                </a>
-              </div>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="saas-row"></tr>
-          <tr class="mat-row empty-row" *matNoDataRow>
-            <td class="mat-cell" [attr.colspan]="displayedColumns.length">No leads found.</td>
-          </tr>
-        </table>
-      </div>
-
-      <footer class="table-footer">
-        <mat-paginator
-          [length]="totalCount()"
-          [pageSize]="pageSize"
-          [pageIndex]="pageIndex"
-          [pageSizeOptions]="[5, 10, 25, 50]"
-          (page)="onPage($event)"
-          showFirstLastButtons />
-        <p class="table-footer__summary">{{ pageSummary }}</p>
-      </footer>
+        <footer class="table-footer">
+          <mat-paginator
+            [length]="totalCount()"
+            [pageSize]="pageSize"
+            [pageIndex]="pageIndex"
+            [pageSizeOptions]="[5, 10, 25, 50]"
+            (page)="onPage($event)"
+            showFirstLastButtons />
+          <p class="table-footer__summary">{{ pageSummary }}</p>
+        </footer>
+      }
     } @else {
       <div class="kanban-board">
         @for (col of kanbanColumns; track col.status) {
-          <article class="kanban-column">
+          <article class="kanban-column" [ngClass]="kanbanColumnClass(col.status)">
             <header class="kanban-column__head">
-              <h3>{{ statusLabel(col.status) }}</h3>
+              <div class="kanban-column__title">
+                <span class="kanban-column__dot"></span>
+                <h3>{{ statusLabel(col.status) }}</h3>
+              </div>
               <span class="kanban-column__count">{{ col.leads.length }}</span>
             </header>
             <div
@@ -164,21 +270,46 @@
               class="kanban-list"
               (cdkDropListDropped)="onDrop($event, col.status)">
               @for (lead of col.leads; track lead.id) {
-                <div class="kanban-card" cdkDrag [routerLink]="['edit', lead.id]">
+                <a class="kanban-card" cdkDrag [routerLink]="[lead.id]">
                   <div class="kanban-card__top">
-                    <span class="item-cell__avatar item-cell__avatar--sm">{{ leadInitials(lead.fullName) }}</span>
-                    <strong>{{ lead.fullName }}</strong>
+                    <span class="item-cell__avatar item-cell__avatar--sm" [class]="avatarToneClass(lead.status)">
+                      {{ leadInitials(lead.fullName) }}
+                    </span>
+                    <div class="kanban-card__identity">
+                      <strong>{{ lead.fullName }}</strong>
+                      <span class="kanban-card__date">{{ lead.createdDate | date:'MMM d' }}</span>
+                    </div>
                   </div>
-                  <p class="kanban-card__meta">{{ lead.mobileNumber }}</p>
-                  <span class="chip">{{ lead.leadSource }}</span>
-                </div>
+                  <p class="kanban-card__meta">
+                    <mat-icon>phone</mat-icon>
+                    {{ lead.mobileNumber }}
+                  </p>
+                  @if (lead.assignedTrainerName) {
+                    <p class="kanban-card__trainer">
+                      <mat-icon>sports</mat-icon>
+                      {{ lead.assignedTrainerName }}
+                    </p>
+                  }
+                  <div class="kanban-card__footer">
+                    <span class="chip chip--sm">{{ sourceLabel(lead.leadSource) }}</span>
+                    @if (lead.interestedPlanName) {
+                      <span class="chip chip--sm chip--plan">{{ lead.interestedPlanName }}</span>
+                    }
+                  </div>
+                </a>
               } @empty {
-                <p class="kanban-empty">Drop leads here</p>
+                <p class="kanban-empty">Drag leads here or add a new enquiry</p>
               }
             </div>
           </article>
         }
       </div>
+      @if (!kanbanTotal()) {
+        <div class="leads-empty leads-empty--compact">
+          <mat-icon>view_kanban</mat-icon>
+          <p>No leads in the pipeline. Switch to list view or add a lead to get started.</p>
+        </div>
+      }
     }
   </section>
 </div>

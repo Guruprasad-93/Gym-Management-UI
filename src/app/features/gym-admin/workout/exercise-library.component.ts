@@ -6,10 +6,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { debounceTime } from 'rxjs';
 import { WorkoutService } from '../../../core/services/workout.service';
+import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Permissions } from '../../../core/constants/permissions';
@@ -67,7 +68,7 @@ export class ExerciseLibraryComponent implements OnInit {
   readonly permissions = Permissions;
   private readonly svc = inject(WorkoutService);
   private readonly notify = inject(NotificationService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialog = inject(DialogService);
   loading = signal(true);
   exercises = signal<Exercise[]>([]);
   categories = signal<ExerciseCategory[]>([]);
@@ -99,10 +100,19 @@ export class ExerciseLibraryComponent implements OnInit {
   }
 
   remove(ex: Exercise): void {
-    if (!confirm(`Delete "${ex.exerciseName}"?`)) return;
-    this.svc.deleteExercise(ex.exerciseId).subscribe({
-      next: () => { this.notify.success('Deleted'); this.load(); },
-      error: () => this.notify.error('Delete failed'),
-    });
+    this.dialog
+      .confirm({
+        title: 'Delete exercise',
+        message: `Delete "${ex.exerciseName}"?`,
+        tone: 'danger',
+        confirmLabel: 'Delete',
+      })
+      .subscribe((ok) => {
+        if (!ok) return;
+        this.svc.deleteExercise(ex.exerciseId).subscribe({
+          next: () => { this.notify.success('Deleted'); this.load(); },
+          error: () => this.notify.error('Delete failed'),
+        });
+      });
   }
 }

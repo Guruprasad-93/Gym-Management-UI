@@ -19,6 +19,9 @@ export interface GymSubscription {
   planName: string;
   status: string;
   billingCycle?: string;
+  pricingOptionId?: number;
+  durationValue?: number;
+  durationUnit?: string;
   amount: number;
   startDate: string;
   endDate: string;
@@ -26,8 +29,13 @@ export interface GymSubscription {
   currentPeriodEnd?: string;
   graceEndsAt?: string;
   remainingTrialDays?: number;
+  daysToExpiry?: number;
+  graceDaysRemaining?: number;
   hasAccess: boolean;
   cancelAtPeriodEnd: boolean;
+  subscriptionAccessMode?: string;
+  bannerMessage?: string;
+  bannerSeverity?: string;
   maxMembers: number;
   maxTrainers: number;
   storageLimitMb: number;
@@ -51,6 +59,11 @@ export interface SaasPaymentOrder {
   keyId: string;
   planName: string;
   billingCycle: string;
+  pricingOptionId?: number;
+  durationLabel?: string;
+  useMockCheckout?: boolean;
+  mockPaymentId?: string;
+  mockSignature?: string;
 }
 
 export interface SaasPlatformDashboard {

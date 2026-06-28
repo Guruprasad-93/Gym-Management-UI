@@ -23,6 +23,10 @@
           <mat-icon>calendar_month</mat-icon>
           Monthly
         </button>
+        <button type="button" class="view-toggle__btn" [class.view-toggle__btn--active]="reportTab() === 'forgot'" (click)="reportTab.set('forgot')">
+          <mat-icon>alarm_off</mat-icon>
+          Forgot Check-Out
+        </button>
       </div>
     </div>
 
@@ -32,6 +36,16 @@
           <label class="form-field">
             <span>Report date</span>
             <input type="date" [formControl]="dailyDate" />
+          </label>
+          <label class="form-field">
+            <span>Check-out filter</span>
+            <select [formControl]="checkoutTypeFilter">
+              <option [ngValue]="null">All records</option>
+              <option ngValue="Open">Open attendance</option>
+              <option ngValue="Normal">Normal check-out</option>
+              <option ngValue="Manual">Manual check-out</option>
+              <option ngValue="Auto">Auto check-out</option>
+            </select>
           </label>
           <div class="form-actions">
             <button class="btn-primary" type="button" (click)="loadDaily()" [disabled]="loadingDaily()">
@@ -68,6 +82,7 @@
                 <th>Status</th>
                 <th>Check In</th>
                 <th>Check Out</th>
+                <th>Check-Out Type</th>
               </tr>
             </thead>
             <tbody>
@@ -82,9 +97,20 @@
                   <td><span class="chip">{{ r.statusName }}</span></td>
                   <td>{{ r.checkInAt ? (r.checkInAt | date:'shortTime') : '—' }}</td>
                   <td>{{ r.checkOutAt ? (r.checkOutAt | date:'shortTime') : '—' }}</td>
+                  <td>
+                    @if (r.checkoutType === 'Auto' || r.isAutoCheckout) {
+                      Auto
+                    } @else if (r.checkoutType === 'Manual') {
+                      Manual
+                    } @else if (r.checkoutType === 'Normal') {
+                      Normal
+                    } @else {
+                      —
+                    }
+                  </td>
                 </tr>
               } @empty {
-                <tr><td colspan="4" class="empty-cell">No records for this date.</td></tr>
+                <tr><td colspan="5" class="empty-cell">No records for this date.</td></tr>
               }
             </tbody>
           </table>
@@ -94,7 +120,7 @@
       } @else {
         <p class="empty-state">Select a date and click Preview to load the daily report.</p>
       }
-    } @else {
+    } @else if (reportTab() === 'monthly') {
       <div class="report-filters">
         <div class="form-grid">
           <label class="form-field">
@@ -161,6 +187,72 @@
         <p class="empty-state">No data for the selected month.</p>
       } @else {
         <p class="empty-state">Select year and month, then click Preview.</p>
+      }
+    } @else {
+      <div class="report-filters">
+        <div class="form-grid">
+          <label class="form-field">
+            <span>From</span>
+            <input type="date" [formControl]="forgotFrom" />
+          </label>
+          <label class="form-field">
+            <span>To</span>
+            <input type="date" [formControl]="forgotTo" />
+          </label>
+          <label class="form-field">
+            <span>Branch</span>
+            <select [formControl]="forgotBranchId">
+              <option [ngValue]="null">All branches</option>
+              @for (b of branches(); track b.branchId) {
+                <option [ngValue]="b.branchId">{{ b.branchName }}</option>
+              }
+            </select>
+          </label>
+          <label class="form-field">
+            <span>Member ID</span>
+            <input type="number" [formControl]="forgotMemberId" placeholder="Optional" min="1" />
+          </label>
+          <div class="form-actions">
+            <button class="btn-primary" type="button" (click)="loadForgot()" [disabled]="loadingForgot()">
+              @if (loadingForgot()) { Loading… } @else { Preview }
+            </button>
+          </div>
+        </div>
+      </div>
+
+      @if (forgotReport().length) {
+        <p class="report-summary">{{ forgotTotal() }} member(s) with auto check-outs in range</p>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Branch</th>
+                <th>Auto Check-Outs</th>
+                <th>Last Auto Check-Out</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of forgotReport(); track r.memberId) {
+                <tr>
+                  <td>
+                    <div class="item-cell">
+                      <span class="item-cell__avatar">{{ memberInitials(r.memberName) }}</span>
+                      <div class="item-cell__text"><strong>{{ r.memberName }}</strong></div>
+                    </div>
+                  </td>
+                  <td>{{ r.branchName ?? '—' }}</td>
+                  <td><strong>{{ r.totalAutoCheckOutCount }}</strong></td>
+                  <td>{{ r.lastAutoCheckOutDate ? (r.lastAutoCheckOutDate | date:'MMM d, y') : '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else if (forgotLoaded()) {
+        <p class="empty-state">No forgot check-out records for the selected filters.</p>
+      } @else {
+        <p class="empty-state">Set filters and click Preview to load the forgot check-out report.</p>
       }
     }
   </section>

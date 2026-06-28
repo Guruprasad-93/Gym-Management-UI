@@ -22,6 +22,7 @@ import { Permissions } from '../../../core/constants/permissions';
 import { SaasKpiCardComponent } from '../../../shared/components/saas-kpi-card/saas-kpi-card.component';
 import { SaasChartCardComponent } from '../../../shared/components/saas-chart-card/saas-chart-card.component';
 import { RevenueAnalytics } from '../../../shared/models/analytics.models';
+import { sortMonthlyChronologically } from '../../../shared/utils/chart.util';
 
 Chart.register(...registerables);
 
@@ -120,13 +121,14 @@ export class AnalyticsRevenueComponent implements OnInit, OnDestroy {
     this.destroyCharts();
 
     if (this.trendChartRef?.nativeElement && rev.revenueTrend.length) {
+      const trend = sortMonthlyChronologically(rev.revenueTrend);
       this.charts.push(new Chart(this.trendChartRef.nativeElement, {
         type: 'line',
         data: {
-          labels: rev.revenueTrend.map((x) => x.monthLabel),
+          labels: trend.map((x) => x.monthLabel),
           datasets: [{
             label: 'Revenue',
-            data: rev.revenueTrend.map((x) => x.value),
+            data: trend.map((x) => x.value),
             borderColor: '#ff6600',
             backgroundColor: 'rgba(255, 102, 0, 0.08)',
             fill: true,

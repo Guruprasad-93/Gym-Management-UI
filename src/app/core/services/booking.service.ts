@@ -4,7 +4,8 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response';
 import { PagedResult } from '../../shared/models/paged.models';
-import { AvailableSlot, BookingAnalytics, ClassSchedule, SlotBooking, TrainerScheduleItem } from '../../shared/models/booking.models';
+import { AvailableSlot, BookingAnalytics, BookingSettings, ClassSchedule, CreateClassScheduleRequest, SlotBooking, TrainerScheduleItem, UpdateClassScheduleRequest } from '../../shared/models/booking.models';
+import { QrScanResult } from '../../shared/models/qr-checkin.models';
 
 @Injectable({ providedIn: 'root' })
 export class BookingService {
@@ -44,12 +45,28 @@ export class BookingService {
     return this.http.get<ApiResponse<PagedResult<ClassSchedule>>>(this.schedulesBase, { params });
   }
 
-  createSchedule(dto: Partial<ClassSchedule>): Observable<ApiResponse<ClassSchedule>> {
+  getSchedule(id: number): Observable<ApiResponse<ClassSchedule>> {
+    return this.http.get<ApiResponse<ClassSchedule>>(`${this.schedulesBase}/${id}`);
+  }
+
+  createSchedule(dto: CreateClassScheduleRequest): Observable<ApiResponse<ClassSchedule>> {
     return this.http.post<ApiResponse<ClassSchedule>>(this.schedulesBase, dto);
+  }
+
+  updateSchedule(id: number, dto: UpdateClassScheduleRequest): Observable<ApiResponse<ClassSchedule>> {
+    return this.http.put<ApiResponse<ClassSchedule>>(`${this.schedulesBase}/${id}`, dto);
   }
 
   deleteSchedule(id: number): Observable<ApiResponse<unknown>> {
     return this.http.delete<ApiResponse<unknown>>(`${this.schedulesBase}/${id}`);
+  }
+
+  getSettings(): Observable<ApiResponse<BookingSettings>> {
+    return this.http.get<ApiResponse<BookingSettings>>(`${this.bookingsBase}/settings`);
+  }
+
+  updateSettings(dto: Omit<BookingSettings, 'gymId'>): Observable<ApiResponse<unknown>> {
+    return this.http.put<ApiResponse<unknown>>(`${this.bookingsBase}/settings`, dto);
   }
 
   getAnalytics(days = 30, branchId?: number): Observable<ApiResponse<BookingAnalytics>> {
@@ -70,7 +87,7 @@ export class BookingService {
     return this.http.get<ApiResponse<TrainerScheduleItem[]>>(this.trainerBase, { params });
   }
 
-  checkIn(qrPayload: string): Observable<ApiResponse<number>> {
-    return this.http.post<ApiResponse<number>>(this.checkInBase, { qrPayload });
+  checkIn(qrPayload: string): Observable<ApiResponse<QrScanResult>> {
+    return this.http.post<ApiResponse<QrScanResult>>(this.checkInBase, { qrPayload });
   }
 }

@@ -6,6 +6,7 @@ import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from 
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { LeadService } from '../../../core/services/lead.service';
@@ -17,7 +18,9 @@ import {
   LEAD_SOURCES,
   LEAD_STATUS_LABELS,
   Lead,
+  LeadDashboard,
 } from '../../../shared/models/lead.models';
+import { SaasKpiCardComponent } from '../../../shared/components/saas-kpi-card/saas-kpi-card.component';
 
 @Component({
   selector: 'app-lead-list',
@@ -31,7 +34,9 @@ import {
     MatTableModule,
     MatPaginatorModule,
     MatIconModule,
+    MatTooltipModule,
     MatProgressSpinnerModule,
+    SaasKpiCardComponent,
   ],
   templateUrl: './lead-list.component.html',
   styleUrl: './lead-list.component.css',
@@ -54,6 +59,8 @@ export class LeadListComponent implements OnInit {
 
   dataSource = new MatTableDataSource<Lead>([]);
   loading = signal(true);
+  dashboardLoading = signal(true);
+  dashboard = signal<LeadDashboard | null>(null);
   totalCount = signal(0);
   viewMode = signal<'list' | 'kanban'>('list');
   pageIndex = 0;
@@ -74,6 +81,7 @@ export class LeadListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadDashboard();
     this.load();
     this.searchControl.valueChanges.pipe(debounceTime(300), distinctUntilChanged()).subscribe(() => {
       this.pageIndex = 0;
@@ -91,6 +99,63 @@ export class LeadListComponent implements OnInit {
 
   statusLabel(status: string): string {
     return LEAD_STATUS_LABELS[status] ?? status;
+  }
+
+  sourceLabel(source: string): string {
+    return source.replace(/([a-z])([A-Z])/g, '$1 $2');
+  }
+
+  conversionRateLabel(): string {
+    const rate = this.dashboard()?.conversionRate ?? 0;
+    return `${rate}%`;
+  }
+
+  convertedHint(): string {
+    const count = this.dashboard()?.convertedLeads ?? 0;
+    return count ? `${count} converted` : 'No conversions yet';
+  }
+
+  kanbanTotal(): number {
+    return this.kanbanColumns.reduce((sum, col) => sum + col.leads.length, 0);
+  }
+
+  kanbanColumnClass(status: string): string {
+    switch (status) {
+      case 'New':
+        return 'kanban-column--new';
+      case 'Contacted':
+        return 'kanban-column--contact';
+      case 'TrialScheduled':
+        return 'kanban-column--trial';
+      case 'FollowUpPending':
+        return 'kanban-column--followup';
+      case 'Converted':
+        return 'kanban-column--converted';
+      case 'Lost':
+        return 'kanban-column--lost';
+      default:
+        return '';
+    }
+  }
+
+  avatarToneClass(status: string): string {
+    switch (status) {
+      case 'New':
+        return 'avatar-tone--new';
+      case 'Contacted':
+        return 'avatar-tone--contact';
+      case 'TrialScheduled':
+      case 'TrialCompleted':
+        return 'avatar-tone--trial';
+      case 'FollowUpPending':
+        return 'avatar-tone--followup';
+      case 'Converted':
+        return 'avatar-tone--converted';
+      case 'Lost':
+        return 'avatar-tone--lost';
+      default:
+        return '';
+    }
   }
 
   statusBadgeClass(status: string): string {
@@ -128,6 +193,17 @@ export class LeadListComponent implements OnInit {
     this.load();
   }
 
+  loadDashboard(): void {
+    this.dashboardLoading.set(true);
+    this.leadService.getDashboard().subscribe({
+      next: (res) => {
+        this.dashboard.set(res.data ?? null);
+        this.dashboardLoading.set(false);
+      },
+      error: () => this.dashboardLoading.set(false),
+    });
+  }
+
   load(): void {
     this.loading.set(true);
     this.leadService
@@ -153,9 +229,15 @@ export class LeadListComponent implements OnInit {
       });
 
     if (!this.auth.hasPermission(Permissions.ManageLeads)) return;
-    this.leadService.getPaged({ pageNumber: 1, pageSize: 500 }).subscribe({
-      next: (res) => this.refreshKanban(res.data?.items ?? []),
-    });
+    this.leadService
+      .getAll({
+        search: this.searchControl.value || undefined,
+        status: this.statusControl.value || undefined,
+        leadSource: this.sourceControl.value || undefined,
+      })
+      .subscribe({
+        next: (items) => this.refreshKanban(items),
+      });
   }
 
   refreshKanban(leads: Lead[]): void {

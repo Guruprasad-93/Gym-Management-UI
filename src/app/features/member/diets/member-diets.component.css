@@ -1,1 +1,49 @@
-@import '../../../shared/styles/member-page.css';
+.plan-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.plan-status mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.plan-status--assigned {
+  background: #ecfdf3;
+  border: 1px solid #abefc6;
+  color: #344054;
+}
+
+.plan-status--assigned mat-icon {
+  color: #12b76a;
+}
+
+.plan-status--assigned strong {
+  color: #101828;
+}
+
+.plan-status--missing,
+.plan-status--loading {
+  background: #f8f9fb;
+  border: 1px solid #eef0f4;
+  color: #667085;
+}
+
+.plan-status--missing {
+  background: #fef3f2;
+  border-color: #fecdca;
+  color: #b42318;
+}
+
+.form-actions .btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

@@ -1,0 +1,226 @@
+<div class="member-page lead-detail-page">
+  @if (loading()) {
+    <div class="page-loading">
+      <mat-spinner diameter="36" />
+      <p>Loading lead details…</p>
+    </div>
+  } @else if (detail()) {
+    @let lead = detail()!.lead;
+
+    <header class="saas-page__header">
+      <div>
+        <a class="lead-detail-back" routerLink="/gym-admin/leads">
+          <mat-icon>arrow_back</mat-icon>
+          Back to leads
+        </a>
+        <h1 class="saas-page__title">{{ lead.fullName }}</h1>
+        <p class="saas-page__subtitle">Lead profile, activity timeline, and conversion</p>
+      </div>
+      <div class="member-page__actions">
+        @if (auth.hasPermission(permissions.ManageLeads)) {
+          <a class="btn-secondary" [routerLink]="['/gym-admin/leads/edit', lead.id]">
+            <mat-icon>edit</mat-icon>
+            Edit Lead
+          </a>
+        }
+        @if (auth.hasPermission(permissions.ConvertLeads) && lead.status !== 'Converted') {
+          <button class="btn-primary" type="button" (click)="showConvert = true">
+            <mat-icon>how_to_reg</mat-icon>
+            Convert to Member
+          </button>
+        }
+        @if (lead.status === 'Converted' && lead.convertedMemberId) {
+          <a class="btn-secondary" [routerLink]="['/gym-admin/members', lead.convertedMemberId]">
+            <mat-icon>person</mat-icon>
+            View Member
+          </a>
+        }
+      </div>
+    </header>
+
+    <section class="lead-hero panel-shell">
+      <div class="lead-hero__body">
+        <span class="item-cell__avatar lead-hero__avatar" [ngClass]="avatarToneClass(lead.status)">
+          {{ leadInitials(lead.fullName) }}
+        </span>
+        <div class="lead-hero__info">
+          <div class="lead-hero__top">
+            <span class="status-badge" [ngClass]="statusBadgeClass(lead.status)">{{ statusLabel(lead.status) }}</span>
+            <span class="chip">{{ sourceLabel(lead.leadSource) }}</span>
+          </div>
+          <div class="lead-hero__contacts">
+            <a class="lead-hero__contact" [href]="'tel:' + lead.mobileNumber">
+              <mat-icon>phone</mat-icon>
+              {{ lead.mobileNumber }}
+            </a>
+            @if (lead.email) {
+              <a class="lead-hero__contact" [href]="'mailto:' + lead.email">
+                <mat-icon>mail</mat-icon>
+                {{ lead.email }}
+              </a>
+            }
+            @if (lead.gender || lead.age) {
+              <span class="lead-hero__contact lead-hero__contact--static">
+                <mat-icon>person</mat-icon>
+                {{ lead.gender || '—' }}{{ lead.age ? ', ' + lead.age + ' yrs' : '' }}
+              </span>
+            }
+          </div>
+          @if (lead.address) {
+            <p class="lead-hero__address">
+              <mat-icon>location_on</mat-icon>
+              {{ lead.address }}
+            </p>
+          }
+        </div>
+        <div class="lead-hero__meta">
+          <div class="meta-item">
+            <span>Trainer</span>
+            <strong>{{ lead.assignedTrainerName || 'Unassigned' }}</strong>
+          </div>
+          <div class="meta-item">
+            <span>Interested plan</span>
+            <strong>{{ lead.interestedPlanName || '—' }}</strong>
+          </div>
+          <div class="meta-item">
+            <span>Created</span>
+            <strong>{{ lead.createdDate | date:'MMM d, y' }}</strong>
+          </div>
+          @if (lead.updatedDate) {
+            <div class="meta-item">
+              <span>Last updated</span>
+              <strong>{{ lead.updatedDate | date:'MMM d, y' }}</strong>
+            </div>
+          }
+        </div>
+      </div>
+      @if (lead.notes) {
+        <footer class="lead-hero__notes">
+          <mat-icon>notes</mat-icon>
+          <p>{{ lead.notes }}</p>
+        </footer>
+      }
+    </section>
+
+    <div class="lead-detail-grid">
+      <section class="panel-shell">
+        <div class="panel-shell__head">
+          <h2>Activity Timeline</h2>
+          <p>Status changes and interactions logged for this lead</p>
+        </div>
+        <div class="panel-shell__body">
+          @for (a of detail()!.activities; track a.id) {
+            <article class="timeline-item">
+              <div class="timeline-item__dot"></div>
+              <div class="timeline-item__content">
+                <div class="timeline-item__head">
+                  <strong>{{ a.activityType }}</strong>
+                  <small>{{ a.createdDate | date:'MMM d, y · h:mm a' }}</small>
+                </div>
+                <p>{{ a.description }}</p>
+              </div>
+            </article>
+          } @empty {
+            <p class="empty-state">No activities recorded yet.</p>
+          }
+        </div>
+      </section>
+
+      <section class="panel-shell">
+        <div class="panel-shell__head">
+          <h2>Follow-ups</h2>
+          <p>Scheduled callbacks and reminders</p>
+        </div>
+        <div class="panel-shell__body">
+          @for (f of detail()!.followUps; track f.id) {
+            <article class="timeline-item timeline-item--followup">
+              <div class="timeline-item__dot"></div>
+              <div class="timeline-item__content">
+                <div class="timeline-item__head">
+                  <strong>{{ f.followUpType }}</strong>
+                  <span class="status-badge status-badge--muted">{{ f.status }}</span>
+                </div>
+                @if (f.remarks) {
+                  <p>{{ f.remarks }}</p>
+                }
+                <small>{{ f.followUpDate | date:'MMM d, y · h:mm a' }}</small>
+              </div>
+            </article>
+          } @empty {
+            <p class="empty-state">No follow-ups scheduled.</p>
+          }
+        </div>
+      </section>
+
+      <section class="panel-shell">
+        <div class="panel-shell__head">
+          <h2>Trial History</h2>
+          <p>Gym trial sessions and feedback</p>
+        </div>
+        <div class="panel-shell__body">
+          @for (t of detail()!.trials; track t.id) {
+            <article class="timeline-item timeline-item--trial">
+              <div class="timeline-item__dot"></div>
+              <div class="timeline-item__content">
+                <div class="timeline-item__head">
+                  <strong>{{ t.trialDate | date:'MMM d, y · h:mm a' }}</strong>
+                  <span class="status-badge" [ngClass]="trialBadgeClass(t.attendanceStatus)">{{ t.attendanceStatus }}</span>
+                </div>
+                @if (t.trainerName) {
+                  <p class="timeline-item__sub">Trainer: {{ t.trainerName }}</p>
+                }
+                @if (t.feedback) {
+                  <p>{{ t.feedback }}</p>
+                }
+                @if (t.rating) {
+                  <div class="rating-stars">{{ '★'.repeat(t.rating) }}{{ '☆'.repeat(5 - t.rating) }}</div>
+                }
+              </div>
+            </article>
+          } @empty {
+            <p class="empty-state">No trials scheduled yet.</p>
+          }
+        </div>
+      </section>
+    </div>
+  }
+</div>
+
+@if (showConvert) {
+  <div class="modal-overlay" (click)="showConvert = false">
+    <form class="modal-card" [formGroup]="convertForm" (ngSubmit)="convert()" (click)="$event.stopPropagation()">
+      <header class="modal-card__head">
+        <h2>Convert to Member</h2>
+        <button class="modal-card__close" type="button" (click)="showConvert = false" aria-label="Close">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+      <div class="modal-card__body">
+        <p class="convert-hint">Create a membership for this lead and mark them as converted.</p>
+        <div class="form-grid">
+          <label class="form-field form-field--wide">
+            <span>Membership plan</span>
+            <select formControlName="membershipPlanId">
+              <option [ngValue]="null" disabled>Select plan</option>
+              @for (plan of plans(); track plan.id) {
+                <option [ngValue]="plan.id">{{ plan.name }}</option>
+              }
+            </select>
+          </label>
+          <label class="form-field">
+            <span>Start date</span>
+            <input type="date" formControlName="startDate" />
+          </label>
+          <label class="form-field form-field--wide">
+            <span>Email (optional)</span>
+            <input type="email" formControlName="email" placeholder="member@email.com" />
+          </label>
+        </div>
+      </div>
+      <footer class="modal-card__foot">
+        <button class="btn-secondary" type="button" (click)="showConvert = false">Cancel</button>
+        <button class="btn-primary" type="submit" [disabled]="convertForm.invalid">Convert Lead</button>
+      </footer>
+    </form>
+  </div>
+}

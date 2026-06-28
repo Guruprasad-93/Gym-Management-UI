@@ -1,0 +1,56 @@
+@if (loading()) {
+  <div class="page-loading">
+    <mat-spinner diameter="36" />
+    <p>Loading your features…</p>
+  </div>
+} @else {
+  @if (features(); as data) {
+  <section class="panel-shell">
+    <div class="panel-shell__head">
+      <h2>My Features</h2>
+      <p>Features included in your subscription and enabled for your gym</p>
+    </div>
+    <div class="panel-shell__body features-grid">
+      <article class="feature-group-card">
+        <h3>Subscription Features</h3>
+        @for (code of data.subscriptionFeatureCodes; track code) {
+          <span class="feature-tag">{{ code }}</span>
+        }
+        @if (!data.subscriptionFeatureCodes.length) {
+          <p class="saas-page__subtitle">No subscription features resolved.</p>
+        }
+      </article>
+
+      <article class="feature-group-card">
+        <h3>Enabled Features</h3>
+        <p class="saas-page__subtitle" style="margin-bottom: 0.5rem">
+          After gym menu settings and role permissions
+        </p>
+        @for (code of data.enabledFeatureCodes; track code) {
+          <span class="feature-tag feature-tag--enabled">{{ code }}</span>
+        }
+        @if (!data.enabledFeatureCodes.length) {
+          <p class="saas-page__subtitle">No enabled features.</p>
+        }
+      </article>
+
+      <article class="feature-group-card">
+        <h3>Visible Menus</h3>
+        @for (code of data.visibleMenuCodes; track code) {
+          <span class="feature-tag">{{ code }}</span>
+        }
+        @if (!data.visibleMenuCodes.length) {
+          <p class="saas-page__subtitle">No visible menu items.</p>
+        }
+      </article>
+    </div>
+  </section>
+
+  <div class="quick-actions" style="margin-top: 1rem">
+    <a class="btn-secondary" routerLink="/gym-admin/subscription/overview">Back to Overview</a>
+    <a class="btn-primary" routerLink="/gym-admin/subscription/catalog">Upgrade Plan</a>
+  </div>
+  } @else {
+  <div class="hint-box">Unable to load feature entitlements.</div>
+  }
+}

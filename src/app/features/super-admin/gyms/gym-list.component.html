@@ -85,27 +85,27 @@
                   class="row-actions__btn"
                   [routerLink]="['/super-admin/gym-admins']"
                   [queryParams]="{ gymId: row.id }"
-                  title="Gym admins">
+                  matTooltip="Gym admins">
                   <mat-icon>manage_accounts</mat-icon>
                 </a>
               }
               @if (canUpdate()) {
-                <button class="row-actions__btn" type="button" (click)="openForm(row)" title="Edit gym">
+                <button class="row-actions__btn" type="button" (click)="openForm(row)" matTooltip="Edit gym">
                   <mat-icon>edit</mat-icon>
                 </button>
               }
               @if (row.isActive && canDeactivate()) {
-                <button class="row-actions__btn row-actions__btn--warn" type="button" (click)="toggleActive(row, false)" title="Deactivate gym">
+                <button class="row-actions__btn row-actions__btn--warn" type="button" (click)="toggleActive(row, false)" matTooltip="Deactivate gym">
                   <mat-icon>block</mat-icon>
                 </button>
               }
               @if (!row.isActive && canActivate()) {
-                <button class="row-actions__btn row-actions__btn--success" type="button" (click)="toggleActive(row, true)" title="Activate gym">
+                <button class="row-actions__btn row-actions__btn--success" type="button" (click)="toggleActive(row, true)" matTooltip="Activate gym">
                   <mat-icon>check_circle</mat-icon>
                 </button>
               }
               @if (canDelete()) {
-                <button class="row-actions__btn row-actions__btn--warn" type="button" (click)="deleteGym(row)" title="Delete gym">
+                <button class="row-actions__btn row-actions__btn--warn" type="button" (click)="deleteGym(row)" matTooltip="Delete gym">
                   <mat-icon>delete_outline</mat-icon>
                 </button>
               }

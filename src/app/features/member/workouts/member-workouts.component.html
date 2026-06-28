@@ -10,11 +10,22 @@
   <section class="panel-shell">
     <div class="panel-shell__head"><h2>Log Workout</h2><p>Mark today's workout as complete</p></div>
     <div class="panel-shell__body">
+      @if (planLoading()) {
+        <p class="plan-status plan-status--loading">Loading your workout plan…</p>
+      } @else if (activePlanName()) {
+        <p class="plan-status plan-status--assigned">
+          <mat-icon>fitness_center</mat-icon>
+          Workout Plan: <strong>{{ activePlanName() }}</strong>
+        </p>
+      } @else {
+        <p class="plan-status plan-status--missing">No active workout plan is assigned. Contact your gym to get a plan.</p>
+      }
       <form [formGroup]="form" (ngSubmit)="save()" class="form-grid">
-        <label class="form-field"><span>Plan ID</span><input type="number" formControlName="workoutPlanId" /></label>
         <label class="form-field"><span>Completion %</span><input type="number" formControlName="completionPercentage" min="0" max="100" /></label>
         <label class="form-field form-field--wide"><span>Notes</span><input type="text" formControlName="exerciseCompleted" placeholder="Exercises completed..." /></label>
-        <div class="form-actions"><button class="btn-primary" type="submit">Mark Complete</button></div>
+        <div class="form-actions">
+          <button class="btn-primary" type="submit" [disabled]="!activePlanId() || planLoading()">Mark Complete</button>
+        </div>
       </form>
     </div>
   </section>

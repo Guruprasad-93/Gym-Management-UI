@@ -8,13 +8,17 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 
 import { MatSort, MatSortModule } from '@angular/material/sort';
 
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { MatButtonModule } from '@angular/material/button';
 
 import { MatIconModule } from '@angular/material/icon';
 
+import { MatTooltipModule } from '@angular/material/tooltip';
+
 import { GymService } from '../../../core/services/gym.service';
+
+import { DialogService } from '../../../core/services/dialog.service';
 
 import { NotificationService } from '../../../core/services/notification.service';
 
@@ -52,6 +56,8 @@ import { GymFormDialogComponent } from './gym-form-dialog.component';
 
     MatIconModule,
 
+    MatTooltipModule,
+
     RouterModule,
 
   ],
@@ -72,7 +78,7 @@ export class GymListComponent implements OnInit {
 
   private readonly notify = inject(NotificationService);
 
-  private readonly dialog = inject(MatDialog);
+  private readonly dialog = inject(DialogService);
 
   private readonly fb = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -267,25 +273,34 @@ export class GymListComponent implements OnInit {
 
   deleteGym(gym: Gym): void {
 
-    if (!confirm(`Delete gym "${gym.name}"?`)) return;
+    this.dialog
+      .confirm({
+        title: 'Delete gym',
+        message: `Delete gym "${gym.name}"?`,
+        tone: 'danger',
+        confirmLabel: 'Delete',
+      })
+      .subscribe((ok) => {
+        if (!ok) return;
 
-    this.gymService.delete(gym.id).subscribe({
+        this.gymService.delete(gym.id).subscribe({
 
-      next: (res) => {
+          next: (res) => {
 
-        if (res.success) {
+            if (res.success) {
 
-          this.notify.success('Gym deleted');
+              this.notify.success('Gym deleted');
 
-          this.loadGyms();
+              this.loadGyms();
 
-        }
+            }
 
-      },
+          },
 
-      error: () => this.notify.error('Delete failed'),
+          error: () => this.notify.error('Delete failed'),
 
-    });
+        });
+      });
 
   }
 

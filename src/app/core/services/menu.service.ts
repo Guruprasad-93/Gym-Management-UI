@@ -1,90 +1,39 @@
-import { Injectable, inject, computed, signal } from '@angular/core';
+import { Injectable, inject, computed } from '@angular/core';
 import { AuthService } from './auth.service';
-import { TenantMenuService } from './tenant-menu.service';
 import {
   AppMenuItem,
   GYM_ADMIN_MENU,
   MEMBER_MENU,
   SUPER_ADMIN_MENU,
   TRAINER_MENU,
-  filterMenuItems,
 } from '../constants/menu.config';
 import { Roles } from '../constants/roles';
-import { MenuDto } from '../models/menu.models';
+import { createFeatureChecker, filterMenuItemsWithFeatures } from '../navigation/menu-navigation.compat';
 
 @Injectable({ providedIn: 'root' })
 export class MenuService {
   private readonly auth = inject(AuthService);
-  private readonly tenantMenuApi = inject(TenantMenuService);
 
-  private readonly apiMenusSignal = signal<MenuDto[] | null>(null);
-
-  readonly superAdminMenu = computed(() =>
-    filterMenuItems(
-      SUPER_ADMIN_MENU,
-      this.auth.user()?.roles ?? [],
-      this.auth.user()?.permissions ?? []
-    )
-  );
-
-  readonly gymAdminMenu = computed(() => {
+  private filter(items: AppMenuItem[]): AppMenuItem[] {
     const user = this.auth.user();
-    const apiMenus = this.apiMenusSignal();
-    if (apiMenus?.length) {
-      return apiMenus
-        .filter((m) => m.route)
-        .sort((a, b) => a.sortOrder - b.sortOrder)
-        .map((m) => ({
-          label: m.menuName,
-          icon: m.icon ?? 'circle',
-          route: m.route!,
-        }));
-    }
+    if (!user) return [];
 
-    return filterMenuItems(
-      GYM_ADMIN_MENU,
-      user?.roles ?? [],
-      user?.permissions ?? [],
-      user?.enabledMenuCodes
+    return filterMenuItemsWithFeatures(
+      items,
+      user.roles,
+      user.permissions,
+      user.enabledFeatureCodes,
+      (code) => this.auth.hasFeature(code)
     );
-  });
-
-  readonly trainerMenu = computed(() =>
-    filterMenuItems(
-      TRAINER_MENU,
-      this.auth.user()?.roles ?? [],
-      this.auth.user()?.permissions ?? [],
-      this.auth.user()?.enabledMenuCodes
-    )
-  );
-
-  readonly memberMenu = computed(() =>
-    filterMenuItems(
-      MEMBER_MENU,
-      this.auth.user()?.roles ?? [],
-      this.auth.user()?.permissions ?? [],
-      this.auth.user()?.enabledMenuCodes
-    )
-  );
-
-  loadTenantMenus(): void {
-    const user = this.auth.user();
-    if (!user?.gymId || user.roles.includes(Roles.SuperAdmin)) {
-      return;
-    }
-
-    this.tenantMenuApi.getMyMenus().subscribe({
-      next: (response) => {
-        if (response.success && response.data?.menus?.length) {
-          this.apiMenusSignal.set(response.data.menus);
-        }
-      },
-    });
   }
 
-  clearTenantMenus(): void {
-    this.apiMenusSignal.set(null);
-  }
+  readonly superAdminMenu = computed(() => this.filter(SUPER_ADMIN_MENU));
+
+  readonly gymAdminMenu = computed(() => this.filter(GYM_ADMIN_MENU));
+
+  readonly trainerMenu = computed(() => this.filter(TRAINER_MENU));
+
+  readonly memberMenu = computed(() => this.filter(MEMBER_MENU));
 
   getMenuForCurrentUser(): AppMenuItem[] {
     const user = this.auth.user();

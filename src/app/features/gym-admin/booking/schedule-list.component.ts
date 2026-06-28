@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BookingService } from '../../../core/services/booking.service';
+import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ClassSchedule, DAY_NAMES } from '../../../shared/models/booking.models';
 
@@ -15,6 +16,7 @@ import { ClassSchedule, DAY_NAMES } from '../../../shared/models/booking.models'
 })
 export class ScheduleListComponent implements OnInit {
   private readonly svc = inject(BookingService);
+  private readonly dialog = inject(DialogService);
   private readonly notify = inject(NotificationService);
 
   readonly dayNames = DAY_NAMES;
@@ -40,13 +42,27 @@ export class ScheduleListComponent implements OnInit {
   }
 
   remove(id: number): void {
-    if (!confirm('Cancel this class schedule?')) return;
-    this.svc.deleteSchedule(id).subscribe({
-      next: () => {
-        this.notify.success('Schedule cancelled');
-        this.load();
-      },
-      error: () => this.notify.error('Failed to cancel schedule'),
-    });
+    this.dialog
+      .confirm({
+        title: 'Delete schedule',
+        message:
+          'Permanently delete this class schedule? All member bookings and waitlist entries for this schedule will also be deleted.',
+        tone: 'danger',
+        confirmLabel: 'Delete schedule',
+      })
+      .subscribe((ok) => {
+        if (!ok) return;
+        this.svc.deleteSchedule(id).subscribe({
+          next: (r) => {
+            if (r.success) {
+              this.schedules.update((items) => items.filter((s) => s.id !== id));
+              this.notify.success('Schedule deleted');
+            } else {
+              this.notify.error(r.message ?? 'Failed to delete schedule');
+            }
+          },
+          error: (e) => this.notify.error(e.error?.message ?? 'Failed to delete schedule'),
+        });
+      });
   }
 }

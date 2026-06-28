@@ -1,0 +1,17 @@
+/*
+ * Material 3 system tokens used by Angular Material 19 components.
+ * The indigo-pink prebuilt theme sets legacy --mdc-* tokens but leaves
+ * --mat-sys-* fallbacks empty or `initial`, which breaks tooltip surfaces
+ * when MDC tokens are unset (e.g. custom themes, white-label overrides).
+ */
+html {
+  --mat-sys-on-surface: rgba(0, 0, 0, 0.87);
+  --mat-sys-inverse-surface: #616161;
+  --mat-sys-inverse-on-surface: #ffffff;
+  --mat-sys-corner-extra-small: 4px;
+  --mat-sys-body-small-font: Roboto, sans-serif;
+  --mat-sys-body-small-size: 12px;
+  --mat-sys-body-small-weight: 400;
+  --mat-sys-body-small-line-height: 16px;
+  --mat-sys-body-small-tracking: 0.0333333333em;
+}

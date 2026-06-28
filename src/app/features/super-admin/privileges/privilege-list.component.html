@@ -73,7 +73,7 @@
           <td mat-cell *matCellDef="let row">
             <div class="row-actions">
               @if (auth.hasPermission(permissions.DeletePrivilege)) {
-                <button class="row-actions__btn row-actions__btn--warn" type="button" (click)="remove(row)" title="Delete privilege">
+                <button class="row-actions__btn row-actions__btn--warn" type="button" (click)="remove(row)" matTooltip="Delete privilege">
                   <mat-icon>delete_outline</mat-icon>
                 </button>
               }

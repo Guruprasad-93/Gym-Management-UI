@@ -82,21 +82,21 @@
             <th mat-header-cell *matHeaderCellDef>Actions</th>
             <td mat-cell *matCellDef="let row">
               <div class="row-actions">
-                <a class="row-actions__btn" [routerLink]="[row.id]" title="View details">
+                <a class="row-actions__btn" [routerLink]="[row.id]" matTooltip="View details">
                   <mat-icon>visibility</mat-icon>
                 </a>
                 @if (auth.hasPermission(permissions.UpdateTrainer)) {
-                  <button class="row-actions__btn" type="button" (click)="openEdit(row)" title="Edit">
+                  <button class="row-actions__btn" type="button" (click)="openEdit(row)" matTooltip="Edit">
                     <mat-icon>edit</mat-icon>
                   </button>
                 }
                 @if (auth.hasPermission(permissions.AssignMemberToTrainer)) {
-                  <button class="row-actions__btn" type="button" (click)="openAssign(row)" title="Assign members">
+                  <button class="row-actions__btn" type="button" (click)="openAssign(row)" matTooltip="Assign members">
                     <mat-icon>group_add</mat-icon>
                   </button>
                 }
                 @if (row.isActive && auth.hasPermission(permissions.DeleteTrainer)) {
-                  <button class="row-actions__btn row-actions__btn--warn" type="button" (click)="deactivate(row)" title="Deactivate">
+                  <button class="row-actions__btn row-actions__btn--warn" type="button" (click)="deactivate(row)" matTooltip="Deactivate">
                     <mat-icon>block</mat-icon>
                   </button>
                 }

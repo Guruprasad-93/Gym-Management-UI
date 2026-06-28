@@ -3,25 +3,12 @@
     <mat-icon>menu</mat-icon>
   </button>
 
-  <div class="header__search">
-    <mat-icon>search</mat-icon>
-    <input type="search" [placeholder]="searchPlaceholder" disabled [attr.aria-label]="searchPlaceholder" />
-    <kbd>Ctrl + K</kbd>
-  </div>
-
   <div class="header__actions">
-    <button class="header__icon-btn" type="button" aria-label="Notifications">
-      <mat-icon>notifications_none</mat-icon>
-    </button>
-    <button class="header__icon-btn" type="button" aria-label="Messages">
-      <mat-icon>mail_outline</mat-icon>
-    </button>
-
     <button class="header__profile" type="button" [matMenuTriggerFor]="userMenu">
       <span class="header__avatar">{{ (userName || 'U').charAt(0).toUpperCase() }}</span>
       <span class="header__profile-text">
         <strong>{{ userName || 'User' }}</strong>
-        <small>{{ title }}</small>
+        <small>{{ portalLabel }}</small>
       </span>
       <mat-icon>expand_more</mat-icon>
     </button>

@@ -3,10 +3,11 @@ import { RouterLink } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { GymNotificationService } from '../../../core/services/gym-notification.service';
+import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Permissions } from '../../../core/constants/permissions';
@@ -89,7 +90,7 @@ export class NotificationTemplateListComponent implements OnInit {
   readonly permissions = Permissions;
   private readonly svc = inject(GymNotificationService);
   private readonly notify = inject(NotificationService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialog = inject(DialogService);
 
   loading = signal(true);
   templates: NotificationTemplate[] = [];
@@ -140,10 +141,19 @@ export class NotificationTemplateListComponent implements OnInit {
   }
 
   remove(row: NotificationTemplate): void {
-    if (!confirm('Delete this template?')) return;
-    this.svc.deleteTemplate(row.id).subscribe({
-      next: (res) => { if (res.success) { this.notify.success('Deleted'); this.load(); } },
-      error: (e) => this.notify.error(e.error?.message ?? 'Delete failed'),
-    });
+    this.dialog
+      .confirm({
+        title: 'Delete template',
+        message: 'Delete this template?',
+        tone: 'danger',
+        confirmLabel: 'Delete',
+      })
+      .subscribe((ok) => {
+        if (!ok) return;
+        this.svc.deleteTemplate(row.id).subscribe({
+          next: (res) => { if (res.success) { this.notify.success('Deleted'); this.load(); } },
+          error: (e) => this.notify.error(e.error?.message ?? 'Delete failed'),
+        });
+      });
   }
 }

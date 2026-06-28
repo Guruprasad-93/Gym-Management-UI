@@ -12,6 +12,7 @@ import {
   SaasPlatformDashboard,
   UpdateGymBranding,
 } from '../../shared/models/saas.models';
+import { GymFeatures, SaasPlanCatalog } from '../../shared/models/plan.models';
 
 @Injectable({ providedIn: 'root' })
 export class SaasSubscriptionService {
@@ -30,12 +31,31 @@ export class SaasSubscriptionService {
     return this.http.get<ApiResponse<SaasPlan[]>>(`${this.base}/plans`);
   }
 
-  createPaymentOrder(saasPlanId: number, billingCycle: string, gymId?: string): Observable<ApiResponse<SaasPaymentOrder>> {
+  getPlanCatalog(): Observable<ApiResponse<SaasPlanCatalog>> {
+    return this.http.get<ApiResponse<SaasPlanCatalog>>(`${this.base}/plans/catalog`);
+  }
+
+  getMyFeatures(gymId?: string): Observable<ApiResponse<GymFeatures>> {
+    return this.http.get<ApiResponse<GymFeatures>>(`${this.base}/my-features`, {
+      params: this.params(gymId),
+    });
+  }
+
+  createPaymentOrder(
+    saasPlanId: number,
+    options: { billingCycle?: string; pricingOptionId?: number },
+    gymId?: string
+  ): Observable<ApiResponse<SaasPaymentOrder>> {
     return this.http.post<ApiResponse<SaasPaymentOrder>>(
       `${this.base}/payments/order`,
-      { saasPlanId, billingCycle },
+      { saasPlanId, billingCycle: options.billingCycle ?? 'Monthly', pricingOptionId: options.pricingOptionId },
       { params: this.params(gymId) }
     );
+  }
+
+  /** @deprecated Use createPaymentOrder with pricingOptionId */
+  createPaymentOrderLegacy(saasPlanId: number, billingCycle: string, gymId?: string): Observable<ApiResponse<SaasPaymentOrder>> {
+    return this.createPaymentOrder(saasPlanId, { billingCycle }, gymId);
   }
 
   verifyPayment(payload: {

@@ -33,6 +33,30 @@ export const SUPER_ADMIN_ROUTES: Routes = [
           import('./gym-admins/gym-admin-list.component').then((m) => m.GymAdminListComponent),
       },
       {
+        path: 'subscription-plans',
+        canActivate: [permissionGuard(Permissions.ManageSubscriptionPlans)],
+        loadComponent: () =>
+          import('./subscription-plans/plan-list.component').then((m) => m.SubscriptionPlanListComponent),
+      },
+      {
+        path: 'subscription-plans/new',
+        canActivate: [permissionGuard(Permissions.ManageSubscriptionPlans)],
+        loadComponent: () =>
+          import('./subscription-plans/plan-form.component').then((m) => m.SubscriptionPlanFormComponent),
+      },
+      {
+        path: 'subscription-plans/:id/edit',
+        canActivate: [permissionGuard(Permissions.ManageSubscriptionPlans)],
+        loadComponent: () =>
+          import('./subscription-plans/plan-form.component').then((m) => m.SubscriptionPlanFormComponent),
+      },
+      {
+        path: 'subscription-plans/:id',
+        canActivate: [permissionGuard(Permissions.ManageSubscriptionPlans)],
+        loadComponent: () =>
+          import('./subscription-plans/plan-form.component').then((m) => m.SubscriptionPlanFormComponent),
+      },
+      {
         path: 'roles',
         canActivate: [permissionGuard(Permissions.ViewRoles)],
         loadComponent: () =>
@@ -61,14 +85,6 @@ export const SUPER_ADMIN_ROUTES: Routes = [
         canActivate: [permissionGuard(Permissions.ViewPlatformSaas)],
         loadComponent: () =>
           import('./white-label/super-admin-white-label.component').then((m) => m.SuperAdminWhiteLabelComponent),
-      },
-      {
-        path: 'tenant-menus',
-        canActivate: [permissionGuard(Permissions.ViewTenantMenus)],
-        loadComponent: () =>
-          import('./tenant-menus/tenant-menu-management.component').then(
-            (m) => m.TenantMenuManagementComponent
-          ),
       },
     ],
   },

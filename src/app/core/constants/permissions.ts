@@ -52,6 +52,7 @@ export const Permissions = {
   ViewSaasSubscription: 'VIEW_SAAS_SUBSCRIPTION',
   ManageSaasSubscription: 'MANAGE_SAAS_SUBSCRIPTION',
   ViewPlatformSaas: 'VIEW_PLATFORM_SAAS',
+  ManageSubscriptionPlans: 'MANAGE_SUBSCRIPTION_PLANS',
   ManageGymBranding: 'MANAGE_GYM_BRANDING',
   ViewLeads: 'VIEW_LEADS',
   ManageLeads: 'MANAGE_LEADS',
@@ -105,6 +106,4 @@ export const Permissions = {
   ViewWebsiteAnalytics: 'VIEW_WEBSITE_ANALYTICS',
   ViewWhiteLabel: 'VIEW_WHITE_LABEL',
   ManageWhiteLabel: 'MANAGE_WHITE_LABEL',
-  ViewTenantMenus: 'VIEW_TENANT_MENUS',
-  ManageTenantMenus: 'MANAGE_TENANT_MENUS',
 } as const;

@@ -1,5 +1,7 @@
 export const FileCategories = {
   GymLogo: 'GymLogo',
+  GymBanner: 'GymBanner',
+  WebsiteGallery: 'WebsiteGallery',
   MemberProfilePhoto: 'MemberProfilePhoto',
   TrainerProfilePhoto: 'TrainerProfilePhoto',
   MemberProgressPhoto: 'MemberProgressPhoto',

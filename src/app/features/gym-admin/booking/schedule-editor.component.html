@@ -1,0 +1,85 @@
+<div class="member-page schedule-editor-page">
+  <header class="saas-page__header">
+    <div>
+      <a class="schedule-editor-back" routerLink="/gym-admin/schedules">
+        <mat-icon>arrow_back</mat-icon>
+        Back to schedules
+      </a>
+      <h1 class="saas-page__title">{{ isEdit() ? 'Edit Class Schedule' : 'New Class Schedule' }}</h1>
+      <p class="saas-page__subtitle">Define recurring weekly class slots for member booking</p>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="page-loading">
+      <mat-spinner diameter="36" />
+      <p>Loading schedule…</p>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="save()" class="schedule-editor-form">
+      <section class="panel-shell form-panel">
+        <div class="panel-shell__head">
+          <h2>Class details</h2>
+          <p>Branch, trainer, and weekly time slot</p>
+        </div>
+        <div class="panel-shell__body">
+          <div class="form-grid">
+            <label class="form-field form-field--wide">
+              <span>Class name *</span>
+              <input type="text" formControlName="className" placeholder="e.g. Morning HIIT" />
+            </label>
+            <label class="form-field">
+              <span>Branch *</span>
+              <select formControlName="branchId">
+                <option [value]="0" disabled>Select branch…</option>
+                @for (b of branches(); track b.branchId) {
+                  <option [value]="b.branchId">{{ b.branchName }}</option>
+                }
+              </select>
+            </label>
+            <label class="form-field">
+              <span>Trainer *</span>
+              <select formControlName="trainerId">
+                <option [value]="0" disabled>Select trainer…</option>
+                @for (t of trainers(); track t.id) {
+                  <option [value]="t.id">{{ t.fullName }}</option>
+                }
+              </select>
+            </label>
+            <label class="form-field">
+              <span>Day of week *</span>
+              <select formControlName="dayOfWeek">
+                @for (day of dayNames; track $index) {
+                  <option [value]="$index">{{ day }}</option>
+                }
+              </select>
+            </label>
+            <label class="form-field">
+              <span>Start time *</span>
+              <input type="time" formControlName="startTime" />
+            </label>
+            <label class="form-field">
+              <span>End time *</span>
+              <input type="time" formControlName="endTime" />
+            </label>
+            <label class="form-field">
+              <span>Capacity *</span>
+              <input type="number" formControlName="capacity" min="1" max="500" />
+            </label>
+            <label class="form-field form-field--wide">
+              <span>Description</span>
+              <textarea formControlName="description" rows="2" placeholder="Optional class description"></textarea>
+            </label>
+          </div>
+          <div class="form-actions">
+            <button class="btn-primary" type="submit" [disabled]="form.invalid || saving()">
+              <mat-icon>save</mat-icon>
+              {{ isEdit() ? 'Update schedule' : 'Create schedule' }}
+            </button>
+            <a class="btn-secondary" routerLink="/gym-admin/schedules">Cancel</a>
+          </div>
+        </div>
+      </section>
+    </form>
+  }
+</div>

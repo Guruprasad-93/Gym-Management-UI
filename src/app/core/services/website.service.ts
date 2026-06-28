@@ -67,6 +67,10 @@ export class WebsiteService {
     return this.http.post<ApiResponse<GymWebsiteGalleryItem>>(`${this.base}/gallery`, dto);
   }
 
+  updateGalleryItem(id: number, dto: { caption?: string; displayOrder?: number }): Observable<ApiResponse<unknown>> {
+    return this.http.put<ApiResponse<unknown>>(`${this.base}/gallery/${id}`, { id, ...dto });
+  }
+
   deleteGalleryItem(id: number): Observable<ApiResponse<unknown>> {
     return this.http.delete<ApiResponse<unknown>>(`${this.base}/gallery/${id}`);
   }
@@ -77,6 +81,14 @@ export class WebsiteService {
 
   createTestimonial(dto: Partial<GymWebsiteTestimonial>): Observable<ApiResponse<GymWebsiteTestimonial>> {
     return this.http.post<ApiResponse<GymWebsiteTestimonial>>(`${this.base}/testimonials`, dto);
+  }
+
+  updateTestimonial(id: number, dto: Partial<GymWebsiteTestimonial>): Observable<ApiResponse<GymWebsiteTestimonial>> {
+    return this.http.put<ApiResponse<GymWebsiteTestimonial>>(`${this.base}/testimonials/${id}`, { ...dto, id });
+  }
+
+  deleteTestimonial(id: number): Observable<ApiResponse<unknown>> {
+    return this.http.delete<ApiResponse<unknown>>(`${this.base}/testimonials/${id}`);
   }
 
   getLeads(pageNumber = 1, pageSize = 20): Observable<ApiResponse<PagedResult<WebsiteLeadCapture>>> {
@@ -90,6 +102,10 @@ export class WebsiteService {
 
   getPublicSite(gymSlug: string): Observable<ApiResponse<PublicWebsite>> {
     return this.http.get<ApiResponse<PublicWebsite>>(`${this.publicBase}/${gymSlug}`);
+  }
+
+  getPreviewSite(gymSlug: string): Observable<ApiResponse<PublicWebsite>> {
+    return this.http.get<ApiResponse<PublicWebsite>>(`${this.base}/preview/${encodeURIComponent(gymSlug)}`);
   }
 
   submitLead(dto: PublicWebsiteLead): Observable<ApiResponse<number>> {

@@ -64,10 +64,10 @@
             <td mat-cell *matCellDef="let row">
               @if (auth.hasPermission(permissions.UpdateMembership)) {
                 <div class="row-actions">
-                  <button class="row-actions__btn" type="button" (click)="openEdit(row)" title="Edit">
+                  <button class="row-actions__btn" type="button" (click)="openEdit(row)" matTooltip="Edit">
                     <mat-icon>edit</mat-icon>
                   </button>
-                  <button class="row-actions__btn row-actions__btn--warn" type="button" (click)="remove(row)" title="Deactivate">
+                  <button class="row-actions__btn row-actions__btn--warn" type="button" (click)="remove(row)" matTooltip="Deactivate">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </div>

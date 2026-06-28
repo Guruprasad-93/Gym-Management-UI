@@ -8,6 +8,10 @@ import {
   AttendanceDashboard,
   AttendanceQuery,
   AttendanceStatus,
+  AttendanceSettings,
+  UpdateAttendanceSettings,
+  ForgotCheckOutReportItem,
+  ForgotCheckOutReportQuery,
   DailyAttendanceReport,
   MemberAttendance,
   MonthlyAttendanceReport,
@@ -47,8 +51,21 @@ export class AttendanceService {
     return this.http.post<ApiResponse<MemberAttendance>>(`${this.base}/check-in`, { memberId, notes });
   }
 
-  checkOut(memberId: number, notes?: string): Observable<ApiResponse<MemberAttendance>> {
-    return this.http.post<ApiResponse<MemberAttendance>>(`${this.base}/check-out`, { memberId, notes });
+  checkOut(memberId: number, options?: { notes?: string; memberAttendanceId?: number; isManualCheckout?: boolean }): Observable<ApiResponse<MemberAttendance>> {
+    return this.http.post<ApiResponse<MemberAttendance>>(`${this.base}/check-out`, {
+      memberId,
+      notes: options?.notes,
+      memberAttendanceId: options?.memberAttendanceId,
+      isManualCheckout: options?.isManualCheckout ?? false,
+    });
+  }
+
+  getSettings(): Observable<ApiResponse<AttendanceSettings>> {
+    return this.http.get<ApiResponse<AttendanceSettings>>(`${this.base}/settings`);
+  }
+
+  updateSettings(dto: UpdateAttendanceSettings): Observable<ApiResponse<unknown>> {
+    return this.http.put<ApiResponse<unknown>>(`${this.base}/settings`, dto);
   }
 
   mark(dto: {
@@ -60,9 +77,11 @@ export class AttendanceService {
     return this.http.post<ApiResponse<MemberAttendance>>(`${this.base}/mark`, dto);
   }
 
-  getDailyReport(date?: string): Observable<ApiResponse<DailyAttendanceReport>> {
+  getDailyReport(date?: string, openOnly?: boolean, checkoutTypeFilter?: string): Observable<ApiResponse<DailyAttendanceReport>> {
     let params = new HttpParams();
     if (date) params = params.set('date', date);
+    if (openOnly) params = params.set('openOnly', 'true');
+    if (checkoutTypeFilter) params = params.set('checkoutTypeFilter', checkoutTypeFilter);
     return this.http.get<ApiResponse<DailyAttendanceReport>>(`${this.base}/reports/daily`, { params });
   }
 
@@ -71,6 +90,17 @@ export class AttendanceService {
     if (year) params = params.set('year', String(year));
     if (month) params = params.set('month', String(month));
     return this.http.get<ApiResponse<MonthlyAttendanceReport>>(`${this.base}/reports/monthly`, { params });
+  }
+
+  getForgotCheckOutReport(query: ForgotCheckOutReportQuery): Observable<ApiResponse<PagedResult<ForgotCheckOutReportItem>>> {
+    let params = new HttpParams();
+    if (query.fromDate) params = params.set('fromDate', query.fromDate);
+    if (query.toDate) params = params.set('toDate', query.toDate);
+    if (query.memberId) params = params.set('memberId', String(query.memberId));
+    if (query.branchId) params = params.set('branchId', String(query.branchId));
+    if (query.pageNumber) params = params.set('pageNumber', String(query.pageNumber));
+    if (query.pageSize) params = params.set('pageSize', String(query.pageSize));
+    return this.http.get<ApiResponse<PagedResult<ForgotCheckOutReportItem>>>(`${this.base}/reports/forgot-check-out`, { params });
   }
 
   downloadDailyPdf(date?: string): Observable<Blob> {
@@ -126,6 +156,8 @@ export class AttendanceService {
     if (query.toDate) params = params.set('toDate', query.toDate);
     if (query.memberId) params = params.set('memberId', String(query.memberId));
     if (query.statusId) params = params.set('statusId', String(query.statusId));
+    if (query.openOnly) params = params.set('openOnly', 'true');
+    if (query.checkoutTypeFilter) params = params.set('checkoutTypeFilter', query.checkoutTypeFilter);
     if (query.search) params = params.set('search', query.search);
     if (query.pageNumber) params = params.set('pageNumber', String(query.pageNumber));
     if (query.pageSize) params = params.set('pageSize', String(query.pageSize));

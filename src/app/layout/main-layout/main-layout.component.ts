@@ -14,7 +14,7 @@ import { HeaderComponent } from '../header/header.component';
 })
 export class MainLayoutComponent {
   @Input() menuItems: AppMenuItem[] = [];
-  @Input() title = 'Gym SaaS';
+  @Input() portalLabel = 'Gym SaaS';
   @Input() userName = '';
   @Input() userEmail = '';
 

@@ -30,69 +30,11 @@
   background: #f2f4f7;
 }
 
-.header__search {
-  flex: 1;
-  max-width: 520px;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: #f8f9fb;
-  border: 1px solid #eef0f4;
-  border-radius: 12px;
-  padding: 0.55rem 0.875rem;
-  color: #667085;
-}
-
-.header__search mat-icon {
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-}
-
-.header__search input {
-  flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 0.875rem;
-  color: #101828;
-}
-
-.header__search input::placeholder {
-  color: #98a2b3;
-}
-
-.header__search kbd {
-  font-size: 0.6875rem;
-  color: #98a2b3;
-  background: #fff;
-  border: 1px solid #e4e7ec;
-  border-radius: 6px;
-  padding: 0.15rem 0.4rem;
-}
-
 .header__actions {
   margin-left: auto;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.header__icon-btn {
-  width: 40px;
-  height: 40px;
-  border: none;
-  background: transparent;
-  border-radius: 10px;
-  color: #667085;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.header__icon-btn:hover {
-  background: #f2f4f7;
 }
 
 .header__profile {
@@ -144,7 +86,6 @@
 }
 
 @media (max-width: 768px) {
-  .header__search,
   .header__profile-text {
     display: none;
   }

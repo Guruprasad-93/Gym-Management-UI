@@ -21,7 +21,11 @@ export class AttendanceCheckOutComponent implements OnInit {
 
   openSessions = signal<MemberAttendance[]>([]);
   saving = signal(false);
-  form = this.fb.nonNullable.group({ memberId: [0, Validators.required], notes: [''] });
+  form = this.fb.nonNullable.group({ memberId: [0, [Validators.required, Validators.min(1)]], notes: [''] });
+
+  attendanceHomeLink(): string {
+    return this.router.url.includes('/trainer/') ? '/trainer/attendance' : '/gym-admin/attendance';
+  }
 
   ngOnInit(): void {
     this.svc.getToday().subscribe({
@@ -33,14 +37,15 @@ export class AttendanceCheckOutComponent implements OnInit {
   }
 
   submit(): void {
+    if (this.form.invalid) return;
     const { memberId, notes } = this.form.getRawValue();
     this.saving.set(true);
-    this.svc.checkOut(memberId, notes || undefined).subscribe({
+    this.svc.checkOut(memberId, { notes: notes || undefined }).subscribe({
       next: (res) => {
         this.saving.set(false);
         if (res.success) {
           this.notify.success('Checked out');
-          this.router.navigate(['../']);
+          void this.router.navigateByUrl(this.attendanceHomeLink());
         } else this.notify.error(res.message ?? 'Check-out failed');
       },
       error: (e) => {

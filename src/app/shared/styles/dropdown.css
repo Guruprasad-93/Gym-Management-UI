@@ -1,0 +1,227 @@
+/*
+  Unified native select & filter dropdown styling — used project-wide.
+  Imported from styles.css so every page gets consistent dropdown UI.
+*/
+
+:root {
+  --dropdown-border: #e4e7ec;
+  --dropdown-border-hover: #d0d5dd;
+  --dropdown-bg: #fff;
+  --dropdown-bg-hover: #fcfcfd;
+  --dropdown-text: #101828;
+  --dropdown-label: #667085;
+  --dropdown-muted: #98a2b3;
+  --dropdown-radius: 10px;
+  --dropdown-min-height: 42px;
+  --dropdown-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='%2398a2b3'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+}
+
+/* ——— Base select (forms, dialogs, everywhere) ——— */
+select:not([multiple]):not([size]) {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  display: block;
+  width: 100%;
+  min-height: var(--dropdown-min-height);
+  padding: 0.625rem 2.5rem 0.625rem 0.875rem;
+  border: 1px solid var(--dropdown-border);
+  border-radius: var(--dropdown-radius);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--dropdown-text);
+  background-color: var(--dropdown-bg);
+  background-image: var(--dropdown-chevron);
+  background-repeat: no-repeat;
+  background-position: right 0.65rem center;
+  background-size: 1.25rem;
+  cursor: pointer;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+select:not([multiple]):not([size]):hover:not(:disabled) {
+  border-color: var(--dropdown-border-hover);
+  background-color: var(--dropdown-bg-hover);
+}
+
+select:not([multiple]):not([size]):focus,
+select:not([multiple]):not([size]):focus-visible {
+  border-color: var(--brand-primary, #ff6600);
+  box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb, 255, 102, 0), 0.12);
+}
+
+select:not([multiple]):not([size]):disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  background-color: #f9fafb;
+}
+
+select option {
+  color: var(--dropdown-text);
+  background: #fff;
+}
+
+select option:disabled {
+  color: var(--dropdown-muted);
+}
+
+/* ——— Form field selects ——— */
+.form-field select {
+  width: 100%;
+}
+
+.form-field input[type='date'],
+.form-field input[type='datetime-local'],
+.form-field input[type='time'],
+.form-field input[type='month'],
+.form-field input[type='week'] {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: var(--dropdown-min-height);
+  cursor: pointer;
+}
+
+.form-field__hint {
+  font-size: 0.75rem;
+  color: var(--dropdown-muted);
+  margin-top: 0.15rem;
+}
+
+/* ——— Table toolbar filter dropdowns ——— */
+.filter-select {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.3rem;
+  min-width: 132px;
+}
+
+.filter-select > span:first-child {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--dropdown-muted);
+}
+
+.filter-select select,
+.filter-select input[type='date'],
+.filter-select input[type='datetime-local'],
+.filter-select input[type='month'] {
+  width: 100%;
+  min-height: 38px;
+  padding: 0.5rem 2.25rem 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.filter-select input[type='date'],
+.filter-select input[type='datetime-local'],
+.filter-select input[type='month'] {
+  border: 1px solid var(--dropdown-border);
+  border-radius: var(--dropdown-radius);
+  color: var(--dropdown-text);
+  background-color: var(--dropdown-bg);
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.filter-select input[type='date']:hover,
+.filter-select input[type='datetime-local']:hover,
+.filter-select input[type='month']:hover {
+  border-color: var(--dropdown-border-hover);
+  background-color: var(--dropdown-bg-hover);
+}
+
+.filter-select input[type='date']:focus,
+.filter-select input[type='datetime-local']:focus,
+.filter-select input[type='month']:focus {
+  border-color: var(--brand-primary, #ff6600);
+  box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb, 255, 102, 0), 0.12);
+}
+
+/* Chevron comes from global select styles; hide duplicate mat-icon */
+.filter-select mat-icon {
+  display: none !important;
+}
+
+/* ——— Grid filter fields (audit logs, etc.) ——— */
+.filter-date,
+.filter-input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.filter-date > span,
+.filter-input > span {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--dropdown-muted);
+}
+
+.filter-date input,
+.filter-input input {
+  width: 100%;
+  min-height: 38px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--dropdown-border);
+  border-radius: var(--dropdown-radius);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--dropdown-text);
+  background: var(--dropdown-bg);
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.filter-date input:hover,
+.filter-input input:hover {
+  border-color: var(--dropdown-border-hover);
+  background-color: var(--dropdown-bg-hover);
+}
+
+.filter-date input:focus,
+.filter-input input:focus {
+  border-color: var(--brand-primary, #ff6600);
+  box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb, 255, 102, 0), 0.12);
+}
+
+.filter-input input::placeholder {
+  color: var(--dropdown-muted);
+}
+
+.filter-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 38px;
+  padding: 0.35rem 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #344054;
+  cursor: pointer;
+  user-select: none;
+}
+
+.filter-checkbox input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--brand-primary, #ff6600);
+  cursor: pointer;
+}

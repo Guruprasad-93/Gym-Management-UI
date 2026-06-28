@@ -4,10 +4,12 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { PaymentService } from '../../../core/services/payment.service';
+import { DialogService } from '../../../core/services/dialog.service';
 import { RazorpayService } from '../../../core/services/razorpay.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -26,6 +28,7 @@ import { PaymentFormDialogComponent } from './payment-form-dialog.component';
     MatTableModule,
     MatPaginatorModule,
     MatIconModule,
+    MatTooltipModule,
     MatDialogModule,
     MatProgressSpinnerModule,
   ],
@@ -38,7 +41,7 @@ export class PaymentListComponent implements OnInit, AfterViewInit {
   private readonly svc = inject(PaymentService);
   private readonly razorpay = inject(RazorpayService);
   private readonly notify = inject(NotificationService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialog = inject(DialogService);
   private readonly fb = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
 

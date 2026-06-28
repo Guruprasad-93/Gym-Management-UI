@@ -10,7 +10,10 @@ function extractMessage(error: HttpErrorResponse): string {
   if (body?.message) return body.message;
   if (body?.errors?.length) return body.errors.join(', ');
   if (error.status === 0) return 'Unable to reach the server. Check your connection.';
-  if (error.status === 403) return 'You do not have permission to perform this action.';
+  if (error.status === 403) {
+    if (body?.message?.toLowerCase().includes('csrf')) return body.message;
+    return body?.message ?? 'You do not have permission to perform this action.';
+  }
   if (error.status === 404) return 'The requested resource was not found.';
   if (error.status === 429) return 'Too many requests. Please wait and try again.';
   if (error.status >= 500) return 'A server error occurred. Please try again later.';

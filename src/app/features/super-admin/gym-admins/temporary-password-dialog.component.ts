@@ -5,8 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 export interface TemporaryPasswordDialogData {
   title: string;
-  loginIdentifier: string;
-  email?: string;
+  email: string;
   temporaryPassword: string;
   message?: string;
 }
@@ -21,17 +20,14 @@ export interface TemporaryPasswordDialogData {
       @if (data.message) {
         <p>{{ data.message }}</p>
       }
-      <p><strong>Login ID:</strong> {{ data.loginIdentifier }}</p>
-      @if (data.email) {
-        <p><strong>Email:</strong> {{ data.email }}</p>
-      }
-      <div class="password-box">
+      <p><strong>Email:</strong> {{ data.email }}</p>
+      <div class="password-box dialog-password-box">
         <code>{{ data.temporaryPassword }}</code>
         <button mat-icon-button type="button" (click)="copy()" aria-label="Copy password">
           <mat-icon>content_copy</mat-icon>
         </button>
       </div>
-      <p class="hint">Share this password securely. The user must change it on first login.</p>
+      <p class="hint dialog-hint">Share this password securely. The user must change it on first login.</p>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-flat-button color="primary" mat-dialog-close>Done</button>
@@ -43,19 +39,11 @@ export interface TemporaryPasswordDialogData {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        background: #f5f5f5;
-        padding: 0.75rem 1rem;
-        border-radius: 8px;
-        margin: 1rem 0;
       }
       code {
         flex: 1;
         word-break: break-all;
         font-size: 1rem;
-      }
-      .hint {
-        font-size: 0.85rem;
-        color: #666;
       }
     `,
   ],

@@ -12,7 +12,7 @@ import { untilDestroyed } from '../../core/utils/destroy-ref.util';
   template: `
     <app-main-layout
       [menuItems]="menuService.gymAdminMenu()"
-      title="Gym Admin"
+      portalLabel="Gym Admin"
       [userName]="auth.user()?.name ?? ''"
       [userEmail]="auth.user()?.email ?? ''" />
   `,
@@ -25,7 +25,6 @@ export class GymAdminLayoutComponent implements OnInit {
 
   ngOnInit(): void {
     this.branding.ensureLoaded(this.auth.user()?.gymId, 'Gym Admin');
-    this.menuService.loadTenantMenus();
     this.auth.refreshPermissions().pipe(untilDestroyed(this.destroyRef)).subscribe();
   }
 }

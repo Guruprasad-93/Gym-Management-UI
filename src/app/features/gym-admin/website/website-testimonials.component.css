@@ -1,0 +1,16 @@
+@import './website-cms.shared.css';
+
+.form-field--check {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-field--check input {
+  width: auto;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+}

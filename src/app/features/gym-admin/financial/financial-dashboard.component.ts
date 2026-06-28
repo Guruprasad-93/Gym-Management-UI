@@ -39,6 +39,7 @@ import { SaasKpiCardComponent } from '../../../shared/components/saas-kpi-card/s
 import { SaasChartCardComponent } from '../../../shared/components/saas-chart-card/saas-chart-card.component';
 
 import { FinancialDashboard } from '../../../shared/models/financial.models';
+import { sortMonthlyChronologically } from '../../../shared/utils/chart.util';
 
 
 
@@ -212,7 +213,9 @@ export class FinancialDashboardComponent implements OnInit, OnDestroy {
 
     if (this.profitChartRef?.nativeElement && d.monthlyProfitTrend.length) {
 
-      const months = d.monthlyProfitTrend.map((m) => m.monthLabel);
+      const trend = sortMonthlyChronologically(d.monthlyProfitTrend);
+
+      const months = trend.map((m) => m.monthLabel);
 
       this.charts.push(
 
@@ -230,7 +233,7 @@ export class FinancialDashboardComponent implements OnInit, OnDestroy {
 
                 label: 'Revenue',
 
-                data: d.monthlyProfitTrend.map((m) => m.revenue),
+                data: trend.map((m) => m.revenue),
 
                 borderColor: '#12b76a',
 
@@ -246,7 +249,7 @@ export class FinancialDashboardComponent implements OnInit, OnDestroy {
 
                 label: 'Expenses',
 
-                data: d.monthlyProfitTrend.map((m) => m.expenses),
+                data: trend.map((m) => m.expenses),
 
                 borderColor: '#f04438',
 
@@ -262,7 +265,7 @@ export class FinancialDashboardComponent implements OnInit, OnDestroy {
 
                 label: 'Profit',
 
-                data: d.monthlyProfitTrend.map((m) => m.profit),
+                data: trend.map((m) => m.profit),
 
                 borderColor: '#ff6600',
 

@@ -5,12 +5,9 @@
       <p class="saas-page__subtitle">Configure your public gym website</p>
     </div>
     <div class="member-page__actions">
-      @if (settings()?.websiteSlug) {
-        <a class="btn-secondary" [href]="'/website/' + settings()!.websiteSlug" target="_blank" rel="noopener">
-          <mat-icon>open_in_new</mat-icon>
-          Live Preview
-        </a>
-      }
+      <app-website-view-link
+        [slug]="settings()?.websiteSlug || form.value.websiteSlug"
+        [primary]="true" />
       <a class="btn-secondary" routerLink="/gym-admin/website-builder/pages">
         <mat-icon>article</mat-icon>
         Pages
@@ -43,7 +40,7 @@
           {{ s.isPublished ? 'Published' : 'Draft' }}
         </span>
         @if (s.websiteSlug) {
-          <span class="status-strip__url">/website/{{ s.websiteSlug }}</span>
+          <a class="status-strip__url" [routerLink]="['/website', s.websiteSlug]" [queryParams]="{ preview: '1' }">/website/{{ s.websiteSlug }}</a>
         }
       </div>
     }

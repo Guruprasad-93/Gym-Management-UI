@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, catchError, forkJoin, map, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../shared/models/api-response';
 import {
@@ -56,6 +56,27 @@ export class DietService {
 
   assign(dto: AssignDietPlanRequest): Observable<ApiResponse<MemberDietPlanView>> {
     return this.http.post<ApiResponse<MemberDietPlanView>>(`${this.base}/assign`, dto);
+  }
+
+  assignMany(
+    dto: Omit<AssignDietPlanRequest, 'memberId'>,
+    memberIds: number[]
+  ): Observable<{ succeeded: number; failed: number }> {
+    if (memberIds.length === 0) {
+      return of({ succeeded: 0, failed: 0 });
+    }
+    const requests = memberIds.map((memberId) =>
+      this.assign({ ...dto, memberId }).pipe(
+        map((res) => ({ ok: !!res.success })),
+        catchError(() => of({ ok: false }))
+      )
+    );
+    return forkJoin(requests).pipe(
+      map((results) => ({
+        succeeded: results.filter((r) => r.ok).length,
+        failed: results.filter((r) => !r.ok).length,
+      }))
+    );
   }
 
   getMemberDiet(memberId: number): Observable<ApiResponse<MemberDietPlanView>> {

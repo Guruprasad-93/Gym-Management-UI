@@ -6,6 +6,9 @@ import { AuthService } from '../core/services/auth.service';
 import { BrandingService } from '../core/services/branding.service';
 import { getDefaultRouteForUser } from '../core/constants/menu.config';
 
+const REMEMBER_LOGIN_KEY = 'gym_remember_login_id';
+const LEGACY_REMEMBER_EMAIL_KEY = 'gym_remember_email';
+
 const DEFAULT_HERO_BG =
   'url(https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80)';
 
@@ -31,11 +34,15 @@ export class LoginComponent implements OnInit {
   constructor() {
     this.form = this.fb.group({
       loginIdentifier: [
-        localStorage.getItem('gym_remember_login_id') ?? '',
-        [Validators.required, Validators.maxLength(20)],
+        localStorage.getItem(REMEMBER_LOGIN_KEY) ??
+          localStorage.getItem(LEGACY_REMEMBER_EMAIL_KEY) ??
+          '',
+        [Validators.required, Validators.maxLength(100)],
       ],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      rememberMe: [!!localStorage.getItem('gym_remember_login_id')],
+      rememberMe: [
+        !!(localStorage.getItem(REMEMBER_LOGIN_KEY) ?? localStorage.getItem(LEGACY_REMEMBER_EMAIL_KEY)),
+      ],
     });
   }
 
@@ -81,15 +88,20 @@ export class LoginComponent implements OnInit {
 
     this.loading = true;
     const { loginIdentifier, password, rememberMe } = this.form.getRawValue();
+    const trimmedId = (loginIdentifier ?? '').trim();
 
     if (rememberMe) {
-      localStorage.setItem('gym_remember_login_id', loginIdentifier);
+      localStorage.setItem(REMEMBER_LOGIN_KEY, trimmedId);
     } else {
-      localStorage.removeItem('gym_remember_login_id');
+      localStorage.removeItem(REMEMBER_LOGIN_KEY);
     }
 
-    const gymId = this.branding.branding()?.gymId ?? null;
-    this.auth.login({ loginIdentifier: loginIdentifier!, password: password!, gymId }).subscribe({
+    this.auth
+      .login({
+        loginIdentifier: trimmedId,
+        password: password!,
+      })
+      .subscribe({
       next: (response) => {
         this.loading = false;
         if (response.success && response.data) {

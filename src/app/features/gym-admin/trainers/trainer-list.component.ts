@@ -4,11 +4,13 @@ import { RouterModule } from '@angular/router';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, Sort } from '@angular/material/sort';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { TrainerService } from '../../../core/services/trainer.service';
+import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Permissions } from '../../../core/constants/permissions';
@@ -27,6 +29,7 @@ import { AssignMembersDialogComponent } from './assign-members-dialog.component'
     MatSortModule,
     MatDialogModule,
     MatIconModule,
+    MatTooltipModule,
     MatProgressSpinnerModule,
   ],
   templateUrl: './trainer-list.component.html',
@@ -37,7 +40,7 @@ export class TrainerListComponent implements OnInit {
   readonly permissions = Permissions;
   private readonly trainerService = inject(TrainerService);
   private readonly notify = inject(NotificationService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialog = inject(DialogService);
   private readonly fb = inject(FormBuilder);
 
   displayedColumns = ['fullName', 'specialization', 'members', 'status', 'actions'];
@@ -151,15 +154,24 @@ export class TrainerListComponent implements OnInit {
   }
 
   deactivate(trainer: Trainer): void {
-    if (!confirm(`Deactivate trainer "${trainer.fullName ?? trainer.id}"? Assigned members will be unassigned.`)) return;
-    this.trainerService.delete(trainer.id).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.notify.success('Trainer deactivated');
-          this.load();
-        }
-      },
-      error: () => this.notify.error('Deactivation failed'),
-    });
+    this.dialog
+      .confirm({
+        title: 'Deactivate trainer',
+        message: `Deactivate trainer "${trainer.fullName ?? trainer.id}"? Assigned members will be unassigned.`,
+        tone: 'danger',
+        confirmLabel: 'Deactivate',
+      })
+      .subscribe((ok) => {
+        if (!ok) return;
+        this.trainerService.delete(trainer.id).subscribe({
+          next: (res) => {
+            if (res.success) {
+              this.notify.success('Trainer deactivated');
+              this.load();
+            }
+          },
+          error: () => this.notify.error('Deactivation failed'),
+        });
+      });
   }
 }

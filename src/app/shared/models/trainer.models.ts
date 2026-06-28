@@ -3,7 +3,6 @@ export interface Trainer {
   gymId: string;
   userId?: string;
   fullName?: string;
-  loginIdentifier?: string;
   email?: string;
   specialization?: string;
   bio?: string;
@@ -26,7 +25,6 @@ export interface CreateTrainerRequest {
   gymId?: string;
   userId?: string;
   name?: string;
-  loginIdentifier?: string;
   email?: string;
   password?: string;
   specialization?: string;

@@ -1,49 +1,138 @@
-<div class="member-page">
-  <header class="saas-page__header">
-    <div>
-      <h1 class="saas-page__title">Branch Dashboard</h1>
-      <p class="saas-page__subtitle">Performance across all locations</p>
+<div class="branch-dashboard" [style.--branch-count]="items().length || 1">
+  <header class="branch-dashboard__header">
+    <div class="branch-dashboard__title">
+      <h1>Branch Dashboard</h1>
+      <p>{{ items().length }} location{{ items().length === 1 ? '' : 's' }} · this month</p>
     </div>
-    <div class="member-page__actions">
-      <a class="btn-secondary" routerLink="/gym-admin/branches">
+    <nav class="branch-dashboard__nav">
+      <a class="branch-dashboard__nav-link" routerLink="/gym-admin/branches">
         <mat-icon>store</mat-icon>
         Branches
       </a>
-      <a class="btn-secondary" routerLink="/gym-admin/branches/analytics">
+      <a class="branch-dashboard__nav-link" routerLink="/gym-admin/branches/analytics">
         <mat-icon>insights</mat-icon>
         Analytics
       </a>
-    </div>
+    </nav>
   </header>
 
   @if (loading()) {
-    <div class="page-loading">
-      <mat-spinner diameter="36" />
-      <p>Loading branch dashboard…</p>
+    <div class="branch-dashboard__loading">
+      <mat-spinner diameter="32" />
+      <span>Loading…</span>
     </div>
+  } @else if (!items().length) {
+    <p class="branch-dashboard__empty">No branch data available.</p>
   } @else {
-    @for (b of items(); track b.branchId) {
-      <section class="branch-card">
-        <header class="branch-card__head">
-          <div class="item-cell">
-            <span class="item-cell__avatar"><mat-icon>store</mat-icon></span>
-            <div class="item-cell__text">
-              <strong>{{ b.branchName }}</strong>
-              <small>{{ b.memberCount }} members · {{ b.trainerCount }} trainers</small>
-            </div>
+    <section class="summary-strip" aria-label="All branches summary">
+      <div class="summary-strip__head">
+        <mat-icon>hub</mat-icon>
+        <span>All branches</span>
+      </div>
+      <div class="metric-grid metric-grid--summary">
+        <article class="metric" style="--accent: #2e90fa">
+          <mat-icon>groups</mat-icon>
+          <div>
+            <span class="metric__label">Members</span>
+            <strong class="metric__value">{{ totals().memberCount }}</strong>
           </div>
-        </header>
-        <div class="kpi-grid">
-          <app-saas-kpi-card label="Members" [value]="b.memberCount" icon="groups" accent="#2e90fa" />
-          <app-saas-kpi-card label="Revenue" [value]="b.revenueMonth" icon="payments" accent="#12b76a" [isCurrency]="true" />
-          <app-saas-kpi-card label="Expenses" [value]="b.expensesMonth" icon="receipt_long" accent="#f04438" [isCurrency]="true" />
-          <app-saas-kpi-card label="Profit" [value]="b.profitMonth" icon="trending_up" accent="#ff6600" [isCurrency]="true" />
-          <app-saas-kpi-card label="Attendance" [value]="b.attendanceMonth" icon="event_available" accent="#7a5af8" />
-          <app-saas-kpi-card label="Open Leads" [value]="b.leadsOpen" icon="person_search" accent="#f79009" />
-        </div>
-      </section>
-    } @empty {
-      <p class="empty-state">No branch data available.</p>
-    }
+        </article>
+        <article class="metric" style="--accent: #12b76a">
+          <mat-icon>payments</mat-icon>
+          <div>
+            <span class="metric__label">Revenue</span>
+            <strong class="metric__value">{{ totals().revenueMonth | currency:'INR':'symbol':'1.0-0' }}</strong>
+          </div>
+        </article>
+        <article class="metric" style="--accent: #f04438">
+          <mat-icon>receipt_long</mat-icon>
+          <div>
+            <span class="metric__label">Expenses</span>
+            <strong class="metric__value">{{ totals().expensesMonth | currency:'INR':'symbol':'1.0-0' }}</strong>
+          </div>
+        </article>
+        <article class="metric" style="--accent: #ff6600">
+          <mat-icon>trending_up</mat-icon>
+          <div>
+            <span class="metric__label">Profit</span>
+            <strong class="metric__value">{{ totals().profitMonth | currency:'INR':'symbol':'1.0-0' }}</strong>
+          </div>
+        </article>
+        <article class="metric" style="--accent: #7a5af8">
+          <mat-icon>event_available</mat-icon>
+          <div>
+            <span class="metric__label">Attendance</span>
+            <strong class="metric__value">{{ totals().attendanceMonth }}</strong>
+          </div>
+        </article>
+        <article class="metric" style="--accent: #f79009">
+          <mat-icon>person_search</mat-icon>
+          <div>
+            <span class="metric__label">Open leads</span>
+            <strong class="metric__value">{{ totals().leadsOpen }}</strong>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <div class="branch-dashboard__grid">
+      @for (b of items(); track b.branchId) {
+        <section class="branch-card">
+          <header class="branch-card__head">
+            <div class="branch-card__identity">
+              <span class="branch-card__icon"><mat-icon>store</mat-icon></span>
+              <div>
+                <h2>{{ b.branchName }}</h2>
+                <p>{{ b.memberCount }} members · {{ b.trainerCount }} trainers</p>
+              </div>
+            </div>
+          </header>
+          <div class="metric-grid">
+            <article class="metric" style="--accent: #2e90fa">
+              <mat-icon>groups</mat-icon>
+              <div>
+                <span class="metric__label">Members</span>
+                <strong class="metric__value">{{ b.memberCount }}</strong>
+              </div>
+            </article>
+            <article class="metric" style="--accent: #12b76a">
+              <mat-icon>payments</mat-icon>
+              <div>
+                <span class="metric__label">Revenue</span>
+                <strong class="metric__value">{{ b.revenueMonth | currency:'INR':'symbol':'1.0-0' }}</strong>
+              </div>
+            </article>
+            <article class="metric" style="--accent: #f04438">
+              <mat-icon>receipt_long</mat-icon>
+              <div>
+                <span class="metric__label">Expenses</span>
+                <strong class="metric__value">{{ b.expensesMonth | currency:'INR':'symbol':'1.0-0' }}</strong>
+              </div>
+            </article>
+            <article class="metric" style="--accent: #ff6600">
+              <mat-icon>trending_up</mat-icon>
+              <div>
+                <span class="metric__label">Profit</span>
+                <strong class="metric__value">{{ b.profitMonth | currency:'INR':'symbol':'1.0-0' }}</strong>
+              </div>
+            </article>
+            <article class="metric" style="--accent: #7a5af8">
+              <mat-icon>event_available</mat-icon>
+              <div>
+                <span class="metric__label">Attendance</span>
+                <strong class="metric__value">{{ b.attendanceMonth }}</strong>
+              </div>
+            </article>
+            <article class="metric" style="--accent: #f79009">
+              <mat-icon>person_search</mat-icon>
+              <div>
+                <span class="metric__label">Open leads</span>
+                <strong class="metric__value">{{ b.leadsOpen }}</strong>
+              </div>
+            </article>
+          </div>
+        </section>
+      }
+    </div>
   }
 </div>

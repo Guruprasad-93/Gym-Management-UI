@@ -4,6 +4,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
@@ -21,6 +22,7 @@ import { Member } from '../../../shared/models/member.models';
     MatPaginatorModule,
     MatProgressSpinnerModule,
     MatIconModule,
+    MatTooltipModule,
     RouterModule,
   ],
   templateUrl: './trainer-members.component.html',

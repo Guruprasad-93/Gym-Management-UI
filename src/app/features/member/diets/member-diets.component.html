@@ -17,11 +17,22 @@
   <section class="panel-shell">
     <div class="panel-shell__head"><h2>Log Today</h2><p>Record meals and compliance for today</p></div>
     <div class="panel-shell__body">
+      @if (planLoading()) {
+        <p class="plan-status plan-status--loading">Loading your diet plan…</p>
+      } @else if (activePlanName()) {
+        <p class="plan-status plan-status--assigned">
+          <mat-icon>restaurant</mat-icon>
+          Diet Plan: <strong>{{ activePlanName() }}</strong>
+        </p>
+      } @else {
+        <p class="plan-status plan-status--missing">No active diet plan is assigned. Contact your gym to get a plan.</p>
+      }
       <form [formGroup]="form" (ngSubmit)="save()" class="form-grid">
-        <label class="form-field"><span>Plan ID</span><input type="number" formControlName="dietPlanId" /></label>
         <label class="form-field"><span>Meals Completed</span><input type="number" formControlName="mealsCompleted" /></label>
         <label class="form-field"><span>Compliance %</span><input type="number" formControlName="compliancePercentage" /></label>
-        <div class="form-actions"><button class="btn-primary" type="submit">Log Today</button></div>
+        <div class="form-actions">
+          <button class="btn-primary" type="submit" [disabled]="!activePlanId() || planLoading()">Log Today</button>
+        </div>
       </form>
     </div>
   </section>

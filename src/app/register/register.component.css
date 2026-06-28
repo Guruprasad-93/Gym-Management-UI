@@ -1,2 +1,19 @@
-/* Template CSS is loaded globally from the Ahana plugin assets. */
+.password-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 
+.password-input input {
+  flex: 1;
+}
+
+.password-toggle {
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 4px;
+  padding: 0.35rem 0.65rem;
+  cursor: pointer;
+  font-size: 0.8125rem;
+}

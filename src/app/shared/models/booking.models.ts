@@ -15,6 +15,30 @@ export interface ClassSchedule {
   createdDate: string;
 }
 
+export interface CreateClassScheduleRequest {
+  branchId: number;
+  className: string;
+  description?: string;
+  trainerId: number;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  capacity: number;
+}
+
+export interface UpdateClassScheduleRequest extends CreateClassScheduleRequest {
+  id: number;
+  status: string;
+}
+
+export interface BookingSettings {
+  gymId: string;
+  maxBookingsPerDay: number;
+  allowWaitlist: boolean;
+  cancellationWindowHours: number;
+  reminderMinutesBefore: number;
+}
+
 export interface AvailableSlot {
   classScheduleId: number;
   gymId: string;
@@ -76,3 +100,23 @@ export interface TrainerScheduleItem {
 }
 
 export const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+export function bookingStatusBadgeClass(status: string): string {
+  switch (status) {
+    case 'Booked':
+    case 'CheckedIn':
+      return 'status-badge--confirmed';
+    case 'Completed':
+      return 'status-badge--completed';
+    case 'Cancelled':
+      return 'status-badge--cancelled';
+    case 'NoShow':
+      return 'status-badge--noshow';
+    default:
+      return 'status-badge--muted';
+  }
+}
+
+export function canCancelBooking(status: string): boolean {
+  return status === 'Booked';
+}

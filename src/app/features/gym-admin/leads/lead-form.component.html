@@ -1,0 +1,140 @@
+<div class="member-page lead-form-page">
+  <header class="saas-page__header">
+    <div>
+      <a class="lead-form-back" [routerLink]="backLink()">
+        <mat-icon>arrow_back</mat-icon>
+        {{ isEdit() ? 'Back to lead' : 'Back to leads' }}
+      </a>
+      <h1 class="saas-page__title">{{ isEdit() ? 'Edit Lead' : 'Add Lead' }}</h1>
+      <p class="saas-page__subtitle">
+        {{ isEdit() ? 'Update prospect details and pipeline status' : 'Capture a new enquiry and assign follow-up' }}
+      </p>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="page-loading">
+      <mat-spinner diameter="36" />
+      <p>Loading lead…</p>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="submit()" class="lead-form">
+      <section class="panel-shell">
+        <div class="panel-shell__head">
+          <h2>Contact Information</h2>
+          <p>Basic details to reach and identify the prospect</p>
+        </div>
+        <div class="panel-shell__body">
+          <div class="form-grid">
+            <label class="form-field">
+              <span>Full name *</span>
+              <input type="text" formControlName="fullName" placeholder="e.g. Rahul Sharma" />
+            </label>
+            <div class="form-field form-field--wide">
+              <span>Mobile *</span>
+              <app-phone-field formControlName="mobileNumber" label="Mobile number" [required]="true" />
+            </div>
+            <label class="form-field">
+              <span>Email</span>
+              <input type="email" formControlName="email" placeholder="Optional" />
+            </label>
+            <label class="form-field">
+              <span>Gender</span>
+              <select formControlName="gender">
+                <option value="">Not specified</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+            <label class="form-field">
+              <span>Age</span>
+              <input type="number" formControlName="age" min="1" max="120" placeholder="Years" />
+            </label>
+            <label class="form-field form-field--wide">
+              <span>Address</span>
+              <textarea formControlName="address" rows="2" placeholder="City, area, or full address"></textarea>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-shell">
+        <div class="panel-shell__head">
+          <h2>Lead Details</h2>
+          <p>How they found you and where they are in the pipeline</p>
+        </div>
+        <div class="panel-shell__body">
+          <div class="form-grid">
+            <label class="form-field">
+              <span>Lead source *</span>
+              <select formControlName="leadSource">
+                @for (src of sources; track src) {
+                  <option [value]="src">{{ sourceLabel(src) }}</option>
+                }
+              </select>
+            </label>
+            <label class="form-field">
+              <span>Status *</span>
+              <select formControlName="status">
+                @for (s of statuses; track s) {
+                  <option [value]="s">{{ statusLabel(s) }}</option>
+                }
+              </select>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-shell">
+        <div class="panel-shell__head">
+          <h2>Assignment</h2>
+          <p>Membership interest and trainer ownership</p>
+        </div>
+        <div class="panel-shell__body">
+          <div class="form-grid">
+            <label class="form-field">
+              <span>Interested plan</span>
+              <select formControlName="interestedPlanId">
+                <option [ngValue]="null">None</option>
+                @for (plan of plans(); track plan.id) {
+                  <option [ngValue]="plan.id">{{ plan.name }}</option>
+                }
+              </select>
+            </label>
+            <label class="form-field">
+              <span>Assigned trainer</span>
+              <select formControlName="assignedTrainerId">
+                <option [ngValue]="null">Unassigned</option>
+                @for (t of trainers(); track t.id) {
+                  <option [ngValue]="t.id">{{ t.fullName }}</option>
+                }
+              </select>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-shell">
+        <div class="panel-shell__head">
+          <h2>Notes</h2>
+          <p>Internal remarks for your team</p>
+        </div>
+        <div class="panel-shell__body">
+          <label class="form-field form-field--wide">
+            <span>Notes</span>
+            <textarea formControlName="notes" rows="4" placeholder="Goals, preferences, follow-up context…"></textarea>
+          </label>
+        </div>
+      </section>
+
+      <footer class="lead-form__actions">
+        <a class="btn-secondary" [routerLink]="backLink()">Cancel</a>
+        <button class="btn-primary" type="submit" [disabled]="form.invalid || saving()">
+          <mat-icon>{{ isEdit() ? 'save' : 'person_add' }}</mat-icon>
+          {{ saving() ? 'Saving…' : isEdit() ? 'Save Changes' : 'Create Lead' }}
+        </button>
+      </footer>
+    </form>
+  }
+</div>

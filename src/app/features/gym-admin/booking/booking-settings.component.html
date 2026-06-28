@@ -1,0 +1,55 @@
+<div class="member-page">
+  <header class="saas-page__header">
+    <div>
+      <a class="schedule-editor-back" routerLink="/gym-admin/schedules">
+        <mat-icon>arrow_back</mat-icon>
+        Back to schedules
+      </a>
+      <h1 class="saas-page__title">Booking Settings</h1>
+      <p class="saas-page__subtitle">Configure booking limits, waitlist, and reminders</p>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="page-loading">
+      <mat-spinner diameter="36" />
+      <p>Loading settings…</p>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="save()" class="panel-shell form-panel">
+      <div class="panel-shell__head">
+        <h2>Reservation rules</h2>
+        <p>Applied when members book class slots</p>
+      </div>
+      <div class="panel-shell__body">
+        <div class="form-grid">
+          <label class="form-field">
+            <span>Max bookings per member per day</span>
+            <input type="number" formControlName="maxBookingsPerDay" min="1" max="20" />
+          </label>
+          <label class="form-field">
+            <span>Cancellation window (hours before class)</span>
+            <input type="number" formControlName="cancellationWindowHours" min="0" max="72" />
+          </label>
+          <label class="form-field">
+            <span>Reminder (minutes before class)</span>
+            <input type="number" formControlName="reminderMinutesBefore" min="0" max="1440" />
+          </label>
+          <label class="form-field form-field--checkbox">
+            <span>Waitlist</span>
+            <label class="checkbox-field">
+              <input type="checkbox" formControlName="allowWaitlist" />
+              <span>Allow waitlist when class is full</span>
+            </label>
+          </label>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" type="submit" [disabled]="form.invalid || saving()">
+            <mat-icon>save</mat-icon>
+            Save settings
+          </button>
+        </div>
+      </div>
+    </form>
+  }
+</div>

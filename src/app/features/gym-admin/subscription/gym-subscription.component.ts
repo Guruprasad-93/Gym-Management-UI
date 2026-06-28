@@ -102,7 +102,7 @@ export class GymSubscriptionComponent implements OnInit {
 
     this.paying.set(true);
 
-    this.saas.createPaymentOrder(planId, billingCycle).subscribe({
+    this.saas.createPaymentOrderLegacy(planId, billingCycle).subscribe({
 
       next: async (res) => {
 

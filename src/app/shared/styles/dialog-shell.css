@@ -1,0 +1,403 @@
+/*
+  Unified popup / dialog styling — Material dialogs, confirm dialogs,
+  custom modal overlays, and image preview lightboxes.
+*/
+
+:root {
+  --dialog-overlay: rgba(16, 24, 40, 0.48);
+  --dialog-surface: #fff;
+  --dialog-radius: 16px;
+  --dialog-shadow: 0 20px 48px rgba(16, 24, 40, 0.18);
+  --dialog-border: #eef0f4;
+  --dialog-title-color: #101828;
+  --dialog-text-color: #475467;
+  --dialog-muted: #667085;
+  --dialog-head-padding: 1.25rem 1.5rem;
+  --dialog-body-padding: 1.25rem 1.5rem;
+  --dialog-foot-padding: 1rem 1.5rem 1.25rem;
+}
+
+/* ——— Material dialog backdrop ——— */
+.cdk-overlay-dark-backdrop {
+  background: var(--dialog-overlay) !important;
+  backdrop-filter: blur(2px);
+}
+
+/* ——— Material dialog surface ——— */
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: var(--dialog-radius) !important;
+  box-shadow: var(--dialog-shadow) !important;
+  border: 1px solid var(--dialog-border);
+  overflow: hidden;
+}
+
+.app-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
+  padding: 0;
+}
+
+.mat-mdc-dialog-title,
+.app-dialog .mat-mdc-dialog-title {
+  margin: 0 !important;
+  padding: var(--dialog-head-padding) !important;
+  font-size: 1.0625rem !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+  color: var(--dialog-title-color) !important;
+  border-bottom: 1px solid var(--dialog-border);
+  letter-spacing: -0.01em;
+  background: linear-gradient(180deg, rgba(255, 102, 0, 0.06) 0%, #fff 100%);
+  position: relative;
+}
+
+.app-dialog .mat-mdc-dialog-title::before,
+.modal-card__head::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--brand-primary, #ff6600);
+  border-radius: var(--dialog-radius) 0 0 0;
+}
+
+.mat-mdc-dialog-content,
+.app-dialog .mat-mdc-dialog-content {
+  padding: var(--dialog-body-padding) !important;
+  max-height: min(70vh, 640px) !important;
+  color: var(--dialog-text-color);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.mat-mdc-dialog-content p {
+  margin: 0 0 0.75rem;
+}
+
+.mat-mdc-dialog-content p:last-child {
+  margin-bottom: 0;
+}
+
+.mat-mdc-dialog-actions,
+.app-dialog .mat-mdc-dialog-actions {
+  justify-content: flex-end !important;
+  gap: 0.625rem;
+  padding: var(--dialog-foot-padding) !important;
+  margin: 0 !important;
+  min-height: unset !important;
+  border-top: 1px solid var(--dialog-border);
+  background: #fcfcfd;
+}
+
+.mat-mdc-dialog-actions .mat-mdc-button-base {
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0;
+}
+
+.mat-mdc-dialog-actions .mat-mdc-button:not(.mat-mdc-unelevated-button):not(.mat-mdc-raised-button):not(.mat-mdc-outlined-button) {
+  color: var(--dialog-muted);
+}
+
+.mat-mdc-dialog-actions .mat-mdc-unelevated-button:not(:disabled) {
+  box-shadow: 0 1px 2px rgba(255, 102, 0, 0.22);
+}
+
+/* Form layouts inside dialogs */
+.dialog-form-grid,
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: min(360px, calc(95vw - 3rem));
+}
+
+.dialog-form-grid .full-width,
+.form-grid .full-width {
+  width: 100%;
+}
+
+.app-dialog .mat-mdc-form-field {
+  width: 100%;
+}
+
+/* Password reveal box (temporary password dialog, etc.) */
+.dialog-password-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f9fafb;
+  border: 1px solid var(--dialog-border);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  margin: 0.75rem 0;
+}
+
+.dialog-password-box code {
+  flex: 1;
+  word-break: break-all;
+  font-size: 0.9375rem;
+  color: var(--dialog-title-color);
+}
+
+.dialog-hint {
+  font-size: 0.8125rem;
+  color: var(--dialog-muted);
+  line-height: 1.45;
+}
+
+/* ——— Confirm dialog ——— */
+.app-dialog--confirm .mat-mdc-dialog-container .mdc-dialog__surface {
+  max-width: 420px;
+}
+
+.confirm-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: var(--dialog-head-padding);
+  border-bottom: 1px solid var(--dialog-border);
+  background: linear-gradient(180deg, rgba(255, 102, 0, 0.06) 0%, #fff 100%);
+  position: relative;
+}
+
+.confirm-dialog__header::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--brand-primary, #ff6600);
+  border-radius: var(--dialog-radius) 0 0 0;
+}
+
+.confirm-dialog__icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.confirm-dialog__icon mat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.confirm-dialog--danger .confirm-dialog__icon {
+  background: #fef3f2;
+  color: #d92d20;
+}
+
+.confirm-dialog__header h2 {
+  margin: 0.35rem 0 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--dialog-title-color);
+  line-height: 1.35;
+}
+
+.app-dialog--confirm .mat-mdc-dialog-title {
+  display: none;
+}
+
+.confirm-dialog__message {
+  margin: 0;
+  color: var(--dialog-text-color);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+/* ——— Custom modal overlays (expense, payroll, leads) ——— */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--dialog-overlay);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: dialog-fade-in 0.18s ease;
+}
+
+.modal-card {
+  background: var(--dialog-surface);
+  border-radius: var(--dialog-radius);
+  width: min(520px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: var(--dialog-shadow);
+  border: 1px solid var(--dialog-border);
+  animation: dialog-slide-up 0.22s ease;
+}
+
+.modal-card--narrow {
+  width: min(480px, 100%);
+}
+
+.modal-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: var(--dialog-head-padding);
+  border-bottom: 1px solid var(--dialog-border);
+  background: linear-gradient(180deg, rgba(255, 102, 0, 0.06) 0%, #fff 100%);
+  position: relative;
+}
+
+.modal-card__head h2 {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--dialog-title-color);
+}
+
+.modal-card__close {
+  border: none;
+  background: #f2f4f7;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--dialog-muted);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.modal-card__close:hover {
+  background: #eaecf0;
+  color: var(--dialog-title-color);
+}
+
+.modal-card__body {
+  padding: var(--dialog-body-padding);
+}
+
+.modal-card__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.625rem;
+  padding: var(--dialog-foot-padding);
+  border-top: 1px solid var(--dialog-border);
+  background: #fcfcfd;
+}
+
+/* ——— Image preview lightbox ——— */
+.preview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(4px);
+  animation: dialog-fade-in 0.18s ease;
+}
+
+.preview-dialog {
+  position: relative;
+  max-width: min(920px, 96vw);
+  max-height: 90vh;
+  background: var(--dialog-surface);
+  border-radius: var(--dialog-radius);
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  animation: dialog-slide-up 0.22s ease;
+}
+
+.preview-dialog__close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  color: #344054;
+  box-shadow: 0 2px 8px rgba(16, 24, 40, 0.12);
+  transition: transform 0.15s ease;
+}
+
+.preview-dialog__close:hover {
+  transform: scale(1.05);
+}
+
+.preview-dialog__img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(90vh - 56px);
+  object-fit: contain;
+  background: #0f172a;
+}
+
+.preview-dialog__caption {
+  margin: 0;
+  padding: 0.875rem 1rem;
+  font-size: 0.9375rem;
+  color: #344054;
+  border-top: 1px solid var(--dialog-border);
+}
+
+@keyframes dialog-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dialog-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --dialog-head-padding: 1rem 1.125rem;
+    --dialog-body-padding: 1rem 1.125rem;
+    --dialog-foot-padding: 0.875rem 1.125rem 1rem;
+  }
+
+  .mat-mdc-dialog-actions {
+    flex-direction: column-reverse;
+    align-items: stretch !important;
+  }
+
+  .mat-mdc-dialog-actions .mat-mdc-button-base {
+    width: 100%;
+  }
+
+  .modal-card__foot {
+    flex-direction: column-reverse;
+  }
+
+  .modal-card__foot .btn-primary,
+  .modal-card__foot .btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+}

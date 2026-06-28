@@ -31,7 +31,8 @@
             [gymId]="gymId"
             [size]="160"
             [circle]="false"
-            uploadLabel="Upload logo" />
+            uploadLabel="Upload logo"
+            (photoChanged)="onLogoChanged($event)" />
         </div>
       </section>
 

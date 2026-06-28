@@ -1,0 +1,272 @@
+:host {
+  display: block;
+}
+
+.gym-page {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.gym-page__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.gym-page__title {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.2vw, 1.875rem);
+  font-weight: 700;
+  color: #101828;
+  letter-spacing: -0.02em;
+}
+
+.gym-page__subtitle {
+  margin: 0.35rem 0 0;
+  color: #667085;
+  font-size: 0.9375rem;
+}
+
+.gym-page__add-btn,
+.gym-page__back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: none;
+  border-radius: 10px;
+  padding: 0.7rem 1.125rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gym-page__add-btn {
+  background: #ff6600;
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(255, 102, 0, 0.25);
+}
+
+.gym-page__back-btn {
+  background: #fff;
+  color: #344054;
+  border: 1px solid #d0d5dd;
+}
+
+.gym-page__add-btn:hover,
+.gym-page__back-btn:hover {
+  opacity: 0.92;
+}
+
+.gym-page__add-btn mat-icon,
+.gym-page__back-btn mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.table-shell,
+.form-card {
+  background: #fff;
+  border: 1px solid #eef0f4;
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  overflow: hidden;
+}
+
+.form-card {
+  margin-bottom: 1.25rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.form-card__title {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #101828;
+}
+
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f2f4f7;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 240px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.search-box input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 0.875rem;
+  color: #101828;
+  background: transparent;
+}
+
+.search-box mat-icon {
+  color: #98a2b3;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.filter-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: #667085;
+}
+
+.filter-select select {
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  padding: 0.45rem 1.75rem 0.45rem 0.65rem;
+  font-size: 0.875rem;
+  color: #344054;
+  background: #fff;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid #f2f4f7;
+  flex-wrap: wrap;
+}
+
+.table-footer__summary {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #667085;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-badge--active {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.status-badge--inactive {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.trial-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.row-actions__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #667085;
+  cursor: pointer;
+}
+
+.row-actions__btn:hover {
+  background: #f2f4f7;
+  color: #344054;
+}
+
+.row-actions__btn--success {
+  color: #027a48;
+}
+
+.row-actions__btn--warn {
+  color: #b42318;
+}
+
+.row-actions__btn mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.validation-banner {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #fda29b;
+  background: #fef3f2;
+  color: #b42318;
+  font-size: 0.875rem;
+}
+
+.validation-banner ul {
+  margin: 0.35rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.empty-row td {
+  text-align: center;
+  color: #667085;
+  padding: 2rem 1rem;
+}
